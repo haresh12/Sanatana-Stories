@@ -1,12 +1,11 @@
-// src/components/Signup.tsx
-
 import React, { useState, useEffect } from 'react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig';
+import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { auth, googleProvider } from '../firebaseConfig';
 import { useNavigate, Link } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Box, Paper, Avatar } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Paper, Avatar, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import GoogleIcon from '@mui/icons-material/Google';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../store/authSlice';
 import { RootState } from '../store';
@@ -14,6 +13,7 @@ import { RootState } from '../store';
 const Signup: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
@@ -31,7 +31,17 @@ const Signup: React.FC = () => {
       dispatch(setUser(userCredential.user));
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error signing up:', error);
+      setError('Oh no! Something went wrong. Are you sure this email isn’t already taken?');
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      dispatch(setUser(result.user));
+      navigate('/dashboard');
+    } catch (error) {
+      setError('Google Sign-In failed. Please try again.');
     }
   };
 
@@ -40,12 +50,13 @@ const Signup: React.FC = () => {
       <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
         <Paper elevation={10} style={{ padding: '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <Avatar style={{ margin: '10px', backgroundColor: '#4e54c8' }}>
+            <Avatar style={{ margin: '10px', backgroundColor: '#ff5722' }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography component="h1" variant="h5" style={{ color: '#4e54c8' }}>
+            <Typography component="h1" variant="h5" style={{ color: '#ff5722' }}>
               Sign Up
             </Typography>
+            {error && <Alert severity="error" style={{ marginTop: '10px' }}>{error}</Alert>}
             <form onSubmit={handleSignup} style={{ marginTop: '20px', width: '100%' }}>
               <TextField
                 variant="outlined"
@@ -59,6 +70,30 @@ const Signup: React.FC = () => {
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                InputProps={{
+                  style: {
+                    color: '#000'
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                  },
+                  '& .MuiInputLabel-outlined': {
+                    color: '#ff5722',
+                  },
+                  '& .MuiInputLabel-outlined.Mui-focused': {
+                    color: '#ff5722',
+                  },
+                }}
               />
               <TextField
                 variant="outlined"
@@ -72,6 +107,30 @@ const Signup: React.FC = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                InputProps={{
+                  style: {
+                    color: '#000'
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                  },
+                  '& .MuiInputLabel-outlined': {
+                    color: '#ff5722',
+                  },
+                  '& .MuiInputLabel-outlined.Mui-focused': {
+                    color: '#ff5722',
+                  },
+                }}
               />
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%' }}>
                 <Button
@@ -80,7 +139,7 @@ const Signup: React.FC = () => {
                   fullWidth
                   style={{
                     marginTop: '20px',
-                    backgroundColor: '#4e54c8',
+                    backgroundColor: '#ff5722',
                     color: '#fff',
                     borderRadius: '50px',
                     padding: '10px 0',
@@ -92,7 +151,26 @@ const Signup: React.FC = () => {
                 </Button>
               </motion.div>
               <Box mt={2} textAlign="center">
-                <Link to="/" style={{ textDecoration: 'none', color: '#4e54c8' }}>
+                <Typography variant="body2" style={{ color: '#ff5722' }}>or</Typography>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', marginTop: '10px' }}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    startIcon={<GoogleIcon />}
+                    onClick={handleGoogleSignup}
+                    style={{
+                      borderColor: '#ff5722',
+                      color: '#ff5722',
+                      borderRadius: '50px',
+                      padding: '10px 0',
+                      fontSize: '16px',
+                      textTransform: 'none',
+                    }}
+                  >
+                    Sign Up with Google
+                  </Button>
+                </motion.div>
+                <Link to="/" style={{ textDecoration: 'none', color: '#ff5722', marginTop: '20px', display: 'block' }}>
                   Already have an account? Login
                 </Link>
               </Box>

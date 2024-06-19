@@ -1,28 +1,26 @@
-/* src/index.css */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
-  background: linear-gradient(-45deg, #4e54c8, #8f94fb, #a29bfe, #74ebd5);
-  background-size: 400% 400%;
-  animation: gradientBG 15s ease infinite;
+  background: url('https://firebasestorage.googleapis.com/v0/b/sanatan-stories-c19c9.appspot.com/o/DALL%C2%B7E%202024-06-20%2000.24.14%20-%20A%20serene%20and%20divine%20background%20image%20depicting%20Hindu%20gods%20and%20culture.%20The%20image%20should%20feature%20a%20blend%20of%20vibrant%20colors%2C%20with%20sacred%20symbols%20like%20th.webp?alt=media&token=c8c2a07d-79ee-4d20-997c-25752d51cd32') no-repeat center center fixed;
+  background-size: cover;
   color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  position: relative;
 }
 
-@keyframes gradientBG {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Adjust the overlay color and opacity as needed */
+  z-index: 1;
 }
 
 #root {
@@ -30,4 +28,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2;
+  position: relative;
 }

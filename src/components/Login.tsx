@@ -7,10 +7,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box, Paper, Avatar, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import GoogleIcon from '@mui/icons-material/Google';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../store/authSlice';
 import { RootState } from '../store';
-import GoogleIcon from '@mui/icons-material/Google';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -52,10 +52,10 @@ const Login: React.FC = () => {
       <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
         <Paper elevation={10} style={{ padding: '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <Avatar style={{ margin: '10px', backgroundColor: '#4e54c8' }}>
+            <Avatar style={{ margin: '10px', backgroundColor: '#ff5722' }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography component="h1" variant="h5" style={{ color: '#4e54c8' }}>
+            <Typography component="h1" variant="h5" style={{ color: '#ff5722' }}>
               Login
             </Typography>
             {error && <Alert severity="error" style={{ marginTop: '10px' }}>{error}</Alert>}
@@ -72,6 +72,30 @@ const Login: React.FC = () => {
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                InputProps={{
+                  style: {
+                    color: '#000'
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                  },
+                  '& .MuiInputLabel-outlined': {
+                    color: '#ff5722',
+                  },
+                  '& .MuiInputLabel-outlined.Mui-focused': {
+                    color: '#ff5722',
+                  },
+                }}
               />
               <TextField
                 variant="outlined"
@@ -85,6 +109,30 @@ const Login: React.FC = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                InputProps={{
+                  style: {
+                    color: '#000'
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                  },
+                  '& .MuiInputLabel-outlined': {
+                    color: '#ff5722',
+                  },
+                  '& .MuiInputLabel-outlined.Mui-focused': {
+                    color: '#ff5722',
+                  },
+                }}
               />
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%' }}>
                 <Button
@@ -93,7 +141,7 @@ const Login: React.FC = () => {
                   fullWidth
                   style={{
                     marginTop: '20px',
-                    backgroundColor: '#4e54c8',
+                    backgroundColor: '#ff5722',
                     color: '#fff',
                     borderRadius: '50px',
                     padding: '10px 0',
@@ -105,7 +153,7 @@ const Login: React.FC = () => {
                 </Button>
               </motion.div>
               <Box mt={2} textAlign="center">
-                <Typography variant="body2" style={{ color: '#4e54c8' }}>or</Typography>
+                <Typography variant="body2" style={{ color: '#ff5722' }}>or</Typography>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', marginTop: '10px' }}>
                   <Button
                     variant="outlined"
@@ -113,8 +161,8 @@ const Login: React.FC = () => {
                     startIcon={<GoogleIcon />}
                     onClick={handleGoogleLogin}
                     style={{
-                      borderColor: '#4e54c8',
-                      color: '#4e54c8',
+                      borderColor: '#ff5722',
+                      color: '#ff5722',
                       borderRadius: '50px',
                       padding: '10px 0',
                       fontSize: '16px',
@@ -124,7 +172,7 @@ const Login: React.FC = () => {
                     Login with Google
                   </Button>
                 </motion.div>
-                <Link to="/signup" style={{ textDecoration: 'none', color: '#4e54c8', marginTop: '20px', display: 'block' }}>
+                <Link to="/signup" style={{ textDecoration: 'none', color: '#ff5722', marginTop: '20px', display: 'block' }}>
                   Don't have an account? Sign Up
                 </Link>
               </Box>
