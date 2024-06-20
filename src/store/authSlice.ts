@@ -1,3 +1,5 @@
+// src/store/authSlice.ts
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from 'firebase/auth';
 
@@ -16,8 +18,11 @@ const authSlice = createSlice({
     setUser(state, action: PayloadAction<User | null>) {
       state.currentUser = action.payload;
     },
+    logout(state) {
+      state.currentUser = null;
+    },
   },
 });
 
-export const { setUser } = authSlice.actions;
+export const { setUser, logout } = authSlice.actions;
 export default authSlice.reducer;
