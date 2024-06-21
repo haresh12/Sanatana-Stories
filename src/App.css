@@ -36,3 +36,21 @@
     transform: rotate(360deg);
   }
 }
+
+@keyframes moving-border {
+  0% {
+    border-color: transparent;
+  }
+  50% {
+    border-color: gold;
+  }
+  100% {
+    border-color: transparent;
+  }
+}
+
+.moving-border {
+  animation: moving-border 2s linear infinite;
+  border: 2px solid transparent;
+  border-radius: 15px; /* Match the borderRadius in your JSX */
+}
