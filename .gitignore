@@ -22,4 +22,6 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 src/firebaseConfig.ts
+firebaseAdmin.ts
 .env
+sanatan-stories-c19c9-firebase-adminsdk-midti-6fa55e3194.json
