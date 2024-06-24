@@ -1,6 +1,8 @@
+// src/components/Signup.tsx
+
 import React, { useState, useEffect } from 'react';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider } from '../firebaseConfig';
+import { auth, googleProvider, db } from '../firebaseConfig'; // Import db from firebaseConfig
 import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box, Paper, Avatar, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -9,6 +11,7 @@ import GoogleIcon from '@mui/icons-material/Google';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../store/authSlice';
 import { RootState } from '../store';
+import { doc, setDoc } from 'firebase/firestore'; // Import Firestore functions
 
 const Signup: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -28,7 +31,16 @@ const Signup: React.FC = () => {
     e.preventDefault();
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      dispatch(setUser(userCredential.user));
+      const user = userCredential.user;
+
+      // Add user to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        createdAt: new Date().toISOString()
+      });
+
+      dispatch(setUser(user));
       navigate('/dashboard');
     } catch (error) {
       setError('Oh no! Something went wrong. Are you sure this email isn’t already taken?');
@@ -38,6 +50,15 @@ const Signup: React.FC = () => {
   const handleGoogleSignup = async () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+
+      // Add user to Firestore
+      await setDoc(doc(db, 'users', user.uid), {
+        uid: user.uid,
+        email: user.email,
+        createdAt: new Date().toISOString()
+      });
+
       dispatch(setUser(result.user));
       navigate('/dashboard');
     } catch (error) {
@@ -46,7 +67,17 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container
+      component="main"
+      maxWidth="xs"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+      }}
+    >
       <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
         <Paper elevation={10} style={{ padding: '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
           <Box display="flex" flexDirection="column" alignItems="center">
