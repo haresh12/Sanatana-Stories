@@ -5,17 +5,17 @@ interface Message {
     message: string;
 }
 
-interface God {
-    id: string;
-    name: string;
-    image: string;
-    description: string;
-}
-
 interface ChatState {
     godName: string;
     messages: Message[];
     gods: God[];
+}
+
+interface God {
+    id: string;
+    name: string;
+    description: string;
+    image: string;
 }
 
 const initialState: ChatState = {
@@ -31,17 +31,17 @@ const chatSlice = createSlice({
         setGodName(state, action: PayloadAction<string>) {
             state.godName = action.payload;
         },
-        setGods: (state, action: PayloadAction<God[]>) => {
-            state.gods = action.payload;
-        },
         setMessages(state, action: PayloadAction<Message[]>) {
             state.messages = action.payload;
         },
         addMessage(state, action: PayloadAction<Message>) {
             state.messages.push(action.payload);
         },
-        setGods: (state, action: PayloadAction<God[]>) => {
+        setGods(state, action: PayloadAction<God[]>) {
             state.gods = action.payload;
+        },
+        clearGods(state) {
+            state.gods = [];
         },
         clearChat(state) {
             state.godName = '';
@@ -50,5 +50,5 @@ const chatSlice = createSlice({
     },
 });
 
-export const { setGodName, setMessages, addMessage, clearChat, setGods, clearGods } = chatSlice.actions;
+export const { setGodName, setMessages, addMessage, setGods, clearChat, clearGods } = chatSlice.actions;
 export default chatSlice.reducer;

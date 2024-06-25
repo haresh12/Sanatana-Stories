@@ -5,37 +5,39 @@ import { collection, getDocs } from 'firebase/firestore';
 import { God } from '../types/God';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { setGodName, setMessages, setGods } from '../store/chatSlice';
 import { RootState } from '../store';
+import { setGodName, setMessages, setGods,clearGods } from '../store/chatSlice';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
+import { motion } from 'framer-motion';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
 const TalkToGod = () => {
-  const gods = useSelector((state: RootState) => state.chat.gods);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const gods = useSelector((state: RootState) => state.chat.gods) || [];
 
   useEffect(() => {
     const fetchGods = async () => {
-      if (gods.length === 0) {
-        const godsCollection = collection(db, 'gods');
-        const godsSnapshot = await getDocs(godsCollection);
-        const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
-        dispatch(setGods(godsList));
-      }
+      const godsCollection = collection(db, 'gods');
+      const godsSnapshot = await getDocs(godsCollection);
+      const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
+      dispatch(setGods(godsList));
     };
-    fetchGods();
-  }, [gods, dispatch]);
+
+    if (gods.length === 0) {
+      fetchGods();
+    }
+  }, [dispatch, gods.length]);
 
   const handleCardClick = async (god: God) => {
     setLoading(true);
     const handleChat = httpsCallable(functions, 'handleChat');
     const response = await handleChat({ userId: "someUserId", godName: god.name, message: '' });
     const responseData = response.data as { message: string, welcomeMessage: string };
-    
+
     dispatch(setGodName(god.name));
     dispatch(setMessages([{ role: 'model', message: responseData.welcomeMessage }]));
     
@@ -115,7 +117,7 @@ const TalkToGod = () => {
       </Grid>
       <Modal open={loading}>
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <CircularProgress />
+          <CircularProgress  color='success'/>
           <Typography variant="h6" sx={{ color: '#fff', mt: 2 }}>
             Initiating chat...
           </Typography>
