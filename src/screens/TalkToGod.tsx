@@ -1,26 +1,47 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, Card, CardContent, Typography, Avatar, Box } from '@mui/material';
+import { Container, Grid, Card, CardContent, Typography, Avatar, Box, Modal, CircularProgress } from '@mui/material';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
 import { God } from '../types/God';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setGodName, setMessages, setGods } from '../store/chatSlice';
+import { RootState } from '../store';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebaseConfig';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
 const TalkToGod = () => {
-  const [gods, setGods] = useState<God[]>([]);
+  const gods = useSelector((state: RootState) => state.chat.gods);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchGods = async () => {
-      const godsCollection = collection(db, 'gods');
-      const godsSnapshot = await getDocs(godsCollection);
-      const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
-      setGods(godsList);
+      if (gods.length === 0) {
+        const godsCollection = collection(db, 'gods');
+        const godsSnapshot = await getDocs(godsCollection);
+        const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
+        dispatch(setGods(godsList));
+      }
     };
-
     fetchGods();
-  }, []);
+  }, [gods, dispatch]);
+
+  const handleCardClick = async (god: God) => {
+    setLoading(true);
+    const handleChat = httpsCallable(functions, 'handleChat');
+    const response = await handleChat({ userId: "someUserId", godName: god.name, message: '' });
+    const responseData = response.data as { message: string, welcomeMessage: string };
+    
+    dispatch(setGodName(god.name));
+    dispatch(setMessages([{ role: 'model', message: responseData.welcomeMessage }]));
+    
+    setLoading(false);
+    navigate(`/talk-to-god/${god.id}`);
+  };
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
@@ -47,7 +68,7 @@ const TalkToGod = () => {
                   boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
                 },
               }}
-              onClick={() => navigate(`/talk-to-god/${god.id}`)} // Add this line
+              onClick={() => handleCardClick(god)}
             >
               <CardContent>
                 <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
@@ -92,6 +113,14 @@ const TalkToGod = () => {
           </Grid>
         ))}
       </Grid>
+      <Modal open={loading}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <CircularProgress />
+          <Typography variant="h6" sx={{ color: '#fff', mt: 2 }}>
+            Initiating chat...
+          </Typography>
+        </Box>
+      </Modal>
     </Container>
   );
 };

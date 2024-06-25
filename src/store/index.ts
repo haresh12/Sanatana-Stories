@@ -14,9 +14,11 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
 import authReducer from './authSlice';
+import chatReducer from './chatSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  chat: chatReducer,
 });
 
 const persistConfig = {

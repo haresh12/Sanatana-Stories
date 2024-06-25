@@ -5,7 +5,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 admin.initializeApp();
 const db = admin.firestore();
 
-const genAI = new GoogleGenerativeAI("AIzaSyDS39wuTLFenZMS8-VW5Q5PLTafz8B1QRs");
+const genAI = new GoogleGenerativeAI("");
 
 const updateFunFact = async () => {
 const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
