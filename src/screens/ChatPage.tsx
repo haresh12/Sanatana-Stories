@@ -1,162 +1,130 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { TextField, Button, Container, Paper, Typography, Box } from '@mui/material';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+// src/components/TalkToGod.tsx
+
+import React, { useEffect } from 'react';
+import { Container, Grid, Card, CardContent, Typography, Avatar, Box, Modal, CircularProgress } from '@mui/material';
 import { db } from '../firebaseConfig';
 import { collection, getDocs } from 'firebase/firestore';
+import { God } from '../types/God';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setGodName, setMessages, setGods } from '../store/chatSlice';
+import { RootState } from '../store';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
-import { God } from '../types/God';
-import { motion } from 'framer-motion';
 
-interface Message {
-  role: string;
-  message: string;
-}
+const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
-const ChatPage: React.FC = () => {
-  const { godId } = useParams<{ godId: string }>();
-  const currentUser = useSelector((state: RootState) => state.auth.currentUser);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
+const TalkToGod = () => {
+  const gods = useSelector((state: RootState) => state.chat.gods);
   const [loading, setLoading] = useState(false);
-  const [godName, setGodName] = useState('');
-  const [typing, setTyping] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    const fetchGodName = async () => {
-      const godsCollection = collection(db, 'gods');
-      const godsSnapshot = await getDocs(godsCollection);
-      const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
-      const god = godsList.find(g => g.id === godId);
-      if (god) {
-        setGodName(god.name);
+    const fetchGods = async () => {
+      if (gods.length === 0) {
+        const godsCollection = collection(db, 'gods');
+        const godsSnapshot = await getDocs(godsCollection);
+        const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
+        dispatch(setGods(godsList));
       }
     };
-    fetchGodName();
-  }, [godId]);
+    fetchGods();
+  }, [gods, dispatch]);
 
-  useEffect(() => {
-    const initializeChat = async () => {
-      
-      if (currentUser && godName) {
-        const handleChat = httpsCallable(functions, 'handleChat');
-        const response = await handleChat({ userId: currentUser.uid, godName, message: '' });
-        const responseData = response.data as { message: string, welcomeMessage: string };
-        setMessages([{ role: 'model', message: responseData.welcomeMessage }]);
-      }
-    };
-    initializeChat();
-  }, [godName]);
-
-  const handleSendMessage = async () => {
-    if (input.trim() === '') return;
+  const handleCardClick = async (god: God) => {
     setLoading(true);
-    setTyping(true);
-
-    const newMessage: Message = { role: 'user', message: input };
-    setMessages((prev) => [...prev, newMessage]);
-    setInput('');
-
     const handleChat = httpsCallable(functions, 'handleChat');
-    const response = await handleChat({ userId: currentUser!.uid, godName, message: input });
-    const responseData = response.data as { message: string };
-    const godResponse: Message = { role: 'model', message: responseData.message };
-    setMessages((prev) => [...prev, godResponse]);
+    const response = await handleChat({ userId: "someUserId", godName: god.name, message: '' });
+    const responseData = response.data as { message: string, welcomeMessage: string };
+
+    dispatch(setGodName(god.name));
+    dispatch(setMessages([{ role: 'model', message: responseData.welcomeMessage }]));
+
     setLoading(false);
-    setTyping(false);
+    navigate(`/talk-to-god/${god.id}`);
   };
 
   return (
-    <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
-      <Paper sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '80vh', borderRadius: '20px', boxShadow: 3, backgroundColor: '#ffffff' }}>
-        <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
-            Chat with {godName}
-          </Typography>
-        </motion.div>
-        <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {messages.map((msg, index) => (
-            <Box key={index} sx={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
-              <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
-                {msg.message}
-              </Box>
-            </Box>
-          ))}
-          {typing && (
-            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
-              <Box sx={{ maxWidth: '75%', bgcolor: '#e0e0e0', color: '#000', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '40px', height: '24px' }}>
-                  <Box className="dot-elastic"></Box>
-                  <Box className="dot-elastic"></Box>
-                  <Box className="dot-elastic"></Box>
+    <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
+      <Grid container spacing={4} justifyContent="center">
+        {gods.map((god, index) => (
+          <Grid item key={god.id} xs={12} sm={6} md={4}>
+            <Card 
+              sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                textAlign: 'center', 
+                padding: '20px', 
+                margin: '20px', 
+                borderRadius: '15px', 
+                boxShadow: '0 4px 8px rgba(0,0,0,0.2)', 
+                height: '350px', 
+                width: '300px', 
+                backgroundColor: colors[index % colors.length], 
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                '&:hover': {
+                  transform: 'scale(1.05)',
+                  boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
+                },
+              }}
+              onClick={() => handleCardClick(god)}
+            >
+              <CardContent>
+                <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                  <Avatar 
+                    src={god.image} 
+                    alt={god.name} 
+                    sx={{ 
+                      width: 100, 
+                      height: 100, 
+                      margin: 'auto', 
+                      marginBottom: '10px', 
+                      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                      transition: 'transform 0.3s',
+                      '&:hover': {
+                        transform: 'scale(1.5)',
+                      }
+                    }} 
+                  />
+                  <Typography 
+                    variant="h5" 
+                    component="div" 
+                    sx={{ 
+                      fontWeight: 'bold', 
+                      marginTop: '20px', 
+                      color: '#fff' 
+                    }}
+                  >
+                    {god.name}
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      marginTop: '10px', 
+                      color: '#fff' 
+                    }}
+                  >
+                    {god.description}
+                  </Typography>
                 </Box>
-              </Box>
-            </Box>
-          )}
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+      <Modal open={loading}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
+          <CircularProgress />
+          <Typography variant="h6" sx={{ color: '#fff', mt: 2 }}>
+            Initiating chat...
+          </Typography>
         </Box>
-        <Box sx={{ display: 'flex', mt: 1 }}>
-          <TextField
-            variant="outlined"
-            fullWidth
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            sx={{
-              mr: 1,
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '20px',
-              },
-              '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#ff5722',
-              },
-              '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#ff5722',
-              },
-              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#ff5722',
-              },
-            }}
-            placeholder="Type your message..."
-          />
-          <Button variant="contained" onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '20px', padding: '10px 20px', backgroundColor: '#ff5722', color: '#fff' }}>
-            Send
-          </Button>
-        </Box>
-      </Paper>
-      <style>
-        {`
-        @keyframes dotElastic {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.5);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-        .dot-elastic {
-          width: 8px;
-          height: 8px;
-          background-color: #000;
-          border-radius: 50%;
-          animation: dotElastic 0.6s infinite;
-        }
-        .dot-elastic:nth-of-type(1) {
-          animation-delay: 0s;
-        }
-        .dot-elastic:nth-of-type(2) {
-          animation-delay: 0.1s;
-        }
-        .dot-elastic:nth-of-type(3) {
-          animation-delay: 0.2s;
-        }
-        `}
-      </style>
+      </Modal>
     </Container>
   );
 };
 
-export default ChatPage;
+export default TalkToGod;
