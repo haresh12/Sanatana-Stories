@@ -1,26 +1,28 @@
-// src/components/Signup.tsx
-
 import React, { useState, useEffect } from 'react';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider, db } from '../firebaseConfig'; // Import db from firebaseConfig
+import { auth, googleProvider, db } from '../firebaseConfig';
 import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box, Paper, Avatar, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import GoogleIcon from '@mui/icons-material/Google';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../store/authSlice';
+import { setUser, setName } from '../store/authSlice';
 import { RootState } from '../store';
-import { doc, setDoc } from 'firebase/firestore'; // Import Firestore functions
+import { doc, setDoc } from 'firebase/firestore';
 
 const Signup: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [name,setUserName] = useState('');
   const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+  const userName = useSelector((state: RootState) => state.auth.name);
 
+
+  console.log('userName',userName )
   useEffect(() => {
     if (currentUser) {
       navigate('/dashboard');
@@ -33,14 +35,15 @@ const Signup: React.FC = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Add user to Firestore
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
+        name: name,
         createdAt: new Date().toISOString()
       });
 
       dispatch(setUser(user));
+      dispatch(setName(name))
       navigate('/dashboard');
     } catch (error) {
       setError('Oh no! Something went wrong. Are you sure this email isn’t already taken?');
@@ -51,11 +54,11 @@ const Signup: React.FC = () => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-
-      // Add user to Firestore
+      // TODO AS WE ARE ADDING WE FAKE EMAIL WE ARE NOT GETTING REAL NAME DO SOMETHING
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
+        name: user.displayName,
         createdAt: new Date().toISOString()
       });
 
@@ -65,7 +68,7 @@ const Signup: React.FC = () => {
       setError('Google Sign-In failed. Please try again.');
     }
   };
-
+  console.log()
   return (
     <Container
       component="main"
@@ -94,11 +97,47 @@ const Signup: React.FC = () => {
                 margin="normal"
                 required
                 fullWidth
+                id="name"
+                label="Name"
+                name="name"
+                autoComplete="name"
+                autoFocus
+                value={name}
+                onChange={(e) => setUserName(e.target.value)}
+                InputProps={{
+                  style: {
+                    color: '#000'
+                  }
+                }}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '& fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&:hover fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: '#ff5722',
+                    },
+                  },
+                  '& .MuiInputLabel-outlined': {
+                    color: '#ff5722',
+                  },
+                  '& .MuiInputLabel-outlined.Mui-focused': {
+                    color: '#ff5722',
+                  },
+                }}
+              />
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
                 id="email"
                 label="Email Address"
                 name="email"
                 autoComplete="email"
-                autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 InputProps={{

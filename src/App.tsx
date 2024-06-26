@@ -8,8 +8,8 @@ import { setUser } from './store/authSlice';
 import Login from './screens/Login';
 import Signup from './screens/Signup';
 import Dashboard from './screens/Dashboard';
-import TalkToGod from './screens/TalkToGod';  // Import TalkToGod
-import ChatPage from './screens/ChatPage'; // Import ChatPage
+import TalkToGod from './screens/TalkToGod';
+import ChatPage from './screens/ChatPage';
 import PrivateRoute from './components/PrivateRoute';
 import Ramayan from './screens/Ramayan';
 import Mahabharat from './screens/Mahabharat';
