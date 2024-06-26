@@ -26,6 +26,49 @@ const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   }
 };
 
+const sendAIMessage = async () => {
+  const messagesRef = db.collection('communityMessages').orderBy('timestamp', 'desc').limit(5);
+  const snapshot = await messagesRef.get();
+  
+  let prompt = "Generate an engaging message to encourage participation in a community chat. The message should be friendly and inviting.";
+
+  if (!snapshot.empty) {
+    const recentMessages = snapshot.docs.map(doc => doc.data().text);
+    if (recentMessages.length > 0) {
+      prompt = `Based on these recent messages: "${recentMessages.join('", "')}", generate an engaging message to encourage participation in a community chat. The message should be friendly and inviting.`;
+    }
+  }
+
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const result = await model.generateContent(prompt);
+  const messageText = result.response.text();
+
+  await db.collection('communityMessages').add({
+    user: 'AI',
+    name: 'CommunityBot',
+    text: messageText,
+    timestamp: admin.firestore.FieldValue.serverTimestamp(),
+  });
+};
+
+exports.checkInactivity = functions.pubsub.schedule('every 400 minutes').onRun(async (context) => {
+  const messagesRef = db.collection('communityMessages').orderBy('timestamp', 'desc').limit(1);
+  const snapshot = await messagesRef.get();
+
+  if (!snapshot.empty) {
+    const lastMessage = snapshot.docs[0].data();
+    const lastTimestamp = lastMessage.timestamp.toMillis();
+    const currentTime = Date.now();
+
+    if (currentTime - lastTimestamp > 2 * 60 * 100000) { // 2 minutes in milliseconds
+      await sendAIMessage();
+    }
+  } else {
+    await sendAIMessage();
+  }
+  return null;
+});
+
 const updateMyth = async () => {
   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   try {
