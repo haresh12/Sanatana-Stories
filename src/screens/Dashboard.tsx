@@ -74,6 +74,7 @@ const Dashboard: React.FC = () => {
   const handleLogout = async () => {
     await auth.signOut();
     dispatch(logout());
+    localStorage.setItem('seenRules', 'false');
     navigate('/');
   };
 

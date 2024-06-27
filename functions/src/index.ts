@@ -29,17 +29,21 @@ const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 const sendAIMessage = async () => {
   const messagesRef = db.collection('communityMessages').orderBy('timestamp', 'desc').limit(5);
   const snapshot = await messagesRef.get();
-  
-  let prompt = "Generate an engaging message to encourage participation in a community chat. The message should be friendly and inviting.";
+
+  let prompt = "Generate a warm and inviting message to encourage participation in a community chat. The message should be friendly, engaging, and relevant to spiritual discussions.";
 
   if (!snapshot.empty) {
     const recentMessages = snapshot.docs.map(doc => doc.data().text);
     if (recentMessages.length > 0) {
-      prompt = `Based on these recent messages: "${recentMessages.join('", "')}", generate an engaging message to encourage participation in a community chat. The message should be friendly and inviting.`;
+      prompt = `Based on these recent messages: "${recentMessages.join('", "')}", generate a friendly, engaging, and inviting message to encourage participation in a community chat. The message should reflect the current topics of discussion, encourage spiritual conversations, and invite users to share their thoughts and experiences.`;
     }
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({
+    model: 'gemini-1.5-flash',
+    systemInstruction: "This community is about gods, Puranas, and different temples. Your job is to increase communication within the community. Ensure that discussions remain on-topic. If the community strays from these topics, gently redirect them to the purpose of this community."
+  });
+
   const result = await model.generateContent(prompt);
   const messageText = result.response.text();
 
@@ -51,7 +55,7 @@ const sendAIMessage = async () => {
   });
 };
 
-exports.checkInactivity = functions.pubsub.schedule('every 400 minutes').onRun(async (context) => {
+exports.checkInactivity = functions.pubsub.schedule('every 500 minutes').onRun(async (context) => {
   const messagesRef = db.collection('communityMessages').orderBy('timestamp', 'desc').limit(1);
   const snapshot = await messagesRef.get();
 
@@ -60,7 +64,7 @@ exports.checkInactivity = functions.pubsub.schedule('every 400 minutes').onRun(a
     const lastTimestamp = lastMessage.timestamp.toMillis();
     const currentTime = Date.now();
 
-    if (currentTime - lastTimestamp > 2 * 60 * 100000) { // 2 minutes in milliseconds
+    if (currentTime - lastTimestamp > 2 * 60 * 1000000 && lastMessage.user !== 'AI') {
       await sendAIMessage();
     }
   } else {

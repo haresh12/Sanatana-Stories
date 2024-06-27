@@ -1,50 +1,63 @@
-// src/components/RulesModal.tsx
-
 import React from 'react';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, Typography } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Box } from '@mui/material';
+import { motion } from 'framer-motion';
 
 interface RulesModalProps {
-  open: boolean;
-  handleClose: () => void;
+    open: boolean;
+    handleClose: () => void;
 }
 
 const RulesModal: React.FC<RulesModalProps> = ({ open, handleClose }) => {
-  return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="rules-dialog-title"
-      aria-describedby="rules-dialog-description"
-      maxWidth="md"
-      fullWidth
-    >
-      <DialogTitle id="rules-dialog-title">
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#ff5722' }}>
-          Community Chat Rules
-        </Typography>
-      </DialogTitle>
-      <DialogContent>
-        <DialogContentText id="rules-dialog-description" sx={{ fontSize: '1.1rem', color: '#333' }}>
-          Welcome to the Community Chat! Please adhere to the following rules to maintain a respectful and engaging environment:
-          <ul>
-            <li>No abusive or offensive language.</li>
-            <li>Respect everyone's opinions and beliefs.</li>
-            <li>Keep discussions focused on spiritual topics.</li>
-            <li>Avoid spamming the chat with repetitive messages.</li>
-            <li>Be supportive and encouraging towards other members.</li>
-            <li>Any form of discrimination or harassment will not be tolerated.</li>
-            <li>Follow all community guidelines and terms of service.</li>
-          </ul>
-          Thank you for being a part of our community!
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} sx={{ backgroundColor: '#ff5722', color: '#fff', '&:hover': { backgroundColor: '#e64a19' } }}>
-          I Agree
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+    return (
+        <Dialog
+            open={open}
+            onClose={handleClose}
+            PaperProps={{
+                style: {
+                    background: 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(10px)',
+                    borderRadius: '20px',
+                    boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
+                },
+            }}
+        >
+            <DialogTitle sx={{ fontWeight: 'bold', color: '#ff5722', textAlign: 'center' }}>
+                Community Rules
+            </DialogTitle>
+            <DialogContent>
+                <DialogContentText sx={{ color: '#555', textAlign: 'center' }}>
+                    <Box component="div" sx={{ mb: 2 }}>
+                        Welcome to the Community Chat! Please adhere to the following rules:
+                    </Box>
+                    <Box component="ul" sx={{ textAlign: 'left' }}>
+                        <Box component="li">No abusive language.</Box>
+                        <Box component="li">Focus on spiritual topics.</Box>
+                        <Box component="li">Respect everyone's opinion.</Box>
+                        <Box component="li">No spamming or advertising.</Box>
+                        <Box component="li">Maintain a friendly environment.</Box>
+                    </Box>
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button
+                        onClick={handleClose}
+                        variant="contained"
+                        sx={{
+                            backgroundColor: '#ff5722',
+                            color: '#fff',
+                            borderRadius: '50px',
+                            padding: '10px 20px',
+                            textTransform: 'none',
+                            fontWeight: 'bold',
+                        }}
+                    >
+                        Agree
+                    </Button>
+                </motion.div>
+            </DialogActions>
+        </Dialog>
+    );
 };
 
 export default RulesModal;

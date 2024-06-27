@@ -1,14 +1,14 @@
-
 import React, { useEffect, useState, useRef } from 'react';
 import { TextField, IconButton, Container, Typography, Box } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { motion } from 'framer-motion';
 import RulesModal from '../components/RulesModal';
+import { setHasSeenRules } from '../store/authSlice';
 
 interface Message {
     id: string;
@@ -20,14 +20,16 @@ interface Message {
 
 const Community: React.FC = () => {
     const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+    const hasSeenRules = useSelector((state: RootState) => state.auth.hasSeenRules);
+    const userName = useSelector((state: RootState) => state.auth.name);
+    const dispatch = useDispatch();
+
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [messages, setMessages] = useState<Message[]>([]);
-    const [isListening, setIsListening] = useState(false); // Add state to track listening status
+    const [isListening, setIsListening] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
-    const userName = useSelector((state: RootState) => state.auth.name);
-    const [openRules, setOpenRules] = useState(true);
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -83,11 +85,11 @@ const Community: React.FC = () => {
             };
 
             recognitionRef.current.onstart = () => {
-                setIsListening(true); // Set listening status to true when recognition starts
+                setIsListening(true);
             };
 
             recognitionRef.current.onend = () => {
-                setIsListening(false); // Set listening status to false when recognition ends
+                setIsListening(false);
             };
         } else {
             alert("Your browser does not support speech recognition.");
@@ -105,14 +107,54 @@ const Community: React.FC = () => {
     };
 
     const handleCloseRules = () => {
-        setOpenRules(false);
+        dispatch(setHasSeenRules(true));
     };
+
+    const groupMessagesByUser = (messages: Message[]) => {
+        const groupedMessages: { [key: string]: { name: string; messages: Message[] } } = {};
+
+        messages.forEach((message) => {
+            if (!groupedMessages[message.user]) {
+                groupedMessages[message.user] = {
+                    name: message.user === currentUser?.email ? '' : message.name,
+                    messages: [],
+                };
+            }
+            groupedMessages[message.user].messages.push(message);
+        });
+
+        return groupedMessages;
+    };
+
+    const renderMessages = () => {
+        const groupedMessages = groupMessagesByUser(messages);
+
+        return Object.keys(groupedMessages).map((user, index) => {
+            const group = groupedMessages[user];
+            return (
+                <Box key={index} sx={{ mb: -1 }}>
+                    {group.messages.map((msg, msgIndex) => (
+                        <Box key={msgIndex} sx={{ display: 'flex', flexDirection: 'column', alignItems: user === currentUser?.email ? 'flex-end' : 'flex-start', mb: msgIndex < group.messages.length - 1 ? 0.5 : 1 }}>
+                            <Box sx={{ maxWidth: '75%', bgcolor: user === currentUser?.email ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word', textAlign: user === currentUser?.email ? 'right' : 'left' }}>
+                                {msg.text}
+                            </Box>
+                            {msgIndex === group.messages.length - 1 && user !== currentUser?.email && (
+                                <Typography variant="caption" sx={{ color: '#888', textAlign: 'left', fontSize: '0.875rem', fontWeight: 'bold', ml: 1 }}>
+                                    {group.name || 'Anonymous'}
+                                </Typography>
+                            )}
+                        </Box>
+                    ))}
+                </Box>
+            );
+        });
+    };
+
     return (
         <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
-            {openRules && (
-                <RulesModal open={openRules} handleClose={handleCloseRules} />
-            )}
-            {!openRules && (
+            {!hasSeenRules ? (
+                <RulesModal open={!hasSeenRules} handleClose={handleCloseRules} />
+            ) : (
                 <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '98vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
                     <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
                         <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
@@ -122,12 +164,14 @@ const Community: React.FC = () => {
                     <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
                         {messages.map((msg) => (
                             <Box key={msg.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: msg.user === currentUser?.email ? 'flex-end' : 'flex-start', mb: 1 }}>
-                                <Typography variant="caption" sx={{ color: '#888', mb: 0.5 }}>
-                                    {msg.name || 'Anonymous'}
-                                </Typography>
-                                <Box sx={{ maxWidth: '75%', bgcolor: msg.user === currentUser?.email ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
+                                <Box sx={{ maxWidth: '75%', bgcolor: msg.user === currentUser?.email ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word', textAlign: msg.user === currentUser?.email ? 'right' : 'left' }}>
                                     {msg.text}
                                 </Box>
+                                {msg.user !== currentUser?.email && (
+                                    <Typography variant="caption" sx={{ color: '#888', textAlign: 'left', fontSize: '0.875rem', fontWeight: 'bold', ml: 1 }}>
+                                        {msg.name || 'Anonymous'}
+                                    </Typography>
+                                )}
                             </Box>
                         ))}
                         <div ref={messagesEndRef} />
@@ -166,51 +210,53 @@ const Community: React.FC = () => {
             )}
             <style>
                 {`
-        @keyframes dotElastic {
-          0% {
-            transform: scale(1);
-          }
-          50% {
-            transform: scale(1.5);
-          }
-          100% {
-            transform: scale(1);
-          }
-        }
-        .dot-elastic {
-          width: 8px;
-          height: 8px;
-          background-color: #fff;
-          border-radius: 50%;
-          animation: dotElastic 0.6s infinite;
-        }
-        .dot-elastic:nth-of-type(1) {
-          animation-delay: 0s;
-        }
-        .dot-elastic:nth-of-type(2) {
-          animation-delay: 0.1s;
-        }
-        .dot-elastic:nth-of-type(3) {
-          animation-delay: 0.2s;
-        }
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
-          }
-          70% {
-            transform: scale(1.1);
-            box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-          }
-          100% {
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-          }
-        }
-        `}
+              @keyframes dotElastic {
+                0% {
+                  transform: scale(1);
+                }
+                50% {
+                  transform: scale(1.5);
+                }
+                100% {
+                  transform: scale(1);
+                }
+              }
+              .dot-elastic {
+                width: 8px;
+                height: 8px;
+                background-color: #fff;
+                border-radius: 50%;
+                animation: dotElastic 0.6s infinite;
+              }
+              .dot-elastic:nth-of-type(1) {
+                animation-delay: 0s;
+              }
+              .dot-elastic:nth-of-type(2) {
+                animation-delay: 0.1s;
+              }
+              .dot-elastic:nth-of-type(3) {
+                animation-delay: 0.2s;
+              }
+              @keyframes pulse {
+                0% {
+                  transform: scale(1);
+                  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+                }
+                70% {
+                  transform: scale(1.1);
+                  box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+                }
+                100% {
+                  transform: scale(1);
+                  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+                }
+              }
+            `}
             </style>
         </Container>
+
     );
+
 };
 
 export default Community;
