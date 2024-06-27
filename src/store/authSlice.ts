@@ -1,34 +1,40 @@
 // src/store/authSlice.ts
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User } from 'firebase/auth';
 
 interface AuthState {
   currentUser: User | null;
-  name : string | null
+  name: string | null;
+  hasSeenRules: boolean;
 }
 
 const initialState: AuthState = {
   currentUser: null,
-  name : "",
-
+  name: null,
+  hasSeenRules: false,  
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setUser(state, action: PayloadAction<User | null>) {
+    setUser: (state, action: PayloadAction<User | null>) => {
       state.currentUser = action.payload;
     },
-    setName(state, action: PayloadAction<string | null>) {
+    setName: (state, action: PayloadAction<string | null>) => {
       state.name = action.payload;
     },
-    logout(state) {
+    setHasSeenRules: (state, action: PayloadAction<boolean>) => {
+      state.hasSeenRules = action.payload;
+    },
+    logout: (state) => {
       state.currentUser = null;
+      state.name = null;
+      state.hasSeenRules = false;
     },
   },
 });
 
-export const { setUser, logout, setName } = authSlice.actions;
+export const { setUser, setName, setHasSeenRules, logout } = authSlice.actions;
+
 export default authSlice.reducer;

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebaseConfig';
 import { useNavigate, Link } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Box, Paper, Avatar, Alert } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Paper, Avatar, Alert, CircularProgress } from '@mui/material';
 import { motion } from 'framer-motion';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import GoogleIcon from '@mui/icons-material/Google';
@@ -14,15 +14,14 @@ import { doc, setDoc } from 'firebase/firestore';
 const Signup: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setUserName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loadingSignup, setLoadingSignup] = useState(false);
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const navigate = useNavigate();
-  const [name,setUserName] = useState('');
   const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
-  const userName = useSelector((state: RootState) => state.auth.name);
 
-
-  console.log('userName',userName )
   useEffect(() => {
     if (currentUser) {
       navigate('/dashboard');
@@ -31,6 +30,7 @@ const Signup: React.FC = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoadingSignup(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
@@ -43,22 +43,24 @@ const Signup: React.FC = () => {
       });
 
       dispatch(setUser(user));
-      dispatch(setName(name))
+      dispatch(setName(name));
       navigate('/dashboard');
     } catch (error) {
       setError('Oh no! Something went wrong. Are you sure this email isn’t already taken?');
     }
+    setLoadingSignup(false);
   };
 
   const handleGoogleSignup = async () => {
+    setLoadingGoogle(true);
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      // TODO AS WE ARE ADDING WE FAKE EMAIL WE ARE NOT GETTING REAL NAME DO SOMETHING
+
       await setDoc(doc(db, 'users', user.uid), {
         uid: user.uid,
         email: user.email,
-        name: user.displayName,
+        name: user.displayName || 'Anonymous',
         createdAt: new Date().toISOString()
       });
 
@@ -67,8 +69,9 @@ const Signup: React.FC = () => {
     } catch (error) {
       setError('Google Sign-In failed. Please try again.');
     }
+    setLoadingGoogle(false);
   };
-  console.log()
+
   return (
     <Container
       component="main"
@@ -207,6 +210,7 @@ const Signup: React.FC = () => {
                   type="submit"
                   variant="contained"
                   fullWidth
+                  disabled={loadingSignup}
                   style={{
                     marginTop: '20px',
                     backgroundColor: '#ff5722',
@@ -217,7 +221,7 @@ const Signup: React.FC = () => {
                     textTransform: 'none',
                   }}
                 >
-                  Sign Up
+                  {loadingSignup ? <CircularProgress size={24} style={{ color: '#fff' }} /> : 'Sign Up'}
                 </Button>
               </motion.div>
               <Box mt={2} textAlign="center">
@@ -228,6 +232,7 @@ const Signup: React.FC = () => {
                     fullWidth
                     startIcon={<GoogleIcon />}
                     onClick={handleGoogleSignup}
+                    disabled={loadingGoogle}
                     style={{
                       borderColor: '#ff5722',
                       color: '#ff5722',
@@ -237,7 +242,7 @@ const Signup: React.FC = () => {
                       textTransform: 'none',
                     }}
                   >
-                    Sign Up with Google
+                    {loadingGoogle ? <CircularProgress size={24} style={{ color: '#ff5722' }} /> : 'Sign Up with Google'}
                   </Button>
                 </motion.div>
                 <Link to="/" style={{ textDecoration: 'none', color: '#ff5722', marginTop: '20px', display: 'block' }}>
