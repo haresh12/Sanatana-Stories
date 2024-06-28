@@ -58,8 +58,8 @@ const cards = [
   { title: 'Talk To God', description: 'Pray and connect spiritually.', icon: <TalkToGodIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#BA68C8', route: '/talk-to-god' },
   { title: 'Community', description: 'Join the community of believers.', icon: <CommunityIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#64B5F6', route: '/community' },
   { title: 'Know About Temples', description: 'Get to know various temples.', icon: <TemplesIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#4DB6AC', route: '/know-about-temples' },
-  { title: 'Fun Fact', description: '', icon: null, color: '#9575CD', route: '/fun-fact' },
-  { title: 'Myth', description: '', icon: null, color: '#E57373', route: '/myth' },
+  { title: 'Fun Fact', description: '', icon: null, color: '#9575CD' },
+  { title: 'Myth', description: '', icon: null, color: '#E57373' },
 ];
 
 const Dashboard: React.FC = () => {
@@ -171,7 +171,7 @@ const Dashboard: React.FC = () => {
     <Grid container spacing={4} justifyContent="center">
       {cards.map((card, index) => (
         <Grid item key={index}>
-          <motion.div variants={cardAnimation} whileHover="hover" whileTap="tap" onClick={() => navigate(card.route)}>
+          <motion.div variants={cardAnimation} whileHover="hover" whileTap="tap" onClick={() => card.route && navigate(card.route)}>
             <Card
               sx={{
                 backgroundColor: card.color,

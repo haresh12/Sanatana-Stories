@@ -4,9 +4,10 @@ import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
-import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, addDoc, getDoc, serverTimestamp, onSnapshot, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { motion } from 'framer-motion';
+import CircularProgress from '@mui/material/CircularProgress';
 import RulesModal from '../components/RulesModal';
 import { setHasSeenRules } from '../store/authSlice';
 
@@ -16,6 +17,14 @@ interface Message {
     name: string;
     text: string;
     timestamp: any;
+    attribute_scores?: {
+        TOXICITY?: number;
+        SEVERE_TOXICITY?: number;
+        IDENTITY_ATTACK?: number;
+        INSULT?: number;
+        PROFANITY?: number;
+        THREAT?: number;
+    };
 }
 
 const Community: React.FC = () => {
@@ -33,7 +42,7 @@ const Community: React.FC = () => {
 
     useEffect(() => {
         const fetchMessages = async () => {
-            const q = query(collection(db, 'communityMessages'), orderBy('timestamp', 'asc'));
+            const q = query(collection(db, 'comments'), orderBy('timestamp', 'asc'));
             onSnapshot(q, (snapshot) => {
                 const messagesList = snapshot.docs.map(doc => ({
                     id: doc.id,
@@ -43,18 +52,42 @@ const Community: React.FC = () => {
             });
         };
         fetchMessages();
-    }, []);
+    }
+    , []);
 
     const handleSendMessage = async () => {
         if (input.trim() === '') return;
         setLoading(true);
         try {
-            await addDoc(collection(db, 'communityMessages'), {
+            const docRef = await addDoc(collection(db, 'comments'), {
                 user: currentUser?.email,
                 text: input,
                 name: userName ?? currentUser?.displayName ?? 'Anonymous',
                 timestamp: serverTimestamp()
             });
+
+            // Wait for the extension to update the document with attribute_scores
+            setTimeout(async () => {
+                const docSnapshot = await getDoc(docRef);
+                const data = docSnapshot.data() as Message;
+                const scores = data.attribute_scores;
+                if (
+                    scores &&
+                    (
+                        (scores.TOXICITY && scores.TOXICITY > 0.4) ||
+                        (scores.IDENTITY_ATTACK && scores.IDENTITY_ATTACK > 0.4) ||
+                        (scores.INSULT && scores.INSULT > 0.4) ||
+                        (scores.PROFANITY && scores.PROFANITY > 0.4) ||
+                        (scores.SEVERE_TOXICITY && scores.SEVERE_TOXICITY > 0.4) ||
+                        (scores.THREAT && scores.THREAT > 0.4)
+                    )
+                )  {
+                    await updateDoc(doc(db, 'comments', docRef.id), {
+                        text: "[Message Removed due to inappropriate content]"
+                    });
+                }
+            }, 2000);
+
             setInput('');
         } catch (error) {
             console.error('Error sending message: ', error);
@@ -110,46 +143,6 @@ const Community: React.FC = () => {
         dispatch(setHasSeenRules(true));
     };
 
-    const groupMessagesByUser = (messages: Message[]) => {
-        const groupedMessages: { [key: string]: { name: string; messages: Message[] } } = {};
-
-        messages.forEach((message) => {
-            if (!groupedMessages[message.user]) {
-                groupedMessages[message.user] = {
-                    name: message.user === currentUser?.email ? '' : message.name,
-                    messages: [],
-                };
-            }
-            groupedMessages[message.user].messages.push(message);
-        });
-
-        return groupedMessages;
-    };
-
-    const renderMessages = () => {
-        const groupedMessages = groupMessagesByUser(messages);
-
-        return Object.keys(groupedMessages).map((user, index) => {
-            const group = groupedMessages[user];
-            return (
-                <Box key={index} sx={{ mb: -1 }}>
-                    {group.messages.map((msg, msgIndex) => (
-                        <Box key={msgIndex} sx={{ display: 'flex', flexDirection: 'column', alignItems: user === currentUser?.email ? 'flex-end' : 'flex-start', mb: msgIndex < group.messages.length - 1 ? 0.5 : 1 }}>
-                            <Box sx={{ maxWidth: '75%', bgcolor: user === currentUser?.email ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word', textAlign: user === currentUser?.email ? 'right' : 'left' }}>
-                                {msg.text}
-                            </Box>
-                            {msgIndex === group.messages.length - 1 && user !== currentUser?.email && (
-                                <Typography variant="caption" sx={{ color: '#888', textAlign: 'left', fontSize: '0.875rem', fontWeight: 'bold', ml: 1 }}>
-                                    {group.name || 'Anonymous'}
-                                </Typography>
-                            )}
-                        </Box>
-                    ))}
-                </Box>
-            );
-        });
-    };
-
     return (
         <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
             {!hasSeenRules ? (
@@ -200,7 +193,7 @@ const Community: React.FC = () => {
                             placeholder="Type your message..."
                         />
                         <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', minWidth: 56, height: 56 }}>
-                            <SendIcon />
+                            {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : <SendIcon />}
                         </IconButton>
                         <IconButton onClick={handleSpeechInput} sx={{ marginLeft: 1, borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', minWidth: 56, height: 56, animation: isListening ? 'pulse 1.5s infinite' : 'none' }}>
                             <MicIcon />
@@ -254,7 +247,6 @@ const Community: React.FC = () => {
             `}
             </style>
         </Container>
-
     );
 
 };
