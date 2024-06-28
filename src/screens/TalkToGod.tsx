@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Card, CardContent, Typography, Avatar, Box, Modal, CircularProgress } from '@mui/material';
 import { db } from '../firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs,deleteDoc,doc } from 'firebase/firestore';
 import { God } from '../types/God';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { setGodName, setMessages, setGods,clearGods } from '../store/chatSlice';
+import { setGodName, setMessages, setGods } from '../store/chatSlice';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
-
+ 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
 const TalkToGod = () => {
@@ -18,6 +18,21 @@ const TalkToGod = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const gods = useSelector((state: RootState) => state.chat.gods) || [];
+  const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+
+  useEffect(() => {
+    const clearUserChat = async () => {
+      if (currentUser) {
+        const userChatCollection = collection(db, 'users', currentUser.uid, 'godChat');
+        const userChatSnapshot = await getDocs(userChatCollection);
+        userChatSnapshot.forEach(async (chatDoc) => {
+          await deleteDoc(doc(db, 'users', currentUser.uid, 'godChat', chatDoc.id));
+        });
+      }
+    };
+
+    clearUserChat();
+  }, [currentUser]);
 
   useEffect(() => {
     const fetchGods = async () => {
@@ -35,11 +50,11 @@ const TalkToGod = () => {
   const handleCardClick = async (god: God) => {
     setLoading(true);
     const handleChat = httpsCallable(functions, 'handleChat');
-    const response = await handleChat({ userId: "someUserId", godName: god.name, message: '' });
-    const responseData = response.data as { message: string, welcomeMessage: string };
+    const response = await handleChat({ userId: `${currentUser?.uid}`, godName: god.name, message: '' });
+    const responseData = response.data as { message: string };
 
     dispatch(setGodName(god.name));
-    dispatch(setMessages([{ role: 'model', message: responseData.welcomeMessage }]));
+    dispatch(setMessages([{ role: 'model', message: responseData.message }]));
     
     setLoading(false);
     navigate(`/talk-to-god/${god.id}`);
@@ -117,7 +132,7 @@ const TalkToGod = () => {
       </Grid>
       <Modal open={loading}>
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <CircularProgress  color='success'/>
+          <CircularProgress color='success'/>
           <Typography variant="h6" sx={{ color: '#fff', mt: 2 }}>
             Initiating chat...
           </Typography>
