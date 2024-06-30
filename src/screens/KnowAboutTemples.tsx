@@ -1,33 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Grid, Card, CardContent, Typography, Box, Modal, CircularProgress } from '@mui/material';
-import { db } from '../firebaseConfig';
-import { collection, getDocs } from 'firebase/firestore';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../store';
+import { fetchTemples, Temple } from '../store/templesSlice';
 import { motion } from 'framer-motion';
-
-interface Temple {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-}
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
 const KnowAboutTemples: React.FC = () => {
-  const [temples, setTemples] = useState<Temple[]>([]);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const { temples, loading } = useSelector((state: RootState) => state.temples);
 
   useEffect(() => {
-    const fetchTemples = async () => {
-      const templesCollection = collection(db, 'temples');
-      const templesSnapshot = await getDocs(templesCollection);
-      const templesList = templesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Temple[];
-      setTemples(templesList);
-      setLoading(false);
-    };
-
-    fetchTemples();
-  }, []);
+    if (temples.length === 0) {
+      dispatch(fetchTemples());
+    }
+  }, [dispatch, temples.length]);
 
   const truncateDescription = (description: string, maxLength: number) => {
     const words = description.split(' ');
@@ -37,12 +27,17 @@ const KnowAboutTemples: React.FC = () => {
     return description;
   };
 
+  const handleCardClick = (templeId: string) => {
+    navigate(`/temple/${templeId}`);
+  };
+
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
       <Grid container spacing={4} justifyContent="center">
-        {temples.map((temple, index) => (
+        {temples.map((temple: Temple, index: number) => (
           <Grid item key={temple.id} xs={12} sm={6} md={4}>
             <Card
+              onClick={() => handleCardClick(temple.id)}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -80,12 +75,12 @@ const KnowAboutTemples: React.FC = () => {
                       },
                     }}
                   />
-                  <CardContent sx={{ padding: '8px', textAlign: 'center', width: '100%' }}>
-                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#fff', width: '100%', marginTop: '8px' }}>
+                  <CardContent sx={{ padding: '16px', textAlign: 'center', width: '100%' }}>
+                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#fff', width: '100%' }}>
                       {temple.name}
                     </Typography>
-                    <Typography variant="body2" sx={{ marginTop: '4px', color: '#fff', textAlign: 'left', width: '100%', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {truncateDescription(temple.description, 20)}
+                    <Typography variant="body2" sx={{ marginTop: '10px', color: '#fff', textAlign: 'left', width: '100%', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {truncateDescription(temple.description, 50)}
                     </Typography>
                   </CardContent>
                 </Box>

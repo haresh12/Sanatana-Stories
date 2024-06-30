@@ -17,6 +17,8 @@ import HinduPuranas from './screens/HinduPuranas';
 import HanumanChalisa from './screens/HanumanChalisa';
 import Community from './screens/Community';
 import KnowAboutTemples from './screens/KnowAboutTemples';
+import TempleDetail from './screens/TempleDetails';
+import BackgroundOverlay from './components/BackgroundOverlay';
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -31,6 +33,7 @@ const App: React.FC = () => {
 
   return (
     <Router>
+      <BackgroundOverlay />
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -64,6 +67,7 @@ const App: React.FC = () => {
         <Route path="/hanuman-chalisa" element={<PrivateRoute><HanumanChalisa /></PrivateRoute>} />
         <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
         <Route path="/know-about-temples" element={<PrivateRoute><KnowAboutTemples /></PrivateRoute>} />
+        <Route path="/temple/:templeId" element={<PrivateRoute><TempleDetail /></PrivateRoute>} />
       </Routes>
     </Router>
   );
