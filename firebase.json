@@ -18,6 +18,14 @@
       {
         "source": "**",
         "destination": "/index.html"
+      },
+      {
+        "source": "/generateStory",
+        "function": "generateStory"
+      },
+      {
+        "source": "/handleTempleChat",
+        "function": "handleTempleChat"
       }
     ]
   },

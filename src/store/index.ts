@@ -15,10 +15,12 @@ import {
 import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
 import authReducer from './authSlice';
 import chatReducer from './chatSlice';
+import templesReducer from './templesSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
   chat: chatReducer,
+  temples: templesReducer
 });
 
 const persistConfig = {
