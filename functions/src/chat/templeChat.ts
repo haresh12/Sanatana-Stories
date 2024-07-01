@@ -4,7 +4,7 @@ import { db } from '../firebaseApp';
 
 const genAI = new GoogleGenerativeAI('');
 
-export const handleTempleChat = functions.https.onCall(async (data, context) => {
+export const templeChat = functions.https.onCall(async (data, context) => {
   const { userId, templeName, message } = data;
 
   const model = genAI.getGenerativeModel({
