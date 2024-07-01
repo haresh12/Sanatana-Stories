@@ -13,30 +13,30 @@ interface StoriesProps {
 const Stories: React.FC<StoriesProps> = ({ templeName, initialStory, setStory }) => {
   const [loading, setLoading] = useState<boolean>(initialStory === '');
   const [error, setError] = useState<string | null>(null);
-  const [animateOnce, setAnimateOnce] = useState<boolean>(true);
+  const [animateOnce, setAnimateOnce] = useState<boolean>(false);
 
-  useEffect(() => {
-    if (initialStory) {
-      setLoading(false);
-      return;
-    }
+  // useEffect(() => {
+  //   if (initialStory) {
+  //     setLoading(false);
+  //     return;
+  //   }
 
-    const fetchStory = async () => {
-      try {
-        const generateStory = httpsCallable(functions, 'generateStory');
-        const response = await generateStory({ templeName });
-        const { story } = response.data as { story: string };
-        setStory(story);
-      } catch (error) {
-        console.error('Error fetching story:', error);
-        setError('Failed to load the story. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  //   const fetchStory = async () => {
+  //     try {
+  //       const generateStory = httpsCallable(functions, 'generateStory');
+  //       const response = await generateStory({ templeName });
+  //       const { story } = response.data as { story: string };
+  //       setStory(story);
+  //     } catch (error) {
+  //       console.error('Error fetching story:', error);
+  //       setError('Failed to load the story. Please try again later.');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchStory();
-  }, [templeName, initialStory, setStory]);
+  //   fetchStory();
+  // }, [templeName, initialStory, setStory]);
 
   const handleGenerateNewStory = async () => {
     setLoading(true);

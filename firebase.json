@@ -24,8 +24,8 @@
         "function": "generateStory"
       },
       {
-        "source": "/handleTempleChat",
-        "function": "handleTempleChat"
+        "source": "/templeChat",
+        "function": "templeChat"
       }
     ]
   },

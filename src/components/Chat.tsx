@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Typography, Card, CardContent, TextField, IconButton, CircularProgress } from '@mui/material';
+import { Box, Typography, TextField, IconButton, Container } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import MicIcon from '@mui/icons-material/Mic';
 import { motion } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../firebaseConfig';
+import { functions, auth } from '../firebaseConfig';
+import { onAuthStateChanged } from 'firebase/auth';
 
 interface ChatProps {
   templeId: string;
@@ -19,14 +20,30 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName }) => {
   const [messages, setMessages] = useState<{ role: string; text: string }[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [listening, setListening] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     const fetchWelcomeMessage = async () => {
+      if (!userId) return;
+
       setLoading(true);
-      const handleTempleChat = httpsCallable<{ templeName: string; message: string }, ChatResponse>(functions, 'handleTempleChat');
+      const handleTempleChat = httpsCallable<{ userId: string; templeName: string; message: string }, ChatResponse>(functions, 'templeChat');
       try {
-        const response = await handleTempleChat({ templeName, message: '' });
+        const response = await handleTempleChat({ userId, templeName, message: '' });
         setMessages([{ role: 'model', text: response.data.message }]);
       } catch (error) {
         console.error('Error fetching welcome message:', error);
@@ -36,19 +53,19 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName }) => {
     };
 
     fetchWelcomeMessage();
-  }, [templeName]);
+  }, [templeName, userId]);
 
   const handleSendMessage = async () => {
-    if (input.trim() === '') return;
+    if (input.trim() === '' || !userId) return;
 
     const newMessages = [...messages, { role: 'user', text: input }];
     setMessages(newMessages);
     setInput('');
     setLoading(true);
 
-    const handleTempleChat = httpsCallable<{ templeName: string; message: string }, ChatResponse>(functions, 'handleTempleChat');
+    const handleTempleChat = httpsCallable<{ userId: string; templeName: string; message: string }, ChatResponse>(functions, 'templeChat');
     try {
-      const response = await handleTempleChat({ templeName, message: input });
+      const response = await handleTempleChat({ userId, templeName, message: input });
       setMessages((prevMessages) => [...prevMessages, { role: 'model', text: response.data.message }]);
     } catch (error) {
       console.error('Error sending message:', error);
@@ -62,57 +79,141 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName }) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  useEffect(() => {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setListening(false);
+      };
+
+      recognitionRef.current.onstart = () => {
+        setListening(true);
+      };
+
+      recognitionRef.current.onend = () => {
+        setListening(false);
+      };
+    } else {
+      alert("Your browser does not support speech recognition.");
+    }
+  }, []);
+
+  const handleSpeechInput = () => {
+    if (recognitionRef.current && !listening) {
+      recognitionRef.current.start();
+    }
+  };
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        <Card sx={{ boxShadow: 3, p: 2, backgroundColor: '#fff', borderRadius: 2, height: '85vh', overflowY: 'auto', flex: '1' }}>
-          <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="h6" sx={{ color: '#ff5722', mb: 1 }}>
-              Chat about {templeName}
-            </Typography>
-            {messages.map((msg, index) => (
-              <Box key={index} sx={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: msg.role === 'user' ? '#fff' : '#333',
-                    backgroundColor: msg.role === 'user' ? '#ff7043' : '#e0e0e0',
-                    borderRadius: 2,
-                    padding: '8px 12px',
-                    maxWidth: '80%',
-                    alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                  }}
-                >
-                  {msg.text}
-                </Typography>
+    <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center'}}>
+      <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '98vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
+        <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
+            Chat about {templeName}
+          </Typography>
+        </motion.div>
+        <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+          {messages.map((msg, index) => (
+            <Box key={index} sx={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
+              <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
+                {msg.text}
               </Box>
-            ))}
-            {loading && (
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-                <CircularProgress size={24} />
+            </Box>
+          ))}
+          {loading && (
+            <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
+              <Box sx={{ maxWidth: '75%', bgcolor: '#4caf50', color: '#000', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '40px', height: '11px' }}>
+                  <Box className="dot-elastic"></Box>
+                  <Box className="dot-elastic"></Box>
+                  <Box className="dot-elastic"></Box>
+                </Box>
               </Box>
-            )}
-            <div ref={messagesEndRef} />
-          </CardContent>
-        </Card>
-      </motion.div>
-      <Box sx={{ display: 'flex', gap: 2, p: 2, backgroundColor: '#fff', borderRadius: '30px', boxShadow: 3, alignItems: 'center' }}>
-        <TextField
-          fullWidth
-          variant="outlined"
-          placeholder="Type your message..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          sx={{ borderRadius: '30px', flexGrow: 1 }}
-        />
-        <IconButton color="primary" onClick={handleSendMessage} sx={{ color: '#ff7043', '&:hover': { color: '#ff5722' } }}>
-          <SendIcon />
-        </IconButton>
-        <IconButton color="primary" sx={{ color: '#ff7043', '&:hover': { color: '#ff5722' } }}>
-          <MicIcon />
-        </IconButton>
+            </Box>
+          )}
+          <div ref={messagesEndRef} />
+        </Box>
+        <Box sx={{ display: 'flex', mt: 1 }}>
+          <TextField
+            variant="outlined"
+            fullWidth
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            sx={{
+              mr: 1,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '20px',
+              },
+              '& .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#ff5722',
+              },
+              '&:hover .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#ff5722',
+              },
+              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                borderColor: '#ff5722',
+              },
+            }}
+            placeholder="Type your message..."
+          />
+          <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1 }}>
+            <SendIcon />
+          </IconButton>
+          <IconButton onClick={handleSpeechInput} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: listening ? '#ff5722' : '#e0e0e0', color: '#fff', ml: 1, animation: listening ? 'pulse 1s infinite' : 'none' }}>
+            <MicIcon />
+          </IconButton>
+        </Box>
       </Box>
-    </Box>
+      <style>
+        {`
+      @keyframes dotElastic {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.5);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .dot-elastic {
+        width: 8px;
+        height: 8px;
+        background-color: #fff;
+        border-radius: 50%;
+        animation: dotElastic 0.6s infinite;
+      }
+      .dot-elastic:nth-of-type(1) {
+        animation-delay: 0s;
+      }
+      .dot-elastic:nth-of-type(2) {
+        animation-delay: 0.1s;
+      }
+      .dot-elastic:nth-of-type(3) {
+        animation-delay: 0.2s;
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      `}
+      </style>
+    </Container>
   );
 };
 
