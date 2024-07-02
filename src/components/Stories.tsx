@@ -123,24 +123,6 @@ const Stories: React.FC<StoriesProps> = ({ templeName, initialStory, setStory })
             variant="contained"
             color="primary"
             sx={{
-              backgroundColor: '#4fc3f7',
-              borderRadius: '30px',
-              padding: '10px 30px',
-              fontSize: '16px',
-              '&:hover': {
-                backgroundColor: '#29b6f6',
-                transform: 'scale(1.05)',
-              },
-              transition: 'all 0.3s ease',
-              mr: 2,
-            }}
-          >
-            Save
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            sx={{
               backgroundColor: '#81c784',
               borderRadius: '30px',
               padding: '10px 30px',
