@@ -29,7 +29,7 @@ function TabPanel(props: TabPanelProps) {
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
-      {...other }
+      {...other}
     >
       {value === index && (
         <Box sx={{ p: 3 }}>
@@ -78,6 +78,7 @@ const TempleDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [story, setStory] = useState<string>('');
+  const [chatMessages, setChatMessages] = useState<{ role: string; text: string }[]>([]);
 
   useEffect(() => {
     if (!templeId) {
@@ -113,6 +114,13 @@ const TempleDetail: React.FC = () => {
     setValue(newValue);
   };
 
+  useEffect(() => {
+    // Cleanup function to reset chatMessages when navigating away
+    return () => {
+      setChatMessages([]);
+    };
+  }, []);
+
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -137,14 +145,13 @@ const TempleDetail: React.FC = () => {
         <StyledTabs value={value} onChange={handleChange} aria-label="temple details tabs" centered>
           <StyledTab label="Stories" />
           <StyledTab label="Chat" />
-          <StyledTab label="Interesting Facts" />
         </StyledTabs>
       </Box>
       <TabPanel value={value} index={0}>
         <Stories templeName={`${temple?.name}`} initialStory={story} setStory={setStory} />
       </TabPanel>
       <TabPanel value={value} index={1}>
-        <Chat templeName={`${temple?.name}`} templeId={`${templeId}`}/>
+        <Chat templeName={`${temple?.name}`} templeId={`${templeId}`} initialMessages={chatMessages} setMessages={setChatMessages} />
       </TabPanel>
       <TabPanel value={value} index={2}>
         <InterestingFacts templeId={templeId || ''} />

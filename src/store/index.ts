@@ -12,7 +12,7 @@ import {
   PURGE,
   REGISTER,
 } from 'redux-persist';
-import storage from 'redux-persist/lib/storage'; // defaults to localStorage for web
+import storage from 'redux-persist/lib/storage'; 
 import authReducer from './authSlice';
 import chatReducer from './chatSlice';
 import templesReducer from './templesSlice';
