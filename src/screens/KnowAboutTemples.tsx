@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Grid, Card, CardContent, Typography, Box, Modal, CircularProgress } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
 import { fetchTemples, Temple } from '../store/templesSlice';
 import { motion } from 'framer-motion';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebaseConfig';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
@@ -12,6 +14,8 @@ const KnowAboutTemples: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { temples, loading } = useSelector((state: RootState) => state.temples);
+  const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+  const [showLoader, setShowLoader] = useState<boolean>(false);
 
   useEffect(() => {
     if (temples.length === 0) {
@@ -27,8 +31,20 @@ const KnowAboutTemples: React.FC = () => {
     return description;
   };
 
-  const handleCardClick = (templeId: string) => {
-    navigate(`/temple/${templeId}`);
+  const handleCardClick = async (templeId: string, templeName: string) => {
+    setShowLoader(true);
+    try {
+      const handleTempleChat = httpsCallable(functions, 'templeChat');
+      const response = await handleTempleChat({ userId: `${currentUser?.uid}`, templeName, message: '' });
+      const { message } = response.data as { message: string };
+      localStorage.setItem(`templeWelcomeMessage_${templeId}`, message);
+
+      navigate(`/temple/${templeId}`);
+    } catch (error) {
+      console.error('Error fetching welcome message:', error);
+    } finally {
+      setShowLoader(false);
+    }
   };
 
   return (
@@ -37,7 +53,7 @@ const KnowAboutTemples: React.FC = () => {
         {temples.map((temple: Temple, index: number) => (
           <Grid item key={temple.id} xs={12} sm={6} md={4}>
             <Card
-              onClick={() => handleCardClick(temple.id)}
+              onClick={() => handleCardClick(temple.id, temple.name)}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -89,11 +105,11 @@ const KnowAboutTemples: React.FC = () => {
           </Grid>
         ))}
       </Grid>
-      <Modal open={loading}>
+      <Modal open={loading || showLoader}>
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <CircularProgress color='success'/>
           <Typography variant="h6" sx={{ color: '#fff', mt: 2 }}>
-            Loading temples...
+            {loading ? 'Loading temples...' : 'Loading details...'}
           </Typography>
         </Box>
       </Modal>

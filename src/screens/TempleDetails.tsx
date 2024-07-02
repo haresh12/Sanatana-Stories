@@ -110,6 +110,13 @@ const TempleDetail: React.FC = () => {
     fetchTemple();
   }, [templeId]);
 
+  useEffect(() => {
+    const welcomeMessage = localStorage.getItem(`templeWelcomeMessage_${templeId}`);
+    if (welcomeMessage) {
+      setChatMessages([{ role: 'model', text: welcomeMessage }]);
+    }
+  }, [templeId]);
+
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
@@ -148,7 +155,7 @@ const TempleDetail: React.FC = () => {
         </StyledTabs>
       </Box>
       <TabPanel value={value} index={0}>
-        <Stories templeName={`${temple?.name}`} initialStory={story} setStory={setStory} />
+        <Stories  templeId={`${templeId}`} templeName={`${temple?.name}`} initialStory={story} setStory={setStory} />
       </TabPanel>
       <TabPanel value={value} index={1}>
         <Chat templeName={`${temple?.name}`} templeId={`${templeId}`} initialMessages={chatMessages} setMessages={setChatMessages} />

@@ -5,38 +5,42 @@ import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
 
 interface StoriesProps {
+  templeId: string;
   templeName: string;
   initialStory: string;
   setStory: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Stories: React.FC<StoriesProps> = ({ templeName, initialStory, setStory }) => {
+const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, setStory }) => {
   const [loading, setLoading] = useState<boolean>(initialStory === '');
   const [error, setError] = useState<string | null>(null);
   const [animateOnce, setAnimateOnce] = useState<boolean>(false);
 
-  // useEffect(() => {
-  //   if (initialStory) {
-  //     setLoading(false);
-  //     return;
-  //   }
+  useEffect(() => {
+    const storedStory = localStorage.getItem(`templeStory_${templeId}`);
+    if (storedStory) {
+      setStory(storedStory);
+      setLoading(false);
+      return;
+    }
 
-  //   const fetchStory = async () => {
-  //     try {
-  //       const generateStory = httpsCallable(functions, 'generateStory');
-  //       const response = await generateStory({ templeName });
-  //       const { story } = response.data as { story: string };
-  //       setStory(story);
-  //     } catch (error) {
-  //       console.error('Error fetching story:', error);
-  //       setError('Failed to load the story. Please try again later.');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+    const fetchStory = async () => {
+      try {
+        const generateStory = httpsCallable(functions, 'generateStory');
+        const response = await generateStory({ templeName });
+        const { story } = response.data as { story: string };
+        setStory(story);
+        localStorage.setItem(`templeStory_${templeId}`, story);
+      } catch (error) {
+        console.error('Error fetching story:', error);
+        setError('Failed to load the story. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  //   fetchStory();
-  // }, [templeName, initialStory, setStory]);
+    fetchStory();
+  }, [templeId, templeName, initialStory, setStory]);
 
   const handleGenerateNewStory = async () => {
     setLoading(true);
@@ -45,6 +49,7 @@ const Stories: React.FC<StoriesProps> = ({ templeName, initialStory, setStory })
       const response = await generateStory({ templeName });
       const { story } = response.data as { story: string };
       setStory(story);
+      localStorage.setItem(`templeStory_${templeId}`, story);
       setAnimateOnce(false);
     } catch (error) {
       console.error('Error generating new story:', error);
