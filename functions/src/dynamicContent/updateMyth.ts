@@ -2,7 +2,7 @@
 // import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // const db = admin.firestore();
-// const genAI = new GoogleGenerativeAI("AIzaSyCLl1vRl61LdEKzeudoYETOu9o61-ji1nI");
+// const genAI = new GoogleGenerativeAI("");
 
 // export const updateMyth = async () => {
 //   const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });

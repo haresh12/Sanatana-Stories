@@ -2,7 +2,7 @@
 // import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // const db = admin.firestore();
-// const genAI = new GoogleGenerativeAI("AIzaSyCLl1vRl61LdEKzeudoYETOu9o61-ji1nI");
+// const genAI = new GoogleGenerativeAI("");
 
 // export const sendAIMessage = async () => {
 //   const messagesRef = db.collection('comments').orderBy('timestamp', 'desc').limit(5);

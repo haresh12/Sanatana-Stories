@@ -2,7 +2,7 @@
 // import { GoogleGenerativeAI } from '@google/generative-ai';
 
 
-// const genAI = new GoogleGenerativeAI("AIzaSyCLl1vRl61LdEKzeudoYETOu9o61-ji1nI");
+// const genAI = new GoogleGenerativeAI("");
 
 // export const generateStory = functions.https.onCall(async (data, context) => {
 //   const { templeName } = data;
