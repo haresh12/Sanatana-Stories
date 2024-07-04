@@ -26,6 +26,10 @@
       {
         "source": "/templeChat",
         "function": "templeChat"
+      },
+      {
+        "source": "/getMeaning" ,
+        "function": "getMeaning"
       }
     ]
   },
