@@ -35,10 +35,15 @@ const TalkToGod = () => {
   }, [currentUser]);
 
   useEffect(() => {
+    console.log('called')
     const fetchGods = async () => {
       const godsCollection = collection(db, 'gods');
+      console.log('godsCollection',godsCollection)
       const godsSnapshot = await getDocs(godsCollection);
+      console.log('sss',godsSnapshot)
+
       const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
+      console.log('godsList',godsList)
       dispatch(setGods(godsList));
     };
 

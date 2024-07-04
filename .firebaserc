@@ -1,5 +1,9 @@
 {
   "projects": {
-    "default": "sanatan-stories-c19c9"
-  }
+    "default": "sanatan-stories-c19c9",
+    "statging": "sanatan-36755"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
 }
