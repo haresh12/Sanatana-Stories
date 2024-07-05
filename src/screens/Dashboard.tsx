@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
 import { auth } from '../firebaseConfig';
 import { logout } from '../store/authSlice';
+import { reset as resetChalisa } from '../store/chalisaSlice';
 import RamayanIcon from '@mui/icons-material/MenuBook';
 import MahabharatIcon from '@mui/icons-material/MenuBook';
 import PuranasIcon from '@mui/icons-material/Book';
@@ -74,6 +75,7 @@ const Dashboard: React.FC = () => {
   const handleLogout = async () => {
     await auth.signOut();
     dispatch(logout());
+    dispatch(resetChalisa()); // Dispatch reset action to clear saved words
     localStorage.setItem('seenRules', 'false');
     navigate('/');
   };

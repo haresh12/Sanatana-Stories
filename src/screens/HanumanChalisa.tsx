@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { Container, Typography, Popover, Button } from '@mui/material';
+import React, { useState, MouseEvent } from 'react';
+import { Container, Typography, Popover, Button, CircularProgress, Card, CardContent, Box } from '@mui/material';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../store';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
+import { motion } from 'framer-motion';
+import { fetchMeaning, saveMeaning, clearMeaning } from '../store/chalisaSlice';
 
 const chalisaText = `
 ॥ श्री हनुमान चालीसा ॥
-
 श्रीगुरु चरन सरोज रज, निज मनु मुकुरु सुधारि।
 बरनउं रघुबर बिमल जसु, जो दायकु फल चारि॥
 
@@ -133,67 +136,141 @@ const chalisaText = `
 कीजै नाथ हृदय महँ डेरा॥
 
 ॥ दोहा ॥
-
 पवनतनय संकट हरन, मंगल मूरति रूप।
 राम लखन सीता सहित, हृदय बसहु सुर भूप॥
 `;
 
 const Chalisa: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const savedWords = useSelector((state: RootState) => state.chalisa.savedMeanings);
   const [selectedText, setSelectedText] = useState('');
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [meaning, setMeaning] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleTextSelect = (event: React.MouseEvent<HTMLElement>) => {
+  const handleTextSelect = (event: MouseEvent<HTMLElement>) => {
     const selection = window.getSelection();
-    if (selection && selection.toString().length > 0) {
-      setSelectedText(selection.toString());
+    if (selection && selection.toString().trim().length > 0) {
+      const word = selection.toString().trim();
+      setSelectedText(word);
       setAnchorEl(event.currentTarget);
+
+      if (savedWords[word]) {
+        setMeaning(savedWords[word]);
+      } else {
+        setMeaning('');
+      }
     }
   };
 
   const handleKnowMeaning = async () => {
+    setLoading(true);
     const getMeaning = httpsCallable<{ text: string }, { meaning: string }>(functions, 'getMeaning');
-    const response = await getMeaning({ text: selectedText });
-    setMeaning(response.data.meaning);
-    setAnchorEl(null); // Close the popover after getting the meaning
+    try {
+      const response = await getMeaning({ text: selectedText });
+      setMeaning(response.data.meaning);
+    } catch (error) {
+      console.error('Error fetching meaning:', error);
+      setMeaning('Unable to fetch meaning at the moment.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
     setAnchorEl(null);
+    setMeaning('');
   };
 
+  const handleSaveWord = () => {
+    dispatch(saveMeaning({ word: selectedText, meaning }));
+    handleClose();
+  };
+
+  const handleClearWord = () => {
+    dispatch(clearMeaning(selectedText));
+    handleClose();
+  };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
+
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px' }}>
-      <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '40px', fontWeight: 'bold', color: '#fff' }}>
+    <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
+      <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '20px', fontWeight: 'bold', color: '#ff5722' }}>
         Hanuman Chalisa
       </Typography>
-      <Typography variant="body1" align="center" sx={{ color: '#fff' }} onMouseUp={handleTextSelect}>
-        {chalisaText}
-      </Typography>
+      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+        <Card sx={{ marginBottom: '20px', backgroundColor: '#e0f7fa', borderRadius: '15px', padding: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
+          <CardContent>
+            <Typography variant="h6" align="center" gutterBottom sx={{ color: '#00796b' }}>
+              Many people recite the Hanuman Chalisa daily but struggle to grasp its deeper meanings. With this feature, you can click on any word to understand its significance and save it for future reference.
+            </Typography>
+          </CardContent>
+        </Card>
+      </motion.div>
+      {chalisaText.split('\n\n').map((paragraph, index) => (
+        <motion.div key={index} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          <Card sx={{ marginBottom: '10px', backgroundColor: '#f5f5f5', borderRadius: '15px', padding: '10px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
+            <CardContent onMouseUp={handleTextSelect}>
+              <Typography variant="body1" sx={{ color: '#000', fontSize: '18px', lineHeight: 1.6 }}>
+                {paragraph.split(/\s+/).map((word, wordIndex) => (
+                  <span key={wordIndex} style={{ color: savedWords[word] ? 'green' : 'inherit' }}>
+                    {word}{' '}
+                  </span>
+                ))}
+              </Typography>
+            </CardContent>
+          </Card>
+        </motion.div>
+      ))}
       <Popover
-        open={Boolean(anchorEl)}
+        id={id}
+        open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'center',
+          vertical: 'top',
+          horizontal: 'left',
         }}
         transformOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
+          vertical: 'bottom',
+          horizontal: 'left',
         }}
       >
-        <Typography sx={{ p: 2 }}>{selectedText}</Typography>
-        <Button onClick={handleKnowMeaning}>Know Meaning</Button>
+        <Box sx={{ padding: '10px', maxWidth: '300px' }}>
+          <Typography variant="h6" sx={{ marginBottom: '10px', color: '#ff5722' }}>
+            Meaning of: {selectedText}
+          </Typography>
+          {loading ? (
+            <CircularProgress color="secondary" />
+          ) : (
+            <>
+              <Typography variant="body1" sx={{ marginBottom: '10px' }}>
+                {meaning}
+              </Typography>
+              {!savedWords[selectedText] && (
+                <Button onClick={handleKnowMeaning} sx={{ backgroundColor: '#ff5722', color: '#fff', '&:hover': { backgroundColor: '#e64a19' } }}>
+                  Get Explanation
+                </Button>
+              )}
+              {meaning && !savedWords[selectedText] && (
+                <Button onClick={handleSaveWord} sx={{ marginLeft: '10px', backgroundColor: '#4caf50', color: '#fff', '&:hover': { backgroundColor: '#388e3c' } }}>
+                  Save
+                </Button>
+              )}
+              {savedWords[selectedText] && (
+                <Button onClick={handleClearWord} sx={{ marginLeft: '10px', backgroundColor: '#f44336', color: '#fff', '&:hover': { backgroundColor: '#d32f2f' } }}>
+                  Clear
+                </Button>
+              )}
+            </>
+          )}
+        </Box>
       </Popover>
-      {meaning && (
-        <div style={{ marginTop: '20px', padding: '10px', backgroundColor: '#fff', borderRadius: '8px' }}>
-          <Typography variant="h6">Meaning:</Typography>
-          <Typography variant="body1">{meaning}</Typography>
-        </div>
-      )}
     </Container>
   );
 };
 
 export default Chalisa;
+

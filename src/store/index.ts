@@ -16,11 +16,13 @@ import storage from 'redux-persist/lib/storage';
 import authReducer from './authSlice';
 import chatReducer from './chatSlice';
 import templesReducer from './templesSlice';
+import chalisaReducer from './chalisaSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
   chat: chatReducer,
-  temples: templesReducer
+  temples: templesReducer,
+  chalisa: chalisaReducer, // Add the chalisa reducer
 });
 
 const persistConfig = {
