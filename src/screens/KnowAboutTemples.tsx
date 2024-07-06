@@ -18,9 +18,7 @@ const KnowAboutTemples: React.FC = () => {
   const [showLoader, setShowLoader] = useState<boolean>(false);
 
   useEffect(() => {
-    if (temples.length === 0) {
       dispatch(fetchTemples());
-    }
   }, [dispatch, temples.length]);
 
   const truncateDescription = (description: string, maxLength: number) => {
