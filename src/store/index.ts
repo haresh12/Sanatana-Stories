@@ -1,5 +1,3 @@
-// src/store/index.ts
-
 import { configureStore } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
 import {
@@ -17,12 +15,14 @@ import authReducer from './authSlice';
 import chatReducer from './chatSlice';
 import templesReducer from './templesSlice';
 import chalisaReducer from './chalisaSlice';
+import userReducer from './userSlice'; 
 
 const rootReducer = combineReducers({
   auth: authReducer,
   chat: chatReducer,
   temples: templesReducer,
-  chalisa: chalisaReducer, // Add the chalisa reducer
+  chalisa: chalisaReducer,
+  user: userReducer,
 });
 
 const persistConfig = {

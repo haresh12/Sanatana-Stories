@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 
-const genAI = new GoogleGenerativeAI("");
+const genAI = new GoogleGenerativeAI("AIzaSyBpZs6pcBEwfm3iNVWlqKtfpYqpIYxU26Q");
 
 export const generateStory = functions.https.onCall(async (data, context) => {
   const { templeName } = data;
