@@ -121,7 +121,6 @@ const ChatPage: React.FC = () => {
     }
   };
 
-
   return (
     <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
       <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '98vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
@@ -155,6 +154,9 @@ const ChatPage: React.FC = () => {
           <TextField
             variant="outlined"
             fullWidth
+            multiline
+            minRows={1}
+            maxRows={4}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             sx={{

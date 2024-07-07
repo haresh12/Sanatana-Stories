@@ -52,8 +52,7 @@ const Community: React.FC = () => {
             });
         };
         fetchMessages();
-    }
-    , []);
+    }, []);
 
     const handleSendMessage = async () => {
         if (input.trim() === '') return;
@@ -81,7 +80,7 @@ const Community: React.FC = () => {
                         (scores.SEVERE_TOXICITY && scores.SEVERE_TOXICITY > 0.4) ||
                         (scores.THREAT && scores.THREAT > 0.4)
                     )
-                )  {
+                ) {
                     await updateDoc(doc(db, 'comments', docRef.id), {
                         text: "[Message Removed due to inappropriate content]"
                     });
@@ -173,6 +172,7 @@ const Community: React.FC = () => {
                         <TextField
                             variant="outlined"
                             fullWidth
+                            multiline
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
                             sx={{
@@ -248,7 +248,6 @@ const Community: React.FC = () => {
             </style>
         </Container>
     );
-
 };
 
 export default Community;

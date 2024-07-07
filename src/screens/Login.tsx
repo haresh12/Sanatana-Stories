@@ -1,5 +1,3 @@
-// src/components/Login.tsx
-
 import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth, googleProvider, db } from '../firebaseConfig';
@@ -12,6 +10,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../store/authSlice';
 import { RootState } from '../store';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -20,6 +20,9 @@ const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (currentUser) {
@@ -73,18 +76,19 @@ const Login: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'center',
         minHeight: '100vh',
+        padding: isMobile ? '10px' : '20px',
       }}
     >
       <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-        <Paper elevation={10} style={{ padding: '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
+        <Paper elevation={10} sx={{ padding: isMobile ? '20px' : '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <Avatar style={{ margin: '10px', backgroundColor: '#ff5722' }}>
+            <Avatar sx={{ margin: '10px', backgroundColor: '#ff5722' }}>
               <LockOutlinedIcon />
             </Avatar>
-            <Typography component="h1" variant="h5" style={{ color: '#ff5722' }}>
+            <Typography component="h1" variant="h5" sx={{ color: '#ff5722' }}>
               Login
             </Typography>
-            {error && <Alert severity="error" style={{ marginTop: '10px' }}>{error}</Alert>}
+            {error && <Alert severity="error" sx={{ marginTop: '10px' }}>{error}</Alert>}
             <form onSubmit={handleLogin} style={{ marginTop: '20px', width: '100%' }}>
               <TextField
                 variant="outlined"
@@ -165,7 +169,7 @@ const Login: React.FC = () => {
                   type="submit"
                   variant="contained"
                   fullWidth
-                  style={{
+                  sx={{
                     marginTop: '20px',
                     backgroundColor: '#ff5722',
                     color: '#fff',
@@ -179,14 +183,14 @@ const Login: React.FC = () => {
                 </Button>
               </motion.div>
               <Box mt={2} textAlign="center">
-                <Typography variant="body2" style={{ color: '#ff5722' }}>or</Typography>
+                <Typography variant="body2" sx={{ color: '#ff5722' }}>or</Typography>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', marginTop: '10px' }}>
                   <Button
                     variant="outlined"
                     fullWidth
                     startIcon={<GoogleIcon />}
                     onClick={handleGoogleLogin}
-                    style={{
+                    sx={{
                       borderColor: '#ff5722',
                       color: '#ff5722',
                       borderRadius: '50px',
@@ -211,4 +215,3 @@ const Login: React.FC = () => {
 };
 
 export default Login;
-  
