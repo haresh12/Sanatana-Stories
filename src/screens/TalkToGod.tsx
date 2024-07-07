@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Card, CardContent, Typography, Avatar, Box, Modal, CircularProgress } from '@mui/material';
 import { db } from '../firebaseConfig';
-import { collection, getDocs,deleteDoc,doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { God } from '../types/God';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +10,7 @@ import { setGodName, setMessages, setGods } from '../store/chatSlice';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
- 
+
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
 const TalkToGod = () => {
@@ -35,15 +35,10 @@ const TalkToGod = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    console.log('called')
     const fetchGods = async () => {
       const godsCollection = collection(db, 'gods');
-      console.log('godsCollection',godsCollection)
       const godsSnapshot = await getDocs(godsCollection);
-      console.log('sss',godsSnapshot)
-
       const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
-      console.log('godsList',godsList)
       dispatch(setGods(godsList));
     };
 
@@ -67,9 +62,12 @@ const TalkToGod = () => {
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
+      <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '40px', fontWeight: 'bold', color: '#ff5722' }}>
+        Talk to Your God
+      </Typography>
       <Grid container spacing={4} justifyContent="center">
         {gods.map((god, index) => (
-          <Grid item key={god.id} xs={12} sm={6} md={4}>
+          <Grid item key={god.id} xs={12} sm={6} md={4} lg={3} display="flex" justifyContent="center">
             <Card 
               sx={{ 
                 display: 'flex', 
@@ -78,11 +76,11 @@ const TalkToGod = () => {
                 alignItems: 'center', 
                 textAlign: 'center', 
                 padding: '20px', 
-                margin: '20px', 
                 borderRadius: '15px', 
                 boxShadow: '0 4px 8px rgba(0,0,0,0.2)', 
-                height: '350px', 
-                width: '300px', 
+                height: { xs: '250px', sm: '350px' }, // Adjust height based on screen size
+                width: '100%', 
+                maxWidth: { xs: '100%', sm: '350px' }, // Adjust width based on screen size
                 backgroundColor: colors[index % colors.length], 
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 '&:hover': {
@@ -98,8 +96,8 @@ const TalkToGod = () => {
                     src={god.image} 
                     alt={god.name} 
                     sx={{ 
-                      width: 100, 
-                      height: 100, 
+                      width: 80, 
+                      height: 80, 
                       margin: 'auto', 
                       marginBottom: '10px', 
                       boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
@@ -110,11 +108,11 @@ const TalkToGod = () => {
                     }} 
                   />
                   <Typography 
-                    variant="h5" 
+                    variant="h6" 
                     component="div" 
                     sx={{ 
                       fontWeight: 'bold', 
-                      marginTop: '20px', 
+                      marginTop: '10px', 
                       color: '#fff' 
                     }}
                   >
@@ -123,7 +121,7 @@ const TalkToGod = () => {
                   <Typography 
                     variant="body2" 
                     sx={{ 
-                      marginTop: '10px', 
+                      marginTop: '5px', 
                       color: '#fff' 
                     }}
                   >

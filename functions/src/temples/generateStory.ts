@@ -16,8 +16,6 @@ export const generateStory = functions.https.onCall(async (data, context) => {
     const prompt = `Tell me a unique and interesting story about the ${templeName}.`;
     const result = await model.generateContent(prompt);
     const story = await result.response.text();
-    console.log('HERE IT IS')
-
     return { story };
   } catch (error) {
     console.error("Error generating story:", error);

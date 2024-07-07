@@ -17,7 +17,6 @@ export const updateFunFact = async () => {
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    console.log("Fun fact updated:", text);
   } catch (error) {
     console.error("Error generating fun fact:", error);
   }
