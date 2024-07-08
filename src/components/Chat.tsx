@@ -1,3 +1,5 @@
+// src/components/Chat.tsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, IconButton, Container } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';

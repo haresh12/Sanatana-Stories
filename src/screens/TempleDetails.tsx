@@ -1,3 +1,5 @@
+// src/components/TempleDetail.tsx
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Box, Tabs, Tab, Typography, CircularProgress } from '@mui/material';
@@ -5,7 +7,6 @@ import { db } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import Stories from '../components/Stories';
 import Chat from '../components/Chat';
-import InterestingFacts from '../components/InterestingFacts';
 import { styled } from '@mui/system';
 
 interface Temple {
@@ -44,8 +45,7 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
   borderRadius: '8px',
   justifyContent: 'center',
   alignItems: 'center',
-  flex: 1,
-  width: '400px',
+  width: 'auto',
   '& .MuiTabs-indicator': {
     backgroundColor: '#ff5722',
     height: '4px',
@@ -59,8 +59,8 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 'bold',
-  minWidth: '100px',
-  padding: theme.spacing(1, 2),
+  minWidth: '160px', // Reduced width for better responsiveness
+  padding: theme.spacing(1, 2), // Adjusted vertical padding to be smaller
   '&.Mui-selected': {
     color: '#ff5722',
   },
@@ -147,21 +147,20 @@ const TempleDetail: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '10px', height: '100vh' }}>
-      <Box sx={{ mb: -5, align: "center", marginLeft: 45 }}>
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
         <StyledTabs value={value} onChange={handleChange} aria-label="temple details tabs" centered>
           <StyledTab label="Stories" />
           <StyledTab label="Chat" />
         </StyledTabs>
       </Box>
-      <TabPanel value={value} index={0}>
-        <Stories  templeId={`${templeId}`} templeName={`${temple?.name}`} initialStory={story} setStory={setStory} />
-      </TabPanel>
-      <TabPanel value={value} index={1}>
-        <Chat templeName={`${temple?.name}`} templeId={`${templeId}`} initialMessages={chatMessages} setMessages={setChatMessages} />
-      </TabPanel>
-      <TabPanel value={value} index={2}>
-        <InterestingFacts templeId={templeId || ''} />
-      </TabPanel>
+      <Box sx={{ flexGrow: 1 }}>
+        <TabPanel value={value} index={0}>
+          <Stories templeId={`${templeId}`} templeName={`${temple?.name}`} initialStory={story} setStory={setStory} />
+        </TabPanel>
+        <TabPanel value={value} index={1}>
+          <Chat templeName={`${temple?.name}`} templeId={`${templeId}`} initialMessages={chatMessages} setMessages={setChatMessages} />
+        </TabPanel>
+      </Box>
     </Container>
   );
 };
