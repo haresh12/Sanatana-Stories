@@ -1,3 +1,5 @@
+// src/components/Stories.tsx
+
 import React, { useEffect, useState } from 'react';
 import { Container, Box, Typography, Button, CircularProgress, Card, CardContent, CardActions } from '@mui/material';
 import { httpsCallable } from 'firebase/functions';
@@ -63,12 +65,12 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
     <Container maxWidth="md" sx={{ paddingBottom: '40px', height: '85vh' }}>
       {animateOnce && !initialStory ? (
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
+          <Typography variant="h1" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: -5 }}>
             Story about {templeName}
           </Typography>
         </motion.div>
       ) : (
-        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: -5 }}>
           Story about {templeName}
         </Typography>
       )}

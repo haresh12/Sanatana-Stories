@@ -140,7 +140,7 @@ const chalisaText = `
 राम लखन सीता सहित, हृदय बसहु सुर भूप॥
 `;
 
-const Chalisa: React.FC = () => {
+const UnderstandAndSaveMeanings: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const savedWords = useSelector((state: RootState) => state.chalisa.savedMeanings);
   const [selectedText, setSelectedText] = useState('');
@@ -279,4 +279,4 @@ const Chalisa: React.FC = () => {
   );
 };
 
-export default Chalisa;
+export default UnderstandAndSaveMeanings;

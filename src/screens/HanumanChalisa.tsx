@@ -21,16 +21,27 @@ const HanumanChalisa: React.FC = () => {
             variant="fullWidth"
             textColor="inherit"
             TabIndicatorProps={{ style: { display: 'none' } }}
-            sx={{ justifyContent: 'center' }}
+            sx={{
+              '& .MuiTabs-flexContainer': {
+                justifyContent: 'center',
+              },
+              '& .MuiTab-root': {
+                fontWeight: 'bold',
+                fontSize: { xs: '10px', sm: '12px', md: '14px' },
+                minWidth: { xs: '80px', sm: '100px' },
+                padding: { xs: '4px 8px', sm: '6px 12px' },
+                marginRight: { xs: '5px', sm: '10px' },
+                border: value === 0 ? '2px solid white' : 'none',
+                borderRadius: '10px',
+                '&.Mui-selected': {
+                  border: '2px solid white',
+                },
+              },
+            }}
           >
             <Tab
               label="Understand Meanings"
               sx={{
-                fontWeight: 'bold',
-                fontSize: '10px',
-                minWidth: '80px',
-                marginRight: '5px',
-                padding: '4px 8px',
                 border: value === 0 ? '2px solid white' : 'none',
                 borderRadius: '10px',
               }}
@@ -38,10 +49,6 @@ const HanumanChalisa: React.FC = () => {
             <Tab
               label="Chant & Analyze"
               sx={{
-                fontWeight: 'bold',
-                fontSize: '10px',
-                minWidth: '80px',
-                padding: '4px 8px',
                 border: value === 1 ? '2px solid white' : 'none',
                 borderRadius: '10px',
               }}

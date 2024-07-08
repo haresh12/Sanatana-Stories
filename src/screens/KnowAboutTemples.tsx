@@ -46,8 +46,8 @@ const KnowAboutTemples: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
-      <Grid container spacing={4} justifyContent="center">
+    <Container maxWidth="lg" sx={{ paddingTop: { xs: '20px', sm: '40px' }, paddingBottom: { xs: '20px', sm: '40px' }, position: 'relative' }}>
+      <Grid container spacing={{ xs: 2, sm: 4 }} justifyContent="center">
         {temples.map((temple: Temple, index: number) => (
           <Grid item key={temple.id} xs={12} sm={6} md={4}>
             <Card
@@ -62,7 +62,7 @@ const KnowAboutTemples: React.FC = () => {
                 margin: '20px',
                 borderRadius: '15px',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                height: '450px',
+                height: { xs: '300px', sm: '350px', md: '450px' },
                 backgroundColor: colors[index % colors.length],
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 '&:hover': {
@@ -79,9 +79,9 @@ const KnowAboutTemples: React.FC = () => {
                     alt={temple.name}
                     sx={{
                       width: '100%',
-                      height: 'auto',
-                      marginBottom: '0px',
-                      borderRadius: '15px 15px 0 0',
+                      height: { xs: '150px', sm: '200px', md: 'auto' },
+                      borderTopLeftRadius: '15px',
+                      borderTopRightRadius: '15px',
                       boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
                       transition: 'transform 0.3s',
                       '&:hover': {
