@@ -10,6 +10,7 @@ import { motion } from 'framer-motion';
 import CircularProgress from '@mui/material/CircularProgress';
 import RulesModal from '../components/RulesModal';
 import { setHasSeenRules } from '../store/authSlice';
+import BackButton from '../components/BackButton'; 
 
 interface Message {
     id: string;
@@ -144,6 +145,7 @@ const Community: React.FC = () => {
 
     return (
         <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
+            <BackButton /> {/* Add BackButton here */}
             {!hasSeenRules ? (
                 <RulesModal open={!hasSeenRules} handleClose={handleCloseRules} />
             ) : (

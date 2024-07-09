@@ -11,6 +11,7 @@ import { functions, db } from '../firebaseConfig';
 import { God } from '../types/God';
 import { motion } from 'framer-motion';
 import { setGodName, setMessages, addMessage } from '../store/chatSlice';
+import BackButton from '../components/BackButton';
 
 interface Message {
   role: string;
@@ -123,6 +124,7 @@ const ChatPage: React.FC = () => {
 
   return (
     <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
+      <BackButton /> {/* Add BackButton here */}
       <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '98vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
           <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>

@@ -9,7 +9,7 @@ import { RootState } from '../store';
 import { setGodName, setMessages, setGods } from '../store/chatSlice';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
-import { motion } from 'framer-motion';
+import BackButton from '../components/BackButton';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
@@ -62,6 +62,7 @@ const TalkToGod = () => {
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
+      <BackButton /> 
       <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '40px', fontWeight: 'bold', color: '#ff5722' }}>
         Talk to Your God
       </Typography>
@@ -78,9 +79,9 @@ const TalkToGod = () => {
                 padding: '20px', 
                 borderRadius: '15px', 
                 boxShadow: '0 4px 8px rgba(0,0,0,0.2)', 
-                height: { xs: '250px', sm: '350px' }, // Adjust height based on screen size
+                height: { xs: '250px', sm: '350px' }, 
                 width: '100%', 
-                maxWidth: { xs: '100%', sm: '350px' }, // Adjust width based on screen size
+                maxWidth: { xs: '100%', sm: '350px' }, 
                 backgroundColor: colors[index % colors.length], 
                 transition: 'transform 0.2s, box-shadow 0.2s',
                 '&:hover': {

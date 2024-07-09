@@ -7,6 +7,7 @@ import { fetchTemples, Temple } from '../store/templesSlice';
 import { motion } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
+import BackButton from '../components/BackButton';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
@@ -47,6 +48,7 @@ const KnowAboutTemples: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: { xs: '20px', sm: '40px' }, paddingBottom: { xs: '20px', sm: '40px' }, position: 'relative' }}>
+      <BackButton />  
       <Grid container spacing={{ xs: 2, sm: 4 }} justifyContent="center">
         {temples.map((temple: Temple, index: number) => (
           <Grid item key={temple.id} xs={12} sm={6} md={4}>
