@@ -3,6 +3,7 @@ import { Container, AppBar, Tabs, Tab, Box } from '@mui/material';
 import { motion } from 'framer-motion';
 import UnderstandAndSaveMeanings from '../components/UnderstandAndSaveMeanings';
 import StartChantingAndAnalysis from '../components/StartChantingAndAnalysis';
+import BackButton from '../components/BackButton';
 
 const HanumanChalisa: React.FC = () => {
   const [value, setValue] = useState(0);
@@ -13,8 +14,9 @@ const HanumanChalisa: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <BackButton />
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-        <AppBar position="static" sx={{ borderRadius: '15px', marginBottom: '20px', backgroundColor: '#ff5722'  }}>
+        <AppBar position="static" sx={{ borderRadius: '15px', marginBottom: '20px', backgroundColor: '#ff5722' }}>
           <Tabs
             value={value}
             onChange={handleChange}

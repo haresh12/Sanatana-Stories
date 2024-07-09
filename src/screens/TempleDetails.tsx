@@ -1,5 +1,3 @@
-// src/components/TempleDetail.tsx
-
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Box, Tabs, Tab, Typography, CircularProgress } from '@mui/material';
@@ -8,6 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import Stories from '../components/Stories';
 import Chat from '../components/Chat';
 import { styled } from '@mui/system';
+import BackButton from '../components/BackButton'; 
 
 interface Temple {
   name: string;
@@ -59,8 +58,8 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 'bold',
-  minWidth: '160px', // Reduced width for better responsiveness
-  padding: theme.spacing(1, 2), // Adjusted vertical padding to be smaller
+  minWidth: '160px',  
+  padding: theme.spacing(1, 2),  
   '&.Mui-selected': {
     color: '#ff5722',
   },
@@ -121,7 +120,6 @@ const TempleDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    // Cleanup function to reset chatMessages when navigating away
     return () => {
       setChatMessages([]);
     };
@@ -147,6 +145,7 @@ const TempleDetail: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '10px', height: '100vh' }}>
+      <BackButton />
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
         <StyledTabs value={value} onChange={handleChange} aria-label="temple details tabs" centered>
           <StyledTab label="Stories" />
