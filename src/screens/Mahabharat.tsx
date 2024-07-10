@@ -10,7 +10,7 @@ const Mahabharat: React.FC = () => {
         Mahabharat
       </Typography>
       <Typography variant="body1" align="center" style={{ color: '#fff' }}>
-        Content for Mahabharat
+       continue working on REACT FIBER 3D MODEL
       </Typography>
     </Container>
   );
