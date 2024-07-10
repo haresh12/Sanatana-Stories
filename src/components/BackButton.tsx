@@ -13,7 +13,8 @@ const BackButton = () => {
   const isPWA = () => window.matchMedia('(display-mode: standalone)').matches;
   const isMobile = () => /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-  if (isPWA() && isMobile() || true) {
+  // should be only visible when we  its pwa or mobile device
+  if (isPWA() && isMobile()) {
     return (
       <IconButton onClick={handleBack} sx={{ position: 'fixed', top: '10px', left: '10px', zIndex: 1000, color : 'white' }}>
         <ArrowBackIcon />
