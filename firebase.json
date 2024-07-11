@@ -34,6 +34,10 @@
       {
         "source": "/analyzeChanting" ,
         "function": "analyzeChanting"
+      },
+      {
+        "source": "/generateQuiz" ,
+        "function": "generateQuiz"
       }
     ]
   },

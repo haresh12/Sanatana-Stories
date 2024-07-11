@@ -7,7 +7,7 @@ export const getMeaning = functions.https.onCall(async (data, context) => {
   const { text } = data;
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-1.5-pro',
     systemInstruction: `You are an expert in Sanskrit texts. Provide an explanation for the following text in simple terms and those are make sure hanuman chalisa text: ${text}`,
   });
 

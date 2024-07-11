@@ -5,7 +5,7 @@ const db = admin.firestore();
 const genAI = new GoogleGenerativeAI('');
 
 export const updateFunFact = async () => {
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-pro' });
 
   try {
     const prompt = "Generate a fun fact in Hindi about either Hanuman Chalisa, Ramayana, Mahabharata, Hindu Puranas, or Hindu temples. The fact should be interesting and must not exceed 3 lines. Ensure each fact is unique and not repeated.";

@@ -20,6 +20,12 @@ const Signup: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loadingSignup, setLoadingSignup] = useState(false);
   const [loadingGoogle, setLoadingGoogle] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    email: '',
+    password: '',
+    name: ''
+  });
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
@@ -33,8 +39,47 @@ const Signup: React.FC = () => {
     }
   }, [currentUser, navigate]);
 
+  const validateInputs = () => {
+    let valid = true;
+    const errors = {
+      email: '',
+      password: '',
+      name: ''
+    };
+
+    if (!name) {
+      errors.name = 'Name is required';
+      valid = false;
+    }
+
+    if (!email) {
+      errors.email = 'Email is required';
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = 'Email address is invalid';
+      valid = false;
+    }
+
+    if (!password) {
+      errors.password = 'Password is required';
+      valid = false;
+    } else if (password.length < 6) {
+      errors.password = 'Password must be at least 6 characters';
+      valid = false;
+    }
+
+    setValidationErrors(errors);
+    return valid;
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (!validateInputs()) {
+      return;
+    }
+
     setLoadingSignup(true);
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -50,8 +95,8 @@ const Signup: React.FC = () => {
       dispatch(setUser(user));
       dispatch(setName(name));
       navigate('/dashboard');
-    } catch (error) {
-      setError('Oh no! Something went wrong. Are you sure this email isn’t already taken?');
+    } catch (error: any) {
+      handleFirebaseError(error);
     }
     setLoadingSignup(false);
   };
@@ -71,10 +116,30 @@ const Signup: React.FC = () => {
 
       dispatch(setUser(result.user));
       navigate('/dashboard');
-    } catch (error) {
-      setError('Google Sign-In failed. Please try again.');
+    } catch (error: any) {
+      handleFirebaseError(error);
     }
     setLoadingGoogle(false);
+  };
+
+  const handleFirebaseError = (error: any) => {
+    let errorMessage = 'An unknown error occurred. Please try again.';
+    if (error.code === 'auth/email-already-in-use') {
+      errorMessage = 'This email is already in use. Please try another one.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'The email address is not valid.';
+    } else if (error.code === 'auth/operation-not-allowed') {
+      errorMessage = 'Email/password accounts are not enabled.';
+    } else if (error.code === 'auth/weak-password') {
+      errorMessage = 'The password is too weak.';
+    } else if (error.code === 'auth/popup-closed-by-user') {
+      errorMessage = 'The Google sign-in popup was closed before completing the sign-in. Please try again.';
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      errorMessage = 'Multiple popup requests. Please try again.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    setError(errorMessage);
   };
 
   return (
@@ -113,6 +178,8 @@ const Signup: React.FC = () => {
                 autoFocus
                 value={name}
                 onChange={(e) => setUserName(e.target.value)}
+                error={!!validationErrors.name}
+                helperText={validationErrors.name}
                 InputProps={{
                   style: {
                     color: '#000'
@@ -149,6 +216,8 @@ const Signup: React.FC = () => {
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                error={!!validationErrors.email}
+                helperText={validationErrors.email}
                 InputProps={{
                   style: {
                     color: '#000'
@@ -186,6 +255,8 @@ const Signup: React.FC = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={!!validationErrors.password}
+                helperText={validationErrors.password}
                 InputProps={{
                   style: {
                     color: '#000'

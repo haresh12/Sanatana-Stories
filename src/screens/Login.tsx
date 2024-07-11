@@ -17,6 +17,11 @@ const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState({
+    email: '',
+    password: ''
+  });
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
@@ -30,14 +35,44 @@ const Login: React.FC = () => {
     }
   }, [currentUser, navigate]);
 
+  const validateInputs = () => {
+    let valid = true;
+    const errors = {
+      email: '',
+      password: ''
+    };
+
+    if (!email) {
+      errors.email = 'Email is required';
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      errors.email = 'Email address is invalid';
+      valid = false;
+    }
+
+    if (!password) {
+      errors.password = 'Password is required';
+      valid = false;
+    }
+
+    setValidationErrors(errors);
+    return valid;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (!validateInputs()) {
+      return;
+    }
+
     try {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       dispatch(setUser(userCredential.user));
       navigate('/dashboard');
-    } catch (error) {
-      setError('Oops! Wrong credentials. Did you forget your password or your username?');
+    } catch (error: any) {
+      handleFirebaseError(error);
     }
   };
 
@@ -61,9 +96,27 @@ const Login: React.FC = () => {
 
       dispatch(setUser(user));
       navigate('/dashboard');
-    } catch (error) {
-      setError('Google Sign-In failed. Please try again.');
+    } catch (error: any) {
+      handleFirebaseError(error);
     }
+  };
+
+  const handleFirebaseError = (error: any) => {
+    let errorMessage = 'An unknown error occurred. Please try again.';
+    if (error.code === 'auth/user-not-found') {
+      errorMessage = 'No user found with this email. Please sign up first.';
+    } else if (error.code === 'auth/wrong-password') {
+      errorMessage = 'Incorrect password. Please try again.';
+    } else if (error.code === 'auth/invalid-email') {
+      errorMessage = 'The email address is not valid.';
+    } else if (error.code === 'auth/popup-closed-by-user') {
+      errorMessage = 'The Google sign-in popup was closed before completing the sign-in. Please try again.';
+    } else if (error.code === 'auth/cancelled-popup-request') {
+      errorMessage = 'Multiple popup requests. Please try again.';
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    setError(errorMessage);
   };
 
   return (
@@ -102,6 +155,8 @@ const Login: React.FC = () => {
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                error={!!validationErrors.email}
+                helperText={validationErrors.email}
                 InputProps={{
                   style: {
                     color: '#000'
@@ -139,6 +194,8 @@ const Login: React.FC = () => {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={!!validationErrors.password}
+                helperText={validationErrors.password}
                 InputProps={{
                   style: {
                     color: '#000'

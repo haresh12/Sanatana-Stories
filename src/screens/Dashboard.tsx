@@ -15,6 +15,7 @@ import HanumanChalisaIcon from '@mui/icons-material/MenuBook';
 import TalkToGodIcon from '@mui/icons-material/EmojiPeople';
 import CommunityIcon from '@mui/icons-material/People';
 import TemplesIcon from '@mui/icons-material/TempleHindu';
+import QuizIcon from '@mui/icons-material/Quiz';
 import { keyframes } from '@mui/system';
 
 const Transition = React.forwardRef(function Transition(
@@ -35,10 +36,38 @@ const movingBorder = keyframes`
   }
 `;
 
+const pulsingShadow = keyframes`
+  0% {
+    box-shadow: 0 0 10px rgba(255, 179, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 179, 0, 1);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(255, 179, 0, 0.5);
+  }
+`;
+
 const cardAnimation = {
   hover: {
     scale: 1.05,
     boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
+    transition: {
+      duration: 0.3,
+    },
+  },
+  tap: {
+    scale: 0.95,
+    transition: {
+      duration: 0.3,
+    },
+  },
+};
+
+const quizCardAnimation = {
+  hover: {
+    scale: 1.05,
+    animation: `${pulsingShadow} 1.5s infinite`,
     transition: {
       duration: 0.3,
     },
@@ -61,6 +90,7 @@ const cards = [
   { title: 'Know About Temples', description: 'Get to know various temples.', icon: <TemplesIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#4DB6AC', route: '/know-about-temples' },
   { title: 'Fun Fact', description: '', icon: null, color: '#9575CD' },
   { title: 'Myth', description: '', icon: null, color: '#E57373' },
+  { title: 'Quiz', description: 'Challenge your knowledge with our quiz.', icon: <QuizIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#FFC107', route: '/quiz', animation: quizCardAnimation },
 ];
 
 const Dashboard: React.FC = () => {
@@ -189,7 +219,12 @@ const Dashboard: React.FC = () => {
       <Grid container spacing={4} justifyContent="center">
         {cards.map((card, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
-            <motion.div variants={cardAnimation} whileHover="hover" whileTap="tap" onClick={() => card.route && navigate(card.route)}>
+            <motion.div
+              variants={card.animation || cardAnimation}
+              whileHover="hover"
+              whileTap="tap"
+              onClick={() => card.route && navigate(card.route)}
+            >
               <Card
                 sx={{
                   backgroundColor: card.color,

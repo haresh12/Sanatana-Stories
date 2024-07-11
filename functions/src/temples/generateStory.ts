@@ -8,7 +8,7 @@ export const generateStory = functions.https.onCall(async (data, context) => {
   const { templeName } = data;
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-1.5-pro',
     systemInstruction: `You are an expert storyteller. Generate an interesting and unique story about the ${templeName} that is not easily found on the internet.`,
   });
 

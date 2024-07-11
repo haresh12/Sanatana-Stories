@@ -2,13 +2,13 @@ import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { db } from '../firebaseApp';
 
-const genAI = new GoogleGenerativeAI("AIzaSyBpZs6pcBEwfm3iNVWlqKtfpYqpIYxU26Q");
+const genAI = new GoogleGenerativeAI("");
 
 export const handleChat = functions.https.onCall(async (data, context) => {
   const { userId, godName, message } = data;
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-1.5-pro',
     systemInstruction: `You are ${godName} and you only have to answer if a question is related to ${godName}. If any question that the user asks is not related to ${godName}, respond with a funny answer to let them know that you cannot answer this question because it is not related to ${godName}.`,
   });
 

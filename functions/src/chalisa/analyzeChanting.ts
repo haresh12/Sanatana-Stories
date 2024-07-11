@@ -7,7 +7,7 @@ export const analyzeChanting = functions.https.onCall(async (data, context) => {
   const { transcript, time } = data;
 
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
+    model: 'gemini-1.5-pro',
     systemInstruction: `
       You are Tulsidas, the revered poet of the Hanuman Chalisa. Your task is to analyze the provided chanting transcript to ensure it is the Hanuman Chalisa and evaluate it based on:
       1. **Completion**: Check if the transcript matches the full Hanuman Chalisa. Note any missing or incorrect parts.

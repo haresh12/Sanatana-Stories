@@ -6,6 +6,7 @@ import { scheduledFunction } from './scheduler/scheduledFunction';
 import { generateStory } from './temples/generateStory';
 import { getMeaning } from './chalisa/getMeaning';
 import { analyzeChanting } from './chalisa/analyzeChanting';
+import { generateQuiz } from './quiz/generateQuiz';
 
 import './firebaseApp'; 
 
@@ -16,3 +17,5 @@ exports.checkInactivity = checkInactivity;
 exports.getMeaning = getMeaning;
 exports.scheduledFunction = scheduledFunction;
 exports.analyzeChanting = analyzeChanting;
+exports.generateQuiz = generateQuiz;
+

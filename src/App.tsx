@@ -18,6 +18,7 @@ import HanumanChalisa from './screens/HanumanChalisa';
 import Community from './screens/Community';
 import KnowAboutTemples from './screens/KnowAboutTemples';
 import TempleDetail from './screens/TempleDetails';
+import Quiz from './screens/QuizPage';
 import BackgroundOverlay from './components/BackgroundOverlay';
 
 const App: React.FC = () => {
@@ -68,6 +69,7 @@ const App: React.FC = () => {
         <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
         <Route path="/know-about-temples" element={<PrivateRoute><KnowAboutTemples /></PrivateRoute>} />
         <Route path="/temple/:templeId" element={<PrivateRoute><TempleDetail /></PrivateRoute>} />
+        <Route path="/quiz" element={<PrivateRoute><Quiz /></PrivateRoute>} />
       </Routes>
     </Router>
   );
