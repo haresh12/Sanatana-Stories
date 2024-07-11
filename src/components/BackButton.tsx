@@ -20,6 +20,8 @@ const BackButton = () => {
         <ArrowBackIcon />
       </IconButton>
     );
+  }else{
+    return null
   }
 };
 
