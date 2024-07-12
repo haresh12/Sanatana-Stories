@@ -6,11 +6,12 @@ const genAI = new GoogleGenerativeAI("");
 export const generateQuiz = functions.https.onCall(async (data, context) => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
+    systemInstruction: "You are an expert in Hindu mythology. Generate a diverse set of quiz questions covering various aspects of Hindu mythology, including the Mahabharata, Ramayana, all 18 Hindu Puranas, and Hindu culture. Ensure each quiz is unique.",
     generationConfig: { responseMimeType: "application/json" }
   });
 
   const prompt = `
-  Generate a JSON with up to 10 questions about Hindu Puranas. Each question should have 2 to 4 options where users can select an answer. Use the following schema:
+  Generate a JSON with up to 10 unique questions about Hindu mythology. Each question should cover topics such as the Mahabharata, Ramayana, 18 Hindu Puranas, and Hindu culture. Each question should have 2 to 4 options where users can select an answer, and provide the correct answer for each question. Use the following schema:
   {
     "type": "object",
     "properties": {
@@ -25,9 +26,10 @@ export const generateQuiz = functions.https.onCall(async (data, context) => {
               "items": { "type": "string" },
               "minItems": 2,
               "maxItems": 4
-            }
+            },
+            "correctAnswer": { "type": "string" }
           },
-          "required": ["question", "options"]
+          "required": ["question", "options", "correctAnswer"]
         },
         "minItems": 1,
         "maxItems": 10
