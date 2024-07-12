@@ -19,6 +19,7 @@ interface GenerateQuizQuestionsResponse {
   questions: {
     questions: QuizQuestion[];
   };
+  topics: string[];
 }
 
 const ProgressContainer = styled(Box)(({ theme }) => ({
@@ -33,19 +34,24 @@ const OptionButton = styled(Button)<{ isCorrect?: boolean; isIncorrect?: boolean
   textAlign: 'left',
   justifyContent: 'flex-start',
   padding: theme.spacing(1.5),
-  borderRadius: '25px', 
-  backgroundColor: isCorrect ? '#4caf50' : isIncorrect ? '#f44336' : '#ff5722', 
-  color: '#fff', 
+  borderRadius: '25px',
+  backgroundColor: isCorrect ? '#4caf50' : isIncorrect ? '#f44336' : '#ff5722',
+  color: '#fff',
   '&:hover': {
-    backgroundColor: isCorrect ? '#4caf50' : isIncorrect ? '#f44336' : '#e64a19',  
+    backgroundColor: isCorrect ? '#4caf50' : isIncorrect ? '#f44336' : '#e64a19',
   },
   transition: 'background-color 0.3s, transform 0.2s',
-  transform: isCorrect || isIncorrect ? 'scale(1.05)' : 'scale(1)', 
+  transform: isCorrect || isIncorrect ? 'scale(1.05)' : 'scale(1)',
   '&:active': {
-    transform: 'scale(0.95)', 
+    transform: 'scale(0.95)',
   },
-  fontSize: '0.875rem', 
-  fontWeight: 'bold', 
+  fontSize: '1rem',
+  fontWeight: 'bold',
+  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+  '& .MuiButton-label': {
+    display: 'flex',
+    justifyContent: 'space-between',
+  },
 }));
 
 const QuestionCard = styled(Card)(({ theme }) => ({
@@ -53,17 +59,26 @@ const QuestionCard = styled(Card)(({ theme }) => ({
   padding: '20px',
   borderRadius: '20px',
   boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-  backgroundColor: '#ffebee',  
+  backgroundColor: '#ffebee',
+}));
+
+const TopicsContainer = styled(Box)(({ theme }) => ({
+  marginBottom: '20px',
+  padding: '10px 20px',
+  borderRadius: '10px',
+  backgroundColor: '#e0f7fa',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
 }));
 
 const Quiz: React.FC = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const [topics, setTopics] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
-  const currentUser = useSelector((state: RootState) => state.auth.currentUser);  
+  const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -76,6 +91,7 @@ const Quiz: React.FC = () => {
         const data = response.data as GenerateQuizQuestionsResponse;
         if (Array.isArray(data.questions.questions)) {
           setQuestions(data.questions.questions);
+          setTopics(data.topics);
         } else {
           console.error('Invalid data structure:', data);
         }
@@ -113,9 +129,11 @@ const Quiz: React.FC = () => {
             questions,
             userAnswers,
             score,
+            topics,
             timestamp: new Date(),
           });
 
+          // Display score or redirect to results page
           setModalOpen(true);
         }
       }
@@ -124,29 +142,31 @@ const Quiz: React.FC = () => {
 
   const handleModalClose = () => {
     setModalOpen(false);
-    navigate('/dashboard'); 
+    navigate('/dashboard');
   };
 
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
     <Container maxWidth="md" sx={{ paddingTop: '40px', paddingBottom: '40px' }}>
-      <Box
-        component={motion.div}
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
-        textAlign="center"
-      >
+      <Box textAlign="center">
         <Typography variant="h4" sx={{ fontWeight: 'bold', marginBottom: '20px', color: '#ff5722' }}>
           Quiz
         </Typography>
+        {!loading && (
+          <TopicsContainer>
+            <Typography variant="h6" sx={{ color: '#00796b', fontWeight: 'bold' }}>
+              Topics: {topics.join(', ')}
+            </Typography>
+          </TopicsContainer>
+        )}
         {loading ? (
           <CircularProgress />
         ) : (
           questions.length > 0 && (
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               <motion.div
+                key={currentQuestionIndex}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
@@ -189,18 +209,22 @@ const Quiz: React.FC = () => {
                         </Box>
                       </Box>
                     </ProgressContainer>
-                    {questions[currentQuestionIndex].options.map((option: string, idx: number) => (
-                      <OptionButton
-                        key={idx}
-                        fullWidth
-                        isCorrect={selectedAnswer === option && option === questions[currentQuestionIndex].correctAnswer}
-                        isIncorrect={selectedAnswer === option && option !== questions[currentQuestionIndex].correctAnswer}
-                        onClick={() => handleAnswerSelect(option)}
-                        disabled={selectedAnswer !== null}
-                      >
-                        {option}
-                      </OptionButton>
-                    ))}
+                    {questions[currentQuestionIndex].options.map((option: string, idx: number) => {
+                      const isCorrect = selectedAnswer === option && option === questions[currentQuestionIndex].correctAnswer;
+                      const isIncorrect = selectedAnswer === option && option !== questions[currentQuestionIndex].correctAnswer;
+                      return (
+                        <OptionButton
+                          key={idx}
+                          fullWidth
+                          isCorrect={isCorrect}
+                          isIncorrect={isIncorrect}
+                          onClick={() => handleAnswerSelect(option)}
+                          disabled={selectedAnswer !== null}
+                        >
+                          {option}
+                        </OptionButton>
+                      );
+                    })}
                   </CardContent>
                 </QuestionCard>
               </motion.div>
