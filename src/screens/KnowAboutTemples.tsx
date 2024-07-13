@@ -6,7 +6,8 @@ import { RootState, AppDispatch } from '../store';
 import { fetchTemples, Temple } from '../store/templesSlice';
 import { motion } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../firebaseConfig';
+import { functions, db } from '../firebaseConfig';
+import { collection, getDocs, deleteDoc, query, where } from 'firebase/firestore';
 import BackButton from '../components/BackButton';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
@@ -19,8 +20,20 @@ const KnowAboutTemples: React.FC = () => {
   const [showLoader, setShowLoader] = useState<boolean>(false);
 
   useEffect(() => {
-      dispatch(fetchTemples());
-  }, [dispatch, temples.length]);
+    const clearPreviousStories = async () => {
+      if (currentUser) {
+        const storiesRef = collection(db, 'users', currentUser.uid, 'stories');
+        const q = query(storiesRef, where('text', '!=', ''));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach(async (doc) => {
+          await deleteDoc(doc.ref);
+        });
+      }
+    };
+
+    clearPreviousStories();
+    dispatch(fetchTemples());
+  }, [dispatch, currentUser]);
 
   const truncateDescription = (description: string, maxLength: number) => {
     const words = description.split(' ');
