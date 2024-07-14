@@ -90,7 +90,15 @@ const cards = [
   { title: 'Know About Temples', description: 'Get to know various temples.', icon: <TemplesIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#4DB6AC', route: '/know-about-temples' },
   { title: 'Fun Fact', description: '', icon: null, color: '#9575CD' },
   { title: 'Myth', description: '', icon: null, color: '#E57373' },
-  { title: 'Quiz', description: 'Challenge your knowledge with our quiz.', icon: <QuizIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#FFC107', route: '/quiz', animation: quizCardAnimation },
+  { title: 'Quiz', description: 'Challenge your knowledge with our quiz.', icon: <QuizIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#FFA726', route: '/quiz', animation: quizCardAnimation },
+  { 
+    title: 'Summarize Satsang', 
+    description: 'Summarize spiritual videos easily.', 
+    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#FFD54F', 
+    route: '/summarize-satsang', 
+    animation: quizCardAnimation 
+  },
 ];
 
 const Dashboard: React.FC = () => {
