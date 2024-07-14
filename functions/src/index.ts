@@ -7,6 +7,8 @@ import { generateStory } from './temples/generateStory';
 import { getMeaning } from './chalisa/getMeaning';
 import { analyzeChanting } from './chalisa/analyzeChanting';
 import { generateQuiz } from './quiz/generateQuiz';
+import { summarizeSatsang } from './summerize/summarizeSatsang';
+
 
 import './firebaseApp'; 
 
@@ -18,4 +20,5 @@ exports.getMeaning = getMeaning;
 exports.scheduledFunction = scheduledFunction;
 exports.analyzeChanting = analyzeChanting;
 exports.generateQuiz = generateQuiz;
+exports.summarizeSatsang = summarizeSatsang;
 
