@@ -20,18 +20,25 @@ const KnowAboutTemples: React.FC = () => {
   const [showLoader, setShowLoader] = useState<boolean>(false);
 
   useEffect(() => {
-    const clearPreviousStories = async () => {
+    const clearPreviousData = async () => {
       if (currentUser) {
         const storiesRef = collection(db, 'users', currentUser.uid, 'stories');
-        const q = query(storiesRef, where('text', '!=', ''));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach(async (doc) => {
+        const qStories = query(storiesRef, where('text', '!=', ''));
+        const storiesSnapshot = await getDocs(qStories);
+        storiesSnapshot.forEach(async (doc) => {
+          await deleteDoc(doc.ref);
+        });
+
+        const templeChatRef = collection(db, 'users', currentUser.uid, 'templeChat');
+        const qTempleChat = query(templeChatRef);
+        const templeChatSnapshot = await getDocs(qTempleChat);
+        templeChatSnapshot.forEach(async (doc) => {
           await deleteDoc(doc.ref);
         });
       }
     };
 
-    clearPreviousStories();
+    clearPreviousData();
     dispatch(fetchTemples());
   }, [dispatch, currentUser]);
 

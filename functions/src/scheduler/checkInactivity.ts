@@ -4,7 +4,7 @@ import { sendAIMessage } from './sendAIMessage';
 
 const db = admin.firestore();
 
-export const checkInactivity = functions.pubsub.schedule('every 2000 minutes').onRun(async (context) => {
+export const checkInactivity = functions.pubsub.schedule('every 20000 minutes').onRun(async (context) => {
   const messagesRef = db.collection('comments').orderBy('timestamp', 'desc').limit(1);
   const snapshot = await messagesRef.get();
 

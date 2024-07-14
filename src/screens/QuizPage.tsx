@@ -80,14 +80,12 @@ const Quiz: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
         const generateQuiz = httpsCallable<{}, GenerateQuizQuestionsResponse>(functions, 'generateQuiz');
         const response = await generateQuiz();
-        console.log('Response:', response);
         const data = response.data as GenerateQuizQuestionsResponse;
         if (Array.isArray(data.questions.questions)) {
           setQuestions(data.questions.questions);

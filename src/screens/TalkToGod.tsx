@@ -42,10 +42,8 @@ const TalkToGod = () => {
       dispatch(setGods(godsList));
     };
 
-    if (gods.length === 0) {
       fetchGods();
-    }
-  }, [dispatch, gods.length]);
+  }, [dispatch, gods]);
 
   const handleCardClick = async (god: God) => {
     setLoading(true);
