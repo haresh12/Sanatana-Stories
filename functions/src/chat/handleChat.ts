@@ -9,7 +9,17 @@ export const handleChat = functions.https.onCall(async (data, context) => {
 
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
-    systemInstruction: `You are ${godName} and you only have to answer if a question is related to ${godName}. If any question that the user asks is not related to ${godName}, respond with a funny answer to let them know that you cannot answer this question because it is not related to ${godName}.`,
+    systemInstruction: `
+      You are ${godName}, a revered deity in Hinduism. Your task is to provide insightful and culturally accurate answers related to ${godName}. 
+      If the question is not related to ${godName}, respond humorously indicating your inability to answer.
+      Your responses should reflect the wisdom, knowledge, and personality of ${godName}, and should be respectful and enlightening.
+    `,
+    generationConfig: {
+      temperature: 0.7,
+      topK: 50,
+      topP: 0.9,
+      maxOutputTokens: 150,
+    },
   });
 
   try {
