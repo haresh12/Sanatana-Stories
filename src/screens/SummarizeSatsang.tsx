@@ -20,8 +20,18 @@ const SummarizeSatsang: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const validateYouTubeUrl = (url: string) => {
+    const regex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+    return regex.test(url);
+  };
+
   const handleSummarize = async () => {
     if (!videoUrl.trim()) {
+      setError('Please enter a YouTube video URL.');
+      return;
+    }
+
+    if (!validateYouTubeUrl(videoUrl)) {
       setError('Please enter a valid YouTube video URL.');
       return;
     }
