@@ -9,9 +9,16 @@ import { RootState } from '../store';
 import { setGodName, setMessages, setGods } from '../store/chatSlice';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
+import { motion } from 'framer-motion';
 import BackButton from '../components/BackButton';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  hover: { scale: 1.05, boxShadow: '0 8px 16px rgba(0,0,0,0.3)' }
+};
 
 const TalkToGod = () => {
   const [loading, setLoading] = useState(false);
@@ -42,7 +49,7 @@ const TalkToGod = () => {
       dispatch(setGods(godsList));
     };
 
-      fetchGods();
+    fetchGods();
   }, [dispatch, gods]);
 
   const handleCardClick = async (god: God) => {
@@ -67,68 +74,75 @@ const TalkToGod = () => {
       <Grid container spacing={4} justifyContent="center">
         {gods.map((god, index) => (
           <Grid item key={god.id} xs={12} sm={6} md={4} lg={3} display="flex" justifyContent="center">
-            <Card 
-              sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                textAlign: 'center', 
-                padding: '20px', 
-                borderRadius: '15px', 
-                boxShadow: '0 4px 8px rgba(0,0,0,0.2)', 
-                height: { xs: '250px', sm: '350px' }, 
-                width: '100%', 
-                maxWidth: { xs: '100%', sm: '350px' }, 
-                backgroundColor: colors[index % colors.length], 
-                transition: 'transform 0.2s, box-shadow 0.2s',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                  boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
-                },
-              }}
-              onClick={() => handleCardClick(god)}
-            >
-              <CardContent>
-                <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
-                  <Avatar 
-                    src={god.image} 
-                    alt={god.name} 
-                    sx={{ 
-                      width: 80, 
-                      height: 80, 
-                      margin: 'auto', 
-                      marginBottom: '10px', 
-                      boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                      transition: 'transform 0.3s',
-                      '&:hover': {
-                        transform: 'scale(1.5)',
-                      }
-                    }} 
-                  />
-                  <Typography 
-                    variant="h6" 
-                    component="div" 
-                    sx={{ 
-                      fontWeight: 'bold', 
-                      marginTop: '10px', 
-                      color: '#fff' 
-                    }}
-                  >
-                    {god.name}
-                  </Typography>
-                  <Typography 
-                    variant="body2" 
-                    sx={{ 
-                      marginTop: '5px', 
-                      color: '#fff' 
-                    }}
-                  >
-                    {god.description}
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Card>
+            <motion.div variants={cardVariants} initial="hidden" animate="visible" whileHover="hover">
+              <Card 
+                sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  justifyContent: 'center', 
+                  alignItems: 'center', 
+                  textAlign: 'center', 
+                  padding: '20px', 
+                  borderRadius: '15px', 
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)', 
+                  height: { xs: '275px', sm: '325px' }, 
+                  width: '100%', 
+                  maxWidth: { xs: '100%', sm: '350px' }, 
+                  backgroundColor: colors[index % colors.length], 
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'scale(1.05)',
+                    boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
+                  },
+                }}
+                onClick={() => handleCardClick(god)}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
+                    <Avatar 
+                      src={god.image} 
+                      alt={god.name} 
+                      sx={{ 
+                        width: 80, 
+                        height: 80, 
+                        margin: 'auto', 
+                        marginBottom: '10px', 
+                        boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                        transition: 'transform 0.3s',
+                        '&:hover': {
+                          transform: 'scale(1.5)',
+                        }
+                      }} 
+                    />
+                    <Typography 
+                      variant="h6" 
+                      component="div" 
+                      sx={{ 
+                        fontWeight: 'bold', 
+                        marginTop: '10px', 
+                        color: '#fff' 
+                      }}
+                    >
+                      {god.name}
+                    </Typography>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        marginTop: '5px', 
+                        color: '#fff', 
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 4,
+                        WebkitBoxOrient: 'vertical'
+                      }}
+                    >
+                      {god.description}
+                    </Typography>
+                  </Box>
+                </CardContent>
+              </Card>
+            </motion.div>
           </Grid>
         ))}
       </Grid>
