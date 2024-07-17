@@ -99,6 +99,14 @@ const cards = [
     route: '/summarize-satsang', 
     animation: quizCardAnimation 
   },
+  { 
+    title: 'Generate Podcast', 
+    description: 'Create a spiritual podcast.', 
+    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#4169E1',
+    route: '/generate-podcast', 
+    animation: cardAnimation 
+  }
 ];
 
 const Dashboard: React.FC = () => {
