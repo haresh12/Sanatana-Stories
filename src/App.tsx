@@ -20,7 +20,8 @@ import KnowAboutTemples from './screens/KnowAboutTemples';
 import TempleDetail from './screens/TempleDetails';
 import Quiz from './screens/QuizPage';
 import BackgroundOverlay from './components/BackgroundOverlay';
-import SummarizeSatsang from './screens/SummarizeSatsang'; // New import
+import SummarizeSatsang from './screens/SummarizeSatsang';
+import GeneratePodcast from './screens/GeneratePodcast';
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -71,7 +72,8 @@ const App: React.FC = () => {
         <Route path="/know-about-temples" element={<PrivateRoute><KnowAboutTemples /></PrivateRoute>} />
         <Route path="/temple/:templeId" element={<PrivateRoute><TempleDetail /></PrivateRoute>} />
         <Route path="/quiz" element={<PrivateRoute><Quiz /></PrivateRoute>} />
-        <Route path="/summarize-satsang" element={<PrivateRoute><SummarizeSatsang /></PrivateRoute>} /> {/* New Route */}
+        <Route path="/summarize-satsang" element={<PrivateRoute><SummarizeSatsang /></PrivateRoute>} /> 
+        <Route path="/generate-podcast" element={<PrivateRoute><GeneratePodcast /></PrivateRoute>} />
       </Routes>
     </Router>
   );

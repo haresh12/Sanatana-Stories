@@ -8,6 +8,7 @@ import { getMeaning } from './chalisa/getMeaning';
 import { analyzeChanting } from './chalisa/analyzeChanting';
 import { generateQuiz } from './quiz/generateQuiz';
 import { summarizeSatsang } from './summerize/summarizeSatsang';
+import { generatePodcast } from './podcast/generatePodcast';  
 
 
 import './firebaseApp'; 
@@ -21,4 +22,5 @@ exports.scheduledFunction = scheduledFunction;
 exports.analyzeChanting = analyzeChanting;
 exports.generateQuiz = generateQuiz;
 exports.summarizeSatsang = summarizeSatsang;
+exports.generatePodcast = generatePodcast;
 
