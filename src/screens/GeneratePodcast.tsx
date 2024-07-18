@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Container, Typography, Box, Card, CardContent, CircularProgress, Button, CardActions } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../firebaseConfig';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+import { functions, db } from '../firebaseConfig';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { styled } from '@mui/system';
@@ -15,6 +16,7 @@ interface PodcastSegment {
 interface GeneratePodcastResponse {
   script: PodcastSegment[];
   audioUrl: string;
+  title: string;
 }
 
 const StyledContainer = styled(Container)(({ theme }) => ({
@@ -91,6 +93,7 @@ const GeneratePodcast: React.FC = () => {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [factIndex, setFactIndex] = useState(0);
+  const [title, setTitle] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
 
@@ -98,7 +101,7 @@ const GeneratePodcast: React.FC = () => {
     let interval: NodeJS.Timeout | null = null;
     if (loading) {
       interval = setInterval(() => {
-        setFactIndex((prevIndex) => (prevIndex + 1) % facts.length);
+        setFactIndex((prevIndex: number) => (prevIndex + 1) % facts.length);
       }, 5000); // Change fact every 5 seconds
     }
     return () => {
@@ -121,6 +124,7 @@ const GeneratePodcast: React.FC = () => {
       const data = response.data;
       setScript(data.script);
       setAudioUrl(data.audioUrl);
+      setTitle(data.title); // Set the title
     } catch (error) {
       console.error('Error generating podcast:', error);
     } finally {
@@ -149,6 +153,15 @@ const GeneratePodcast: React.FC = () => {
     setIsPlaying(false);
   };
 
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <StyledContainer maxWidth="md">
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
@@ -168,7 +181,15 @@ const GeneratePodcast: React.FC = () => {
         {loading && (
           <LoadingContainer>
             <CircularProgress color="inherit" />
-            <LoaderMessage>{facts[factIndex]}</LoaderMessage>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              key={factIndex}
+            >
+              <LoaderMessage>{facts[factIndex]}</LoaderMessage>
+            </motion.div>
           </LoadingContainer>
         )}
       </AnimatePresence>
@@ -183,8 +204,8 @@ const GeneratePodcast: React.FC = () => {
           >
             <ResultCard>
               <CardContent>
-                <Typography variant="h5" gutterBottom>
-                  Generated Podcast Script
+                <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px' }}>
+                  {title}
                 </Typography>
                 {script.map((segment, index) => (
                   <Box key={index} mb={2}>
@@ -241,6 +262,7 @@ const GeneratePodcast: React.FC = () => {
         )}
       </AnimatePresence>
     </StyledContainer>
+
   );
 };
 

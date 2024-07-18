@@ -87,6 +87,7 @@ export const generatePodcast = functions
     const chosenTopics = topics.slice(0, 3);
     const hostName = hosts[0];
     const guestName = guests[0];
+    const podcastTitle = `Podcast about ${chosenTopics.join(', ')}`;
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-pro',
@@ -109,35 +110,38 @@ export const generatePodcast = functions
       Structure the response as an array of objects with dialogues between host ${hostName} and guest ${guestName}. 
       Each object should have 'host' and 'guest' properties containing the dialogue. 
       Use the following schema:
-      [
-        {
-          "host": "string",
-          "guest": "string"
-        }
-      ]
+      {
+        "title": "${podcastTitle}",
+        "script": [
+          {
+            "host": "string",
+            "guest": "string"
+          }
+        ]
+      }
     `;
 
     try {
       const result = await model.generateContent(prompt);
       const responseText = await result.response.text();
       
-      let script: { host: string, guest: string }[];
+      let podcastData: { title: string, script: { host: string, guest: string }[] };
       try {
-        script = JSON.parse(responseText);
+        podcastData = JSON.parse(responseText);
       } catch (parseError) {
         console.error("Error parsing JSON:", parseError);
         console.error("Response text:", responseText);
         throw new functions.https.HttpsError('internal', 'Unable to parse podcast script.');
       }
 
-      if (!script || script.length === 0) {
+      if (!podcastData || !podcastData.script || podcastData.script.length === 0) {
         throw new functions.https.HttpsError('internal', 'Generated script is empty.');
       }
 
       const batchSize = 5;
       let audioFiles: string[] = [];
-      for (let i = 0; i < script.length; i += batchSize) {
-        const batch = script.slice(i, i + batchSize);
+      for (let i = 0; i < podcastData.script.length; i += batchSize) {
+        const batch = podcastData.script.slice(i, i + batchSize);
         const batchPromises = batch.map(async (segment, index) => {
           const currentIndex = i + index;
           const hostText = segment?.host?.trim();
@@ -181,12 +185,13 @@ export const generatePodcast = functions
       // Store the podcast script and audio URL in Firestore
       const userDocRef = admin.firestore().collection('users').doc(userId);
       await userDocRef.collection('podcasts').add({
-        script,
+        title: podcastData.title,
+        script: podcastData.script,
         audioUrl: publicUrl,
         timestamp: admin.firestore.FieldValue.serverTimestamp()
       });
 
-      return { script, audioUrl: publicUrl };
+      return { title: podcastData.title, script: podcastData.script, audioUrl: publicUrl };
     } catch (error) {
       console.error("Error generating podcast script:", error);
       throw new functions.https.HttpsError('internal', 'Unable to generate podcast script.');
