@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Container, Typography, Box, Card, CardContent, CircularProgress, Button, CardActions } from '@mui/material';
+import { Container, Typography, Box, Card, CardContent, CircularProgress, Button, CardActions, Tabs, Tab, Grid, List, ListItem, ListItemText } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
 import { collection, getDocs, query, where } from 'firebase/firestore';
@@ -17,6 +17,14 @@ interface GeneratePodcastResponse {
   script: PodcastSegment[];
   audioUrl: string;
   title: string;
+}
+
+interface Podcast {
+  id: string;
+  script: PodcastSegment[];
+  audioUrl: string;
+  title: string;
+  timestamp: { seconds: number; nanoseconds: number };
 }
 
 const StyledContainer = styled(Container)(({ theme }) => ({
@@ -94,8 +102,26 @@ const GeneratePodcast: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [factIndex, setFactIndex] = useState(0);
   const [title, setTitle] = useState<string>('');
+  const [podcasts, setPodcasts] = useState<Podcast[]>([]);
+  const [tabIndex, setTabIndex] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+
+  useEffect(() => {
+    const fetchPodcasts = async () => {
+      if (!currentUser) return;
+      const podcastsRef = collection(db, 'users', currentUser.uid, 'podcasts');
+      const q = query(podcastsRef);
+      const querySnapshot = await getDocs(q);
+      const fetchedPodcasts = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as Podcast[];
+      setPodcasts(fetchedPodcasts);
+    };
+
+    fetchPodcasts();
+  }, [currentUser]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -162,20 +188,139 @@ const GeneratePodcast: React.FC = () => {
     };
   }, []);
 
+  const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
+    setTabIndex(newValue);
+  };
+
+  const handlePodcastClick = (podcast: Podcast) => {
+    setScript(podcast.script);
+    setAudioUrl(podcast.audioUrl);
+    setTitle(podcast.title);
+  };
+
   return (
     <StyledContainer maxWidth="md">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-        <Typography variant="h4" gutterBottom sx={{ color: '#ff5722', fontWeight: 'bold' }}>
-          Generate Spiritual Podcast
-        </Typography>
-        <GenerateButton
-          variant="contained"
-          onClick={handleGenerate}
-          disabled={loading}
-        >
-          Generate Podcast
-        </GenerateButton>
-      </motion.div>
+      <Tabs value={tabIndex} onChange={handleTabChange} centered>
+        <Tab label="Generate Podcast" />
+        <Tab label="Previous Podcasts" />
+      </Tabs>
+
+      {tabIndex === 0 && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+          <Typography variant="h4" gutterBottom sx={{ color: '#ff5722', fontWeight: 'bold' }}>
+            Generate Spiritual Podcast
+          </Typography>
+          <GenerateButton
+            variant="contained"
+            onClick={handleGenerate}
+            disabled={loading}
+          >
+            Generate Podcast
+          </GenerateButton>
+        </motion.div>
+      )}
+
+      {tabIndex === 1 && (
+        <Grid container spacing={2} sx={{ marginTop: '20px' }}>
+          <Grid item xs={12} md={4}>
+            <List sx={{ backgroundColor: '#ffe0b2', borderRadius: '20px', padding: '10px', maxHeight: '70vh', overflow: 'auto' }}>
+              {podcasts.map((podcast) => (
+                <ListItem
+                  key={podcast.id}
+                  button
+                  onClick={() => handlePodcastClick(podcast)}
+                  sx={{ borderBottom: '1px solid #ccc', padding: '10px 20px' }}
+                >
+                  <ListItemText
+                    primary={
+                      <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#000' }}>
+                        {podcast.title}
+                      </Typography>
+                    }
+                    secondary={
+                      <>
+                        <Typography variant="body2" sx={{ color: '#333' }}>
+                          Static description for the podcast.
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#666' }}>
+                          {new Date(podcast.timestamp.seconds * 1000).toLocaleDateString()}
+                        </Typography>
+                      </>
+                    }
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </Grid>
+          <Grid item xs={12} md={8}>
+            {script.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <ResultCard>
+                  <CardContent>
+                    <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px' }}>
+                      {title}
+                    </Typography>
+                    {script.map((segment, index) => (
+                      <Box key={index} mb={2}>
+                        <Typography variant="body1"><strong>Host:</strong> {segment.host}</Typography>
+                        <Typography variant="body1"><strong>Guest:</strong> {segment.guest}</Typography>
+                      </Box>
+                    ))}
+                  </CardContent>
+                  {audioUrl && (
+                    <CardActions sx={{ justifyContent: 'center' }}>
+                      {isPlaying ? (
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={handleStop}
+                          sx={{
+                            backgroundColor: '#81c784',
+                            borderRadius: '30px',
+                            padding: '10px 30px',
+                            fontSize: '16px',
+                            '&:hover': {
+                              backgroundColor: '#66bb6a',
+                              transform: 'scale(1.05)',
+                            },
+                            transition: 'all 0.3s ease',
+                          }}
+                        >
+                          Stop
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={handleListen}
+                          sx={{
+                            backgroundColor: '#81c784',
+                            borderRadius: '30px',
+                            padding: '10px 30px',
+                            fontSize: '16px',
+                            '&:hover': {
+                              backgroundColor: '#66bb6a',
+                              transform: 'scale(1.05)',
+                            },
+                            transition: 'all 0.3s ease',
+                          }}
+                        >
+                          Listen
+                        </Button>
+                      )}
+                    </CardActions>
+                  )}
+                </ResultCard>
+              </motion.div>
+            )}
+          </Grid>
+        </Grid>
+      )}
 
       <AnimatePresence>
         {loading && (
@@ -193,77 +338,9 @@ const GeneratePodcast: React.FC = () => {
           </LoadingContainer>
         )}
       </AnimatePresence>
-
-      <AnimatePresence>
-        {!loading && script.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <ResultCard>
-              <CardContent>
-                <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px' }}>
-                  {title}
-                </Typography>
-                {script.map((segment, index) => (
-                  <Box key={index} mb={2}>
-                    <Typography variant="body1"><strong>Host:</strong> {segment.host}</Typography>
-                    <Typography variant="body1"><strong>Guest:</strong> {segment.guest}</Typography>
-                  </Box>
-                ))}
-              </CardContent>
-              {audioUrl && (
-                <CardActions sx={{ justifyContent: 'center' }}>
-                  {isPlaying ? (
-                    <Button
-                      variant="contained"
-                      color="secondary"
-                      onClick={handleStop}
-                      sx={{
-                        backgroundColor: '#81c784',
-                        borderRadius: '30px',
-                        padding: '10px 30px',
-                        fontSize: '16px',
-                        '&:hover': {
-                          backgroundColor: '#66bb6a',
-                          transform: 'scale(1.05)',
-                        },
-                        transition: 'all 0.3s ease',
-                      }}
-                    >
-                      Stop
-                    </Button>
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleListen}
-                      sx={{
-                        backgroundColor: '#81c784',
-                        borderRadius: '30px',
-                        padding: '10px 30px',
-                        fontSize: '16px',
-                        '&:hover': {
-                          backgroundColor: '#66bb6a',
-                          transform: 'scale(1.05)',
-                        },
-                        transition: 'all 0.3s ease',
-                      }}
-                    >
-                      Listen
-                    </Button>
-                  )}
-                </CardActions>
-              )}
-            </ResultCard>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </StyledContainer>
-
   );
+
 };
 
 export default GeneratePodcast;
