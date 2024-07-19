@@ -27,21 +27,14 @@ interface Podcast {
   timestamp: { seconds: number; nanoseconds: number };
 }
 
-const StyledContainer = styled(Container)(({ theme }) => ({
-  paddingTop: theme.spacing(4),
-  paddingBottom: theme.spacing(4),
-  textAlign: 'center',
-  color: '#ffffff',
-}));
-
 const GenerateButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#ff5722',
   color: '#fff',
   fontWeight: 'bold',
   borderRadius: '30px',
+  marginBottom : theme.spacing(4),
   padding: '10px 30px',
   fontSize: '16px',
-  marginTop: theme.spacing(2),
   '&:hover': {
     backgroundColor: '#e64a19',
     transform: 'scale(1.05)',
@@ -50,7 +43,7 @@ const GenerateButton = styled(Button)(({ theme }) => ({
 }));
 
 const ResultCard = styled(Card)(({ theme }) => ({
-  marginTop: theme.spacing(4),
+  marginTop: 0,
   backgroundColor: '#ffe0b2',
   boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
   borderRadius: '20px',
@@ -94,6 +87,36 @@ const facts = [
   "Many Hindus follow a vegetarian diet for religious reasons.",
   "The concept of Dharma represents duty, righteousness, and moral law."
 ];
+
+const StyledTab = styled(Tab)(({ theme }) => ({
+  fontWeight: 'bold',
+  minWidth: '160px',
+  padding: theme.spacing(1, 2),
+  '&.Mui-selected': {
+    color: '#ff5722',
+  },
+  '&:hover': {
+    color: '#ff5722',
+  },
+  transition: 'color 0.3s',
+}));
+
+const StyledTabs = styled(Tabs)(({ theme }) => ({
+  backgroundColor: theme.palette.background.paper,
+  borderRadius: '8px',
+  justifyContent: 'center',
+  alignItems: 'center',
+  width: 'auto',
+  '& .MuiTabs-indicator': {
+    backgroundColor: '#ff5722',
+    height: '4px',
+    borderRadius: '4px'
+  },
+  '& .MuiTabs-flexContainer': {
+    justifyContent: 'center',
+  },
+  marginBottom: theme.spacing(2)
+}));
 
 const GeneratePodcast: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -148,9 +171,10 @@ const GeneratePodcast: React.FC = () => {
       const generatePodcast = httpsCallable<{ userId: string }, GeneratePodcastResponse>(functions, 'generatePodcast');
       const response = await generatePodcast({ userId: currentUser.uid });
       const data = response.data;
+      console.log('data.script', data.script)
       setScript(data.script);
       setAudioUrl(data.audioUrl);
-      setTitle(data.title); // Set the title
+      setTitle(data.title);
     } catch (error) {
       console.error('Error generating podcast:', error);
     } finally {
@@ -199,24 +223,27 @@ const GeneratePodcast: React.FC = () => {
   };
 
   return (
-    <StyledContainer maxWidth="md">
-      <Tabs value={tabIndex} onChange={handleTabChange} centered>
-        <Tab label="Generate Podcast" />
-        <Tab label="Previous Podcasts" />
-      </Tabs>
-
+    <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '10px', height: '100vh', alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <StyledTabs value={tabIndex} onChange={handleTabChange} centered>
+          <StyledTab label="Generate Podcast" />
+          <StyledTab label="Previous Podcasts" />
+        </StyledTabs>
+      </Box>
       {tabIndex === 0 && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-          <Typography variant="h4" gutterBottom sx={{ color: '#ff5722', fontWeight: 'bold' }}>
-            Generate Spiritual Podcast
-          </Typography>
-          <GenerateButton
-            variant="contained"
-            onClick={handleGenerate}
-            disabled={loading}
-          >
-            Generate Podcast
-          </GenerateButton>
+          <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+            <Typography variant="h4" gutterBottom sx={{ color: '#ff5722', fontWeight: 'bold' }}>
+              Generate Spiritual Podcast
+            </Typography>
+            <GenerateButton
+              variant="contained"
+              onClick={handleGenerate}
+              disabled={loading}
+            >
+              Generate Podcast
+            </GenerateButton>
+          </Box>
         </motion.div>
       )}
 
@@ -239,9 +266,6 @@ const GeneratePodcast: React.FC = () => {
                     }
                     secondary={
                       <>
-                        <Typography variant="body2" sx={{ color: '#333' }}>
-                          Static description for the podcast.
-                        </Typography>
                         <Typography variant="caption" sx={{ color: '#666' }}>
                           {new Date(podcast.timestamp.seconds * 1000).toLocaleDateString()}
                         </Typography>
@@ -262,7 +286,7 @@ const GeneratePodcast: React.FC = () => {
               >
                 <ResultCard>
                   <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px' }}>
+                    <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px'  , textAlign : 'center'}}>
                       {title}
                     </Typography>
                     {script.map((segment, index) => (
@@ -321,7 +345,6 @@ const GeneratePodcast: React.FC = () => {
           </Grid>
         </Grid>
       )}
-
       <AnimatePresence>
         {loading && (
           <LoadingContainer>
@@ -338,7 +361,75 @@ const GeneratePodcast: React.FC = () => {
           </LoadingContainer>
         )}
       </AnimatePresence>
-    </StyledContainer>
+
+      <AnimatePresence>
+        {!loading && script.length > 0 && tabIndex === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <ResultCard>
+              <CardContent>
+                <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px', alignSelf : 'center', textAlign : 'center' }}>
+                  {title}
+                </Typography>
+                {script.map((segment, index) => (
+                  <Box key={index} mb={2}>
+                    <Typography variant="body1"><strong>Host:</strong> {segment.host}</Typography>
+                    <Typography variant="body1"><strong>Guest:</strong> {segment.guest}</Typography>
+                  </Box>
+                ))}
+              </CardContent>
+              {audioUrl && (
+                <CardActions sx={{ justifyContent: 'center' }}>
+                  {isPlaying ? (
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={handleStop}
+                      sx={{
+                        backgroundColor: '#81c784',
+                        borderRadius: '30px',
+                        padding: '10px 30px',
+                        fontSize: '16px',
+                        '&:hover': {
+                          backgroundColor: '#66bb6a',
+                          transform: 'scale(1.05)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      Stop
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleListen}
+                      sx={{
+                        backgroundColor: '#81c784',
+                        borderRadius: '30px',
+                        padding: '10px 30px',
+                        fontSize: '16px',
+                        '&:hover': {
+                          backgroundColor: '#66bb6a',
+                          transform: 'scale(1.05)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                    >
+                      Listen
+                    </Button>
+                  )}
+                </CardActions>
+              )}
+            </ResultCard>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Container>
   );
 
 };
