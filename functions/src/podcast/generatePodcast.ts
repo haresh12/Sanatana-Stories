@@ -15,7 +15,7 @@ if (!admin.apps.length) {
 
 const storage = admin.storage();
 const bucket = storage.bucket();
-const genAI = new GoogleGenerativeAI('AIzaSyBpZs6pcBEwfm3iNVWlqKtfpYqpIYxU26Q');
+const genAI = new GoogleGenerativeAI('');
 const textToSpeechClient = new TextToSpeechClient();
 
 function shuffle(array: string[]) {

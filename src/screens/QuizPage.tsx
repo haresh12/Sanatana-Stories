@@ -78,11 +78,13 @@ const Quiz: React.FC = () => {
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [retry, setRetry] = useState(false);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchQuestions = async () => {
+      setLoading(true);
       try {
         const generateQuiz = httpsCallable<{}, GenerateQuizQuestionsResponse>(functions, 'generateQuiz');
         const response = await generateQuiz();
@@ -92,16 +94,24 @@ const Quiz: React.FC = () => {
           setTopics(data.topics);
         } else {
           console.error('Invalid data structure:', data);
+          setRetry(true);
         }
       } catch (error) {
         console.error('Error fetching quiz questions:', error);
+        setRetry(true);
       } finally {
         setLoading(false);
       }
     };
 
     fetchQuestions();
-  }, []);
+  }, [retry]);
+
+  const handleRetry = () => {
+    setRetry(false);
+    setQuestions([]);
+    setTopics([]);
+  };
 
   const handleAnswerSelect = async (option: string) => {
     setSelectedAnswer(option);
@@ -135,7 +145,7 @@ const Quiz: React.FC = () => {
           setModalOpen(true);
         }
       }
-    }, 1000);
+    }, 2000);
   };
 
   const handleModalClose = () => {
@@ -151,7 +161,7 @@ const Quiz: React.FC = () => {
         <Typography variant="h4" sx={{ fontWeight: 'bold', marginBottom: '20px', color: '#ff5722' }}>
           Quiz
         </Typography>
-        {!loading && (
+        {!loading && !retry && (
           <TopicsContainer>
             <Typography variant="h6" sx={{ color: '#00796b', fontWeight: 'bold' }}>
               Topics: {topics.join(', ')}
@@ -160,6 +170,15 @@ const Quiz: React.FC = () => {
         )}
         {loading ? (
           <CircularProgress />
+        ) : retry ? (
+          <Box>
+            <Typography variant="h6" sx={{ color: '#f44336', fontWeight: 'bold' }}>
+              Failed to generate quiz. Please try again.
+            </Typography>
+            <Button onClick={handleRetry} variant="contained" color="primary" sx={{ marginTop: '20px', backgroundColor: '#ff5722' }}>
+              Retry
+            </Button>
+          </Box>
         ) : (
           questions.length > 0 && (
             <AnimatePresence mode="wait">
@@ -210,11 +229,12 @@ const Quiz: React.FC = () => {
                     {questions[currentQuestionIndex].options.map((option: string, idx: number) => {
                       const isCorrect = selectedAnswer === option && option === questions[currentQuestionIndex].correctAnswer;
                       const isIncorrect = selectedAnswer === option && option !== questions[currentQuestionIndex].correctAnswer;
+                      const showCorrect = selectedAnswer !== null && option === questions[currentQuestionIndex].correctAnswer;
                       return (
                         <OptionButton
                           key={idx}
                           fullWidth
-                          isCorrect={isCorrect}
+                          isCorrect={isCorrect || showCorrect}
                           isIncorrect={isIncorrect}
                           onClick={() => handleAnswerSelect(option)}
                           disabled={selectedAnswer !== null}
@@ -232,19 +252,26 @@ const Quiz: React.FC = () => {
       </Box>
       <Modal open={modalOpen} onClose={handleModalClose}>
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <Typography variant="h4" sx={{ color: '#fff', mb: 2 }}>
-            Quiz Completed!
-          </Typography>
-          <Typography variant="h6" sx={{ color: '#fff', mb: 2 }}>
-            Your score: {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0)}/{questions.length}
-          </Typography>
-          <Button variant="contained" color="primary" onClick={handleModalClose} sx={{ mt: 2 }}>
-            Close
-          </Button>
+          <Card sx={{ padding: '20px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', backgroundColor: '#ffebee', textAlign: 'center' }}>
+            <CardContent>
+              <Typography variant="h4" sx={{ color: '#333', mb: 2 }}>
+                Quiz Completed!
+              </Typography>
+              <Typography variant="h6" sx={{ color: '#333', mb: 2 }}>
+                Your score: {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0)}/{questions.length}
+              </Typography>
+              <Typography variant="h6" sx={{ color: questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 5 ? '#4caf50' : '#f44336', mb: 2 }}>
+                {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 5 ? 'Passed 😊' : 'Failed 😢'}
+              </Typography>
+              <Button variant="contained" color="primary" onClick={handleModalClose} sx={{ mt: 2, borderRadius: '50%', backgroundColor: '#ff5722' }}>
+                Close
+              </Button>
+            </CardContent>
+          </Card>
         </Box>
       </Modal>
     </Container>
   );
-};
 
+}
 export default Quiz;

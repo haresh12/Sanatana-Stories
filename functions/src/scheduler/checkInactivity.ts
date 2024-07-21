@@ -4,7 +4,7 @@ import { sendAIMessage } from './sendAIMessage';
 
 const db = admin.firestore();
 
-export const checkInactivity = functions.pubsub.schedule('every 20000 minutes').onRun(async (context) => {
+export const checkInactivity = functions.pubsub.schedule('every 2 minutes').onRun(async (context) => {
   const messagesRef = db.collection('comments').orderBy('timestamp', 'desc').limit(1);
   const snapshot = await messagesRef.get();
 
@@ -13,7 +13,7 @@ export const checkInactivity = functions.pubsub.schedule('every 20000 minutes').
     const lastTimestamp = lastMessage.timestamp.toMillis();
     const currentTime = Date.now();
 
-    if (currentTime - lastTimestamp >  1* 60 * 1000000 && lastMessage.user !== 'AI') {
+    if (currentTime - lastTimestamp >  1* 60 * 1000 && lastMessage.user !== 'AI') {
       await sendAIMessage();
     }
   } else {
