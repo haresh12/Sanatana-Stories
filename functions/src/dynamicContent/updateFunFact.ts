@@ -1,7 +1,7 @@
-import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { db,admin } from '../firebaseApp';
 
-const db = admin.firestore();
 const genAI = new GoogleGenerativeAI('');
 
 const topics = [
@@ -43,7 +43,7 @@ function shuffle(array: string[]) {
   return array;
 }
 
-export const updateFunFact = async () => {
+export const updateFunFact = functions.pubsub.schedule('every 2 minutes').onRun(async (context) => {
   shuffle(topics);
   const chosenTopic = topics[0];
 
@@ -73,4 +73,4 @@ export const updateFunFact = async () => {
   } catch (error) {
     console.error("Error generating fun fact:", error);
   }
-};
+});
