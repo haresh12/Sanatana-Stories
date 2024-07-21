@@ -9,6 +9,9 @@ import { analyzeChanting } from './chalisa/analyzeChanting';
 import { generateQuiz } from './quiz/generateQuiz';
 import { summarizeSatsang } from './summerize/summarizeSatsang';
 import { generatePodcast } from './podcast/generatePodcast';  
+import { ramayanChat } from './rmh/ramayanChat';
+import { mahabharatChat } from './rmh/mahabharatChat';
+import { puranasChat } from './rmh/hindupuranas';  
 
 
 import './firebaseApp'; 
@@ -23,4 +26,7 @@ exports.analyzeChanting = analyzeChanting;
 exports.generateQuiz = generateQuiz;
 exports.summarizeSatsang = summarizeSatsang;
 exports.generatePodcast = generatePodcast;
+exports.ramayanChat = ramayanChat;
+exports.mahabharatChat = mahabharatChat;
+exports.puranasChat = puranasChat;
 

@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { db } from '../firebaseApp';
 
-const genAI = new GoogleGenerativeAI('');
+const genAI = new GoogleGenerativeAI('AIzaSyBpZs6pcBEwfm3iNVWlqKtfpYqpIYxU26Q');
 
 export const templeChat = functions.https.onCall(async (data, context) => {
   const { userId, templeName, message } = data;

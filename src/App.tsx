@@ -11,7 +11,7 @@ import Dashboard from './screens/Dashboard';
 import TalkToGod from './screens/TalkToGod';
 import ChatPage from './screens/ChatPage';
 import PrivateRoute from './components/PrivateRoute';
-import Ramayan from './screens/Ramayan';
+import Epic from './screens/Epic';
 import Mahabharat from './screens/Mahabharat';
 import HinduPuranas from './screens/HinduPuranas';
 import HanumanChalisa from './screens/HanumanChalisa';
@@ -25,7 +25,6 @@ import GeneratePodcast from './screens/GeneratePodcast';
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
-  const currentUser = useSelector((state: RootState) => state.auth.currentUser);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -64,7 +63,7 @@ const App: React.FC = () => {
             </PrivateRoute>
           }
         />
-        <Route path="/ramayan" element={<PrivateRoute><Ramayan /></PrivateRoute>} />
+        <Route path="/epic" element={<PrivateRoute><Epic /></PrivateRoute>} />
         <Route path="/mahabharat" element={<PrivateRoute><Mahabharat /></PrivateRoute>} />
         <Route path="/hindu-puranas" element={<PrivateRoute><HinduPuranas /></PrivateRoute>} />
         <Route path="/hanuman-chalisa" element={<PrivateRoute><HanumanChalisa /></PrivateRoute>} />
