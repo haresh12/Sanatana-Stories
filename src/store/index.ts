@@ -15,7 +15,9 @@ import authReducer from './authSlice';
 import chatReducer from './chatSlice';
 import templesReducer from './templesSlice';
 import chalisaReducer from './chalisaSlice';
-import userReducer from './userSlice'; 
+import userReducer from './userSlice';
+import epicsChat from './epicsChatSlice'; 
+
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -23,6 +25,7 @@ const rootReducer = combineReducers({
   temples: templesReducer,
   chalisa: chalisaReducer,
   user: userReducer,
+  epicsChat : epicsChat
 });
 
 const persistConfig = {

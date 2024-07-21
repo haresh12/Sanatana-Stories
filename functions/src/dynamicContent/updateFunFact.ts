@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const db = admin.firestore();
-const genAI = new GoogleGenerativeAI('');
+const genAI = new GoogleGenerativeAI('AIzaSyBpZs6pcBEwfm3iNVWlqKtfpYqpIYxU26Q');
 
 const topics = [
   'Hanuman Chalisa', 'Ramayana', 'Mahabharata', 'Hindu Puranas', 'Hindu temples',

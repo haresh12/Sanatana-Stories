@@ -4,7 +4,7 @@ import { Container, Grid, Card, CardContent, Typography, Box, Avatar, Button, Di
 import { TransitionProps } from '@mui/material/transitions';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
+import { getFirestore, doc, onSnapshot,deleteDoc } from 'firebase/firestore';
 import { auth } from '../firebaseConfig';
 import { logout } from '../store/authSlice';
 import { reset as resetChalisa } from '../store/chalisaSlice';
@@ -81,9 +81,6 @@ const quizCardAnimation = {
 };
 
 const cards = [
-  { title: 'Ramayan', description: 'Explore the epic story of Ramayan.', icon: <RamayanIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#FF7043', route: '/ramayan' },
-  { title: 'Mahabharat', description: 'Discover the tales of Mahabharat.', icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#4FC3F7', route: '/mahabharat' },
-  { title: 'Hindu Puranas', description: 'Learn about Hindu Puranas.', icon: <PuranasIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#81C784', route: '/hindu-puranas' },
   { title: 'Hanuman Chalisa', description: 'Recite the Hanuman Chalisa.', icon: <HanumanChalisaIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#FF8A65', route: '/hanuman-chalisa' },
   { title: 'Talk To God', description: 'Pray and connect spiritually.', icon: <TalkToGodIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#BA68C8', route: '/talk-to-god' },
   { title: 'Community', description: 'Join the community of believers.', icon: <CommunityIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#64B5F6', route: '/community' },
@@ -106,6 +103,13 @@ const cards = [
     color: '#4169E1',
     route: '/generate-podcast', 
     animation: cardAnimation 
+  },
+  { 
+    title: 'Epics and Puranas', 
+    description: 'Explore Ramayan, Mahabharat, and Hindu Puranas.', 
+    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#FF7043', 
+    route: '/epic'
   }
 ];
 
@@ -155,6 +159,7 @@ const Dashboard: React.FC = () => {
     setAnimate(true);
     setTimeout(() => setAnimate(false), 2000);
   };
+
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
