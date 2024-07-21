@@ -1,23 +1,24 @@
 import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI('AIzaSyBpZs6pcBEwfm3iNVWlqKtfpYqpIYxU26Q');
+const genAI = new GoogleGenerativeAI('');
 
-const topics = [
-  'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Hindu culture', 'Vedas', 
-  'Upanishads', 'Indian mythology', 'Ancient Indian history', 'Bhagavad Gita', 
-  'Hindu festivals', 'Hindu rituals', 'Hindu gods and goddesses', 'Yoga philosophy',
-  'Ayurveda', 'Hindu temples', 'Hindu epics', 'Sanskrit literature', 'Indian philosophy', 
+const mustTopics = [
+  'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Bhagavad Gita', 'Hindu gods and goddesses',
+  'Hindu temples', 'Hindu festivals'
+];
+
+const shouldTopics = [
+  'Hindu culture', 'Vedas', 'Upanishads', 'Indian mythology', 'Ancient Indian history', 
+  'Hindu rituals', 'Yoga philosophy', 'Ayurveda', 'Sanskrit literature', 'Indian philosophy', 
   'Hindu scriptures', 'Hindu symbols', 'Indian architecture', 'Indian music', 'Indian dance',
-  'Hindu cosmology', 'Hindu ethics', 'Hindu practices', 'Hindu deities', 'Sacred geography',
-  'Hindu legends', 'Hindu folklore', 'Indian astrology', 'Hindu metaphysics', 'Hindu cosmology',
-  'Hindu eschatology', 'Sacred trees in Hinduism', 'Pilgrimage sites in India', 'Hindu festivals and their significance',
-  'Indian art and sculpture', 'Hindu mythology and legends', 'Hindu saints and sages', 'Hindu cosmology and creation myths',
+  'Hindu cosmology', 'Hindu ethics', 'Hindu practices', 'Sacred geography', 'Hindu legends',
+  'Hindu folklore', 'Indian astrology', 'Hindu metaphysics', 'Hindu eschatology', 'Sacred trees in Hinduism',
+  'Pilgrimage sites in India', 'Hindu mythology and legends', 'Hindu saints and sages', 'Hindu cosmology and creation myths',
   'Dharma and Karma', 'Indian cuisine', 'Hindu wedding traditions', 'Hindu funeral rites', 'Hindu birth rituals',
   'Famous Hindu temples around the world', 'The significance of the Ganges River', 'The role of animals in Hindu mythology',
-  'The Mahabharata and its lessons', 'The Ramayana and its teachings', 'Hindu views on ecology and nature conservation',
-  'The concept of rebirth in Hinduism', 'Hindu meditation practices', 'The significance of the Om symbol', 'Hindu chants and mantras',
-  'Hinduism and science', 'The concept of moksha in Hinduism', 'The significance of the cow in Hinduism', 'Hindu festivals and their rituals'
+  'Hindu views on ecology and nature conservation', 'Hindu meditation practices', 'The significance of the Om symbol', 
+  'Hindu chants and mantras', 'Hinduism and science', 'The concept of moksha in Hinduism', 'The significance of the cow in Hinduism'
 ];
 
 function shuffle(array: string[]) {
@@ -28,10 +29,7 @@ function shuffle(array: string[]) {
   return array;
 }
 
-export const generateQuiz = functions.https.onCall(async (data, context) => {
-  shuffle(topics);
-  const chosenTopics = topics.slice(0, Math.random() > 0.5 ? 5 : 3); 
-
+const generateQuizContent = async (chosenTopics: string[]) => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
     generationConfig: {
@@ -44,7 +42,7 @@ export const generateQuiz = functions.https.onCall(async (data, context) => {
       You are an expert in ${chosenTopics.join(', ')}. 
       Generate a JSON with up to 10 questions about these topics. 
       Each question should have 2 to 4 options where users can select an answer. 
-      Also provide the correct answer for each question.
+      Also provide the correct answer for each question. Ensure the JSON structure strictly follows the provided schema.
     `
   });
 
@@ -80,14 +78,29 @@ export const generateQuiz = functions.https.onCall(async (data, context) => {
   try {
     const result = await model.generateContent(prompt);
     const responseText = await result.response.text();
+
+    return JSON.parse(responseText);
+  } catch (error) {
+    console.error("Error generating content or parsing JSON:", error);
+    return null;
+  }
+};
+
+export const generateQuiz = functions.https.onCall(async (data, context) => {
+  try {
+    const shuffledMustTopics = shuffle([...mustTopics]);
+    const shuffledShouldTopics = shuffle([...shouldTopics]);
+
+    const chosenTopics = [shuffledMustTopics[0], ...shuffledShouldTopics.slice(0, 2 + Math.floor(Math.random() * 2))];
     
-    let questions;
-    try {
-      questions = JSON.parse(responseText);
-    } catch (parseError) {
-      console.error("Error parsing JSON:");
-      console.error("Response text:", responseText);
-      throw new functions.https.HttpsError('internal', 'Unable to parse quiz questions.');
+    let questions = await generateQuizContent(chosenTopics);
+
+    if (!questions) {
+      // Retry with a fallback prompt
+      questions = await generateQuizContent(['Hindu Puranas', 'Ramayan', 'Mahabharat']);
+      if (!questions) {
+        throw new functions.https.HttpsError('internal', 'Unable to generate valid quiz questions.');
+      }
     }
 
     return { questions, topics: chosenTopics };
