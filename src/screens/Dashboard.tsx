@@ -80,37 +80,79 @@ const quizCardAnimation = {
 };
 
 const cards = [
-  { title: 'Hanuman Chalisa', description: 'Recite the Hanuman Chalisa.', icon: <HanumanChalisaIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#FF8A65', route: '/hanuman-chalisa' },
-  { title: 'Talk To God', description: 'Pray and connect spiritually.', icon: <TalkToGodIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#BA68C8', route: '/talk-to-god' },
-  { title: 'Community', description: 'Join the community of believers.', icon: <CommunityIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#64B5F6', route: '/community' },
-  { title: 'Know About Temples', description: 'Get to know various temples.', icon: <TemplesIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#4DB6AC', route: '/know-about-temples' },
-  { title: 'Fun Fact', description: '', icon: null, color: '#9575CD' },
-  { title: 'Myth', description: '', icon: null, color: '#E57373' },
-  { title: 'Quiz', description: 'Challenge your knowledge with our quiz.', icon: <QuizIcon style={{ fontSize: 40, color: '#fff' }} />, color: '#FFA726', route: '/quiz', animation: quizCardAnimation },
-  {
-    title: 'Summarize Satsang',
-    description: 'Summarize spiritual videos easily.',
-    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />,
-    color: '#FFD54F',
-    route: '/summarize-satsang',
-    animation: quizCardAnimation
+  { 
+    title: 'Hanuman Chalisa', 
+    description: 'Delve into the powerful verses of the Hanuman Chalisa.', 
+    icon: <HanumanChalisaIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#FF8A65', 
+    route: '/hanuman-chalisa' 
   },
-  {
-    title: 'Generate Podcast',
-    description: 'Create a spiritual podcast.',
-    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />,
-    color: '#4169E1',
-    route: '/generate-podcast',
-    animation: cardAnimation
+  { 
+    title: 'Talk To God', 
+    description: 'Engage in spiritual conversations and seek divine guidance.', 
+    icon: <TalkToGodIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#BA68C8', 
+    route: '/talk-to-god' 
   },
-  {
-    title: 'Epics and Puranas',
-    description: 'Explore Ramayan, Mahabharat, and Hindu Puranas.',
-    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />,
-    color: '#FF7043',
-    route: '/epic'
+  { 
+    title: 'Generate Podcast', 
+    description: 'Create and share your spiritual journey through podcasts.', 
+    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#4169E1', 
+    route: '/generate-podcast', 
+    animation: cardAnimation 
+  },
+  { 
+    title: 'Community', 
+    description: 'Join a community of like-minded spiritual seekers.', 
+    icon: <CommunityIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#64B5F6', 
+    route: '/community' 
+  },
+  { 
+    title: 'Quiz', 
+    description: 'Test and expand your knowledge with our engaging quizzes.', 
+    icon: <QuizIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#FFA726', 
+    route: '/quiz', 
+    animation: quizCardAnimation 
+  },
+  { 
+    title: 'Summarize Satsang', 
+    description: 'Get concise summaries of spiritual talks and satsangs.', 
+    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#FFD54F', 
+    route: '/summarize-satsang', 
+    animation: quizCardAnimation 
+  },
+  { 
+    title: 'Know About Temples', 
+    description: 'Explore and learn about various Hindu temples.', 
+    icon: <TemplesIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#4DB6AC', 
+    route: '/know-about-temples' 
+  },
+  { 
+    title: 'Fun Fact', 
+    description: 'Discover interesting and lesser-known facts.', 
+    icon: null, 
+    color: '#9575CD' 
+  },
+  { 
+    title: 'Myth', 
+    description: 'Uncover the myths and legends of Hindu culture.', 
+    icon: null, 
+    color: '#E57373' 
+  },
+  { 
+    title: 'Epics and Puranas', 
+    description: 'Dive into the rich stories of Ramayan, Mahabharat, and Puranas.', 
+    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />, 
+    color: '#FF7043', 
+    route: '/epic' 
   }
 ];
+
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();

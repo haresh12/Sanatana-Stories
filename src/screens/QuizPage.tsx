@@ -82,6 +82,24 @@ const Quiz: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const navigate = useNavigate();
 
+  const validateResponse = (data: GenerateQuizQuestionsResponse): boolean => {
+    return (
+      data &&
+      data.questions &&
+      Array.isArray(data.questions.questions) &&
+      data.questions.questions.length > 0 &&
+      data.questions.questions.every(
+        (question) =>
+          question.question &&
+          Array.isArray(question.options) &&
+          question.options.length >= 2 &&
+          question.options.length <= 4 &&
+          question.correctAnswer
+      ) &&
+      Array.isArray(data.topics)
+    );
+  };
+
   useEffect(() => {
     const fetchQuestions = async () => {
       setLoading(true);
@@ -89,7 +107,9 @@ const Quiz: React.FC = () => {
         const generateQuiz = httpsCallable<{}, GenerateQuizQuestionsResponse>(functions, 'generateQuiz');
         const response = await generateQuiz();
         const data = response.data as GenerateQuizQuestionsResponse;
-        if (Array.isArray(data.questions.questions)) {
+
+        console.log('Data here is',data)
+        if (validateResponse(data)) {
           setQuestions(data.questions.questions);
           setTopics(data.topics);
         } else {
@@ -261,7 +281,7 @@ const Quiz: React.FC = () => {
                 Your score: {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0)}/{questions.length}
               </Typography>
               <Typography variant="h6" sx={{ color: questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 5 ? '#4caf50' : '#f44336', mb: 2 }}>
-                {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 5 ? 'Passed 😊' : 'Failed 😢'}
+                {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 3 ? 'Passed 😊' : 'Failed 😢'}
               </Typography>
               <Button variant="contained" color="primary" onClick={handleModalClose} sx={{ mt: 2, borderRadius: '50%', backgroundColor: '#ff5722' }}>
                 Close
