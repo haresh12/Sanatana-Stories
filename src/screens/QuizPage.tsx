@@ -70,6 +70,29 @@ const TopicsContainer = styled(Box)(({ theme }) => ({
   boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
 }));
 
+const darkFacts = [
+  "Hinduism is the world's oldest religion.",
+  "The Ramayana is an ancient Indian epic poem.",
+  "Yoga has its origins in Hindu philosophy.",
+  "Ayurveda is a traditional Hindu system of medicine.",
+  "The Bhagavad Gita is a 700-verse Hindu scripture.",
+  "Hinduism has no single founder; it developed over thousands of years.",
+  "The Mahabharata is the longest epic poem in the world.",
+  "Diwali, the festival of lights, is one of the most important Hindu festivals.",
+  "Karma is a core concept in Hinduism, meaning action or deed.",
+  "Hindus believe in a cycle of birth, death, and rebirth called Samsara.",
+  "Hindu temples are often dedicated to a particular deity.",
+  "The Vedas are the oldest sacred texts of Hinduism.",
+  "The sacred syllable 'Om' is considered the sound of the universe.",
+  "Holi is known as the festival of colors and celebrates the arrival of spring.",
+  "The Ganges River is considered sacred in Hinduism.",
+  "Hindus worship multiple deities, including Brahma, Vishnu, and Shiva.",
+  "Sanskrit is the ancient language of Hindu scriptures.",
+  "Rangoli is a traditional Indian art form created during festivals.",
+  "Many Hindus follow a vegetarian diet for religious reasons.",
+  "The concept of Dharma represents duty, righteousness, and moral law."
+];
+
 const Quiz: React.FC = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [topics, setTopics] = useState<string[]>([]);
@@ -81,6 +104,7 @@ const Quiz: React.FC = () => {
   const [retry, setRetry] = useState(false);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const navigate = useNavigate();
+  const [factIndex, setFactIndex] = useState(0);
 
   const validateResponse = (data: GenerateQuizQuestionsResponse): boolean => {
     return (
@@ -108,7 +132,7 @@ const Quiz: React.FC = () => {
         const response = await generateQuiz();
         const data = response.data as GenerateQuizQuestionsResponse;
 
-        console.log('Data here is',data)
+        console.log('Data here is', data)
         if (validateResponse(data)) {
           setQuestions(data.questions.questions);
           setTopics(data.topics);
@@ -126,6 +150,20 @@ const Quiz: React.FC = () => {
 
     fetchQuestions();
   }, [retry]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (loading) {
+      interval = setInterval(() => {
+        setFactIndex((prevIndex) => (prevIndex + 1) % darkFacts.length);
+      }, 3000); // Change fact every 3 seconds
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [loading]);
 
   const handleRetry = () => {
     setRetry(false);
@@ -189,7 +227,12 @@ const Quiz: React.FC = () => {
           </TopicsContainer>
         )}
         {loading ? (
-          <CircularProgress />
+          <>
+            <CircularProgress />
+            <Typography variant="h6" sx={{ color: '#ff5722', marginTop: '20px' }}>
+              {darkFacts[factIndex]}
+            </Typography>
+          </>
         ) : retry ? (
           <Box>
             <Typography variant="h6" sx={{ color: '#f44336', fontWeight: 'bold' }}>
@@ -280,7 +323,7 @@ const Quiz: React.FC = () => {
               <Typography variant="h6" sx={{ color: '#333', mb: 2 }}>
                 Your score: {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0)}/{questions.length}
               </Typography>
-              <Typography variant="h6" sx={{ color: questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 5 ? '#4caf50' : '#f44336', mb: 2 }}>
+              <Typography variant="h6" sx={{ color: questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 3 ? '#4caf50' : '#f44336', mb: 2 }}>
                 {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 3 ? 'Passed 😊' : 'Failed 😢'}
               </Typography>
               <Button variant="contained" color="primary" onClick={handleModalClose} sx={{ mt: 2, borderRadius: '50%', backgroundColor: '#ff5722' }}>
@@ -292,6 +335,6 @@ const Quiz: React.FC = () => {
       </Modal>
     </Container>
   );
-
 }
+
 export default Quiz;
