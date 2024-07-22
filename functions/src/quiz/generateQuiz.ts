@@ -21,7 +21,18 @@ const shouldTopics = [
   'Hindu chants and mantras', 'Hinduism and science', 'The concept of moksha in Hinduism', 'The significance of the cow in Hinduism'
 ];
 
-function shuffle(array: string[]) {
+interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
+interface GenerateQuizQuestionsResponse {
+  questions: QuizQuestion[];
+  topics: string[];
+}
+
+function shuffle(array: string[]): string[] {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -29,7 +40,7 @@ function shuffle(array: string[]) {
   return array;
 }
 
-const generateQuizContent = async (chosenTopics: string[]) => {
+const generateQuizContent = async (chosenTopics: string[]): Promise<GenerateQuizQuestionsResponse | null> => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
     generationConfig: {
@@ -37,17 +48,11 @@ const generateQuizContent = async (chosenTopics: string[]) => {
       topK: 50,
       topP: 0.9,
       responseMimeType: "application/json"
-    },
-    systemInstruction: `
-      You are an expert in ${chosenTopics.join(', ')}. 
-      Generate a JSON with up to 10 questions about these topics. 
-      Each question should have 2 to 4 options where users can select an answer. 
-      Also provide the correct answer for each question. Ensure the JSON structure strictly follows the provided schema.
-    `
+    }
   });
 
   const prompt = `
-  Generate a JSON with up to 10 questions about ${chosenTopics.join(', ')}. Each question should have 2 to 4 options where users can select an answer. Also provide the correct answer for each question. Use the following schema:
+  Generate a JSON with up to 6 questions about ${chosenTopics.join(', ')}. Each question should have 2 to 4 options where users can select an answer. Also provide the correct answer for each question. Use the following schema:
   {
     "type": "object",
     "properties": {
@@ -79,11 +84,41 @@ const generateQuizContent = async (chosenTopics: string[]) => {
     const result = await model.generateContent(prompt);
     const responseText = await result.response.text();
 
-    return JSON.parse(responseText);
+    let parsedResponse: GenerateQuizQuestionsResponse;
+    try {
+      parsedResponse = JSON.parse(responseText);
+    } catch (e) {
+      console.error('Error parsing JSON:', e);
+      return null;
+    }
+
+    if (validateResponse(parsedResponse)) {
+      return parsedResponse;
+    } else {
+      console.error('Invalid response structure:', parsedResponse);
+      return null;
+    }
   } catch (error) {
     console.error("Error generating content or parsing JSON:", error);
     return null;
   }
+};
+
+const validateResponse = (data: GenerateQuizQuestionsResponse): boolean => {
+  return (
+    data &&
+    data.questions &&
+    Array.isArray(data.questions) &&
+    data.questions.length > 0 &&
+    data.questions.every(
+      (question) =>
+        question.question &&
+        Array.isArray(question.options) &&
+        question.options.length >= 2 &&
+        question.options.length <= 4 &&
+        question.correctAnswer
+    )
+  );
 };
 
 export const generateQuiz = functions.https.onCall(async (data, context) => {
