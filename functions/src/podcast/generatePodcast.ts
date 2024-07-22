@@ -138,35 +138,29 @@ export const generatePodcast = functions
         throw new functions.https.HttpsError('internal', 'Generated script is empty.');
       }
 
-      const batchSize = 5;
-      let audioFiles: string[] = [];
-      for (let i = 0; i < podcastData.script.length; i += batchSize) {
-        const batch = podcastData.script.slice(i, i + batchSize);
-        const batchPromises = batch.map(async (segment, index) => {
-          const currentIndex = i + index;
-          const hostText = segment?.host?.trim();
-          const guestText = segment?.guest?.trim();
+      const audioFiles: string[] = [];
+      for (let i = 0; i < podcastData.script.length; i++) {
+        const segment = podcastData.script[i];
+        const hostText = segment?.host?.trim();
+        const guestText = segment?.guest?.trim();
 
-          if (!hostText) {
-            console.warn(`Skipping empty host dialogue at index ${currentIndex}`);
-            return;
-          }
+        if (!hostText) {
+          console.warn(`Skipping empty host dialogue at index ${i}`);
+          continue;
+        }
 
-          if (!guestText) {
-            console.warn(`Skipping empty guest dialogue at index ${currentIndex}`);
-            return;
-          }
+        if (!guestText) {
+          console.warn(`Skipping empty guest dialogue at index ${i}`);
+          continue;
+        }
 
-          const hostFile = path.join('/tmp', `host_${currentIndex}.mp3`);
-          const guestFile = path.join('/tmp', `guest_${currentIndex}.mp3`);
+        const hostFile = path.join('/tmp', `host_${i}.mp3`);
+        const guestFile = path.join('/tmp', `guest_${i}.mp3`);
 
-          await textToSpeech(hostText, 'en-IN-Neural2-A', hostFile);
-          await textToSpeech(guestText, 'en-IN-Neural2-B', guestFile);
+        await textToSpeech(hostText, 'en-IN-Neural2-A', hostFile);
+        await textToSpeech(guestText, 'en-IN-Neural2-B', guestFile);
 
-          audioFiles.push(hostFile, guestFile);
-        });
-
-        await Promise.all(batchPromises);
+        audioFiles.push(hostFile, guestFile);
       }
 
       const outputFilePath = path.join('/tmp', 'final_podcast.mp3');

@@ -8,17 +8,17 @@ const mustTopics = [
   'Hindu temples', 'Hindu festivals'
 ];
 
-const shouldTopics = [
-  'Hindu culture', 'Vedas', 'Upanishads', 'Indian mythology', 'Ancient Indian history', 
-  'Hindu rituals', 'Yoga philosophy', 'Ayurveda', 'Sanskrit literature', 'Indian philosophy', 
-  'Hindu scriptures', 'Hindu symbols', 'Indian architecture', 'Indian music', 'Indian dance',
-  'Hindu cosmology', 'Hindu ethics', 'Hindu practices', 'Sacred geography', 'Hindu legends',
-  'Hindu folklore', 'Indian astrology', 'Hindu metaphysics', 'Hindu eschatology', 'Sacred trees in Hinduism',
-  'Pilgrimage sites in India', 'Hindu mythology and legends', 'Hindu saints and sages', 'Hindu cosmology and creation myths',
-  'Dharma and Karma', 'Indian cuisine', 'Hindu wedding traditions', 'Hindu funeral rites', 'Hindu birth rituals',
-  'Famous Hindu temples around the world', 'The significance of the Ganges River', 'The role of animals in Hindu mythology',
-  'Hindu views on ecology and nature conservation', 'Hindu meditation practices', 'The significance of the Om symbol', 
-  'Hindu chants and mantras', 'Hinduism and science', 'The concept of moksha in Hinduism', 'The significance of the cow in Hinduism'
+const selectedTopics = [
+  'Hindu culture',
+  'Vedas',
+  'Upanishads',
+  'Indian mythology',
+  'Ancient Indian history',
+  'Hindu rituals',
+  'Yoga philosophy',
+  'Ayurveda',
+  'Hindu scriptures',
+  'Hindu cosmology and creation myths'
 ];
 
 interface QuizQuestion {
@@ -51,6 +51,7 @@ const generateQuizContent = async (chosenTopics: string[]): Promise<GenerateQuiz
     }
   });
 
+
   const prompt = `
   Generate a JSON with up to 6 questions about ${chosenTopics.join(', ')}. Each question should have 2 to 4 options where users can select an answer. Also provide the correct answer for each question. Use the following schema:
   {
@@ -73,7 +74,7 @@ const generateQuizContent = async (chosenTopics: string[]): Promise<GenerateQuiz
           "required": ["question", "options", "correctAnswer"]
         },
         "minItems": 1,
-        "maxItems": 10
+        "maxItems": 6
       }
     },
     "required": ["questions"]
@@ -91,40 +92,18 @@ const generateQuizContent = async (chosenTopics: string[]): Promise<GenerateQuiz
       console.error('Error parsing JSON:', e);
       return null;
     }
-
-    if (validateResponse(parsedResponse)) {
-      return parsedResponse;
-    } else {
-      console.error('Invalid response structure:', parsedResponse);
-      return null;
-    }
+  
+    return parsedResponse;
   } catch (error) {
     console.error("Error generating content or parsing JSON:", error);
     return null;
   }
 };
 
-const validateResponse = (data: GenerateQuizQuestionsResponse): boolean => {
-  return (
-    data &&
-    data.questions &&
-    Array.isArray(data.questions) &&
-    data.questions.length > 0 &&
-    data.questions.every(
-      (question) =>
-        question.question &&
-        Array.isArray(question.options) &&
-        question.options.length >= 2 &&
-        question.options.length <= 4 &&
-        question.correctAnswer
-    )
-  );
-};
-
 export const generateQuiz = functions.https.onCall(async (data, context) => {
   try {
     const shuffledMustTopics = shuffle([...mustTopics]);
-    const shuffledShouldTopics = shuffle([...shouldTopics]);
+    const shuffledShouldTopics = shuffle([...selectedTopics]);
 
     const chosenTopics = [shuffledMustTopics[0], ...shuffledShouldTopics.slice(0, 2 + Math.floor(Math.random() * 2))];
     
