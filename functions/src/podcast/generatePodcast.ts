@@ -92,9 +92,9 @@ export const generatePodcast = functions
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-pro',
       generationConfig: {
-        temperature: 0.8,
-        topK: 40,
-        topP: 0.9,
+        temperature: 1.0, // Increased temperature for more creativity
+        topK: 50,
+        topP: 0.95, // Adjusted topP for a balance between diversity and coherence
         responseMimeType: "application/json"
       },
       systemInstruction: `
@@ -102,6 +102,7 @@ export const generatePodcast = functions
         Generate a podcast script of at least 20 minutes or 25,000 words about these topics. 
         Structure the response as an array of objects with dialogues between host ${hostName} and guest ${guestName}. 
         Each object should have 'host' and 'guest' properties containing the dialogue.
+        Ensure that each podcast script is unique, creative, and covers different aspects of the topics to provide a fresh perspective every time.
       `
     });
 
@@ -119,6 +120,7 @@ export const generatePodcast = functions
           }
         ]
       }
+      Ensure that the script is unique and covers different aspects and insights related to the chosen topics to make each podcast episode distinctive.
     `;
 
     try {
