@@ -12,6 +12,7 @@ export const analyzeChanting = functions.https.onCall(async (data, context) => {
       temperature: 0.7,
       topK: 50,
       topP: 0.9,
+      responseMimeType: "application/json"
     },
     systemInstruction: `
       You are Tulsidas, the revered poet of the Hanuman Chalisa. Your task is to analyze the provided chanting transcript to ensure it is the Hanuman Chalisa and evaluate it based on:
@@ -21,19 +22,40 @@ export const analyzeChanting = functions.https.onCall(async (data, context) => {
       4. **Fluency**: Smoothness and rhythm.
       5. **Timing**: Suitability of the chanting duration.
 
-      If the transcript does not match the Hanuman Chalisa, provide a humorous response and inform the user that it is not the correct text. Otherwise, provide 5-8 brief suggestions for improvement and an overall score out of 10.
+      Always provide an overall score out of 10. If no words from the Hanuman Chalisa are present in the transcript, give a score of 0. If the score is between 0 and 3, ensure the response is humorous and encouraging.
     `
   });
 
   try {
     const prompt = `
-      As Tulsidas, analyze the following chanting transcript of the Hanuman Chalisa: "${transcript}", which was chanted in ${time}. Determine if it matches the Hanuman Chalisa and provide suggestions for improvement and a score out of 10. If it does not match, provide a humorous response and explain that it is not the correct text.
+      As Tulsidas, analyze the following chanting transcript of the Hanuman Chalisa: "${transcript}", which was chanted in ${time}. Determine if it matches the Hanuman Chalisa and provide suggestions for improvement and a score out of 10. If no words from the Hanuman Chalisa are present in the transcript, give a score of 0. If the score is between 0 and 3, provide a humorous and encouraging response. Use the following schema:
+      {
+        "type": "object",
+        "properties": {
+          "analysis": { "type": "string" },
+          "score": { "type": "number" }
+        },
+        "required": ["analysis", "score"]
+      }
     `;
     const result = await model.generateContent(prompt);
-    const analysisText = await result.response.text();
-    return { analysisText };
+    const responseText = await result.response.text();
+
+    let parsedResponse: { analysis: string, score: number };
+    try {
+      parsedResponse = JSON.parse(responseText);
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+      console.error("Response text:", responseText);
+      parsedResponse = { analysis: 'Unable to parse analysis. Please try again.', score: 0 };
+    }
+
+    const analysisText = parsedResponse.analysis || 'No analysis available.';
+    const score = parsedResponse.score !== undefined ? parsedResponse.score : 0;
+
+    return { analysisText, score };
   } catch (error) {
     console.error("Error analyzing chanting:", error);
-    throw new functions.https.HttpsError('internal', 'Unable to analyze chanting.');
+    return { analysisText: 'Unable to analyze chanting due to an internal error. Please try again later.', score: 0 };
   }
 });

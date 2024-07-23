@@ -1,24 +1,22 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { Container, Typography, Button, Card, CardContent, Box, Snackbar, Alert, CircularProgress } from '@mui/material';
-import { useDispatch } from 'react-redux';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { Container, Typography, Button, Card, CardContent, Box, Snackbar, Alert } from '@mui/material';
 import { httpsCallable } from 'firebase/functions';
-import { functions, auth } from '../firebaseConfig';
+import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
-import { saveUserAnalysis } from '../store/userSlice';
 
 interface AnalysisResponse {
   analysisText: string;
+  score: number;
 }
 
 const StartChantingAndAnalysis: React.FC = () => {
-  const dispatch = useDispatch();
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [analysis, setAnalysis] = useState<string | null>(null);
+  const [score, setScore] = useState<number | null>(null);
   const [timestamp, setTimestamp] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
 
@@ -61,6 +59,10 @@ const StartChantingAndAnalysis: React.FC = () => {
   };
 
   const handleChantingStart = () => {
+    setTranscript('');
+    setAnalysis(null);
+    setScore(null);
+    setTimestamp(null);
     startListening();
   };
 
@@ -71,25 +73,17 @@ const StartChantingAndAnalysis: React.FC = () => {
       const analyzeChanting = httpsCallable<{ transcript: string }, AnalysisResponse>(functions, 'analyzeChanting');
       const response = await analyzeChanting({ transcript });
       const analysisResult = response.data.analysisText;
+      const analysisScore = response.data.score;
       const currentTimestamp = new Date().toISOString();
 
       setAnalysis(analysisResult);
+      setScore(analysisScore);
       setTimestamp(currentTimestamp);
 
-      const db = getFirestore();
-      const user = auth.currentUser;
-      if (user) {
-        await setDoc(doc(db, 'users', user.uid, 'chantingAnalysis', currentTimestamp), {
-          transcript,
-          timestamp: currentTimestamp,
-          analysis: analysisResult,
-        }, { merge: true });
-        dispatch(saveUserAnalysis({ analysis: analysisResult, transcript, timestamp: currentTimestamp }));
-      }
       setLoading(false);
     } catch (error) {
-      console.error('Failed to save analysis:', error);
-      setError('Failed to save analysis. Please try again.');
+      console.error('Failed to analyze chanting:', error);
+      setError('Failed to analyze chanting. Please try again.');
       setOpenSnackbar(true);
       setLoading(false);
     }
@@ -189,6 +183,11 @@ const StartChantingAndAnalysis: React.FC = () => {
                 }}
                 dangerouslySetInnerHTML={{ __html: analysis }}
               />
+              {score !== null && (
+                <Typography variant="h6" sx={{ color: '#00796b', marginTop: '10px' }}>
+                  Score: {score}/10
+                </Typography>
+              )}
             </CardContent>
           </Card>
         </motion.div>

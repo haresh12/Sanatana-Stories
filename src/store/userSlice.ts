@@ -1,10 +1,10 @@
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserAnalysis {
   transcript: string;
   timestamp: string;
-  analysis: string;  
+  analysis: string;
+  score: number;
 }
 
 interface UserState {
