@@ -1,8 +1,8 @@
 import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { db,admin } from '../firebaseApp';
+import { db, admin } from '../firebaseApp';
 
-const genAI = new GoogleGenerativeAI('');
+const genAI = new GoogleGenerativeAI('AIzaSyBpZs6pcBEwfm3iNVWlqKtfpYqpIYxU26Q');
 
 const topics = [
   'Hanuman Chalisa', 'Ramayana', 'Mahabharata', 'Hindu Puranas', 'Hindu temples',
@@ -50,17 +50,17 @@ export const updateFunFact = functions.pubsub.schedule('every 2 minutes').onRun(
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
     systemInstruction: `
-      You are an expert in Hindu mythology, scriptures, temples, and culture. Your task is to generate an interesting fun fact in Hindi about the topic: ${chosenTopic}. 
+      You are an expert in Hindu mythology, scriptures, temples, and culture. Your task is to generate an interesting fun fact in English about the topic: ${chosenTopic}. 
       The fun fact should be:
       1. Unique and not a repeat of previous facts.
-      2. Written in Hindi.
-      3. No longer than 3 lines.
+      2. Written in English.
+      3. No longer than 2-3 lines.
       Make sure the fact is engaging, provides value to the reader, and fits within the context of ${chosenTopic}.
     `,
   });
 
   try {
-    const prompt = `Generate an interesting and unique fun fact in Hindi about ${chosenTopic} that does not exceed 3 lines.`;
+    const prompt = `Generate an interesting and unique fun fact in English about ${chosenTopic} that does not exceed 2-3 lines.`;
     const result = await model.generateContent(prompt);
     const text = await result.response.text();
 

@@ -72,6 +72,15 @@ export const handleChat = functions.https.onCall(async (data, context) => {
         case 'lord brahma':
           welcomeMessage = 'Greetings, I am Brahma, the creator. How can I assist you today? Ask me about creation, knowledge, and the mysteries of the universe.';
           break;
+        case 'lord indra':
+          welcomeMessage = 'Greetings, I am Indra, the king of the gods and the lord of heaven. How can I assist you today? Ask me about rain, thunder, and leadership among the gods.';
+          break;
+        case 'lord shani dev':
+          welcomeMessage = 'Namaste, I am Shani Dev, the god of justice and karma. How can I help you today? Ask me about discipline, hard work, and the influence of Saturn in astrology.';
+          break;
+        case 'goddess parvati':
+          welcomeMessage = 'Hello, I am Parvati, the goddess of love, fertility, and devotion. How can I assist you today? Ask me about the divine feminine, motherhood, and my forms as Durga and Kali.';
+          break;
         default:
           welcomeMessage = 'Hello, I am here to help you.';
       }
