@@ -30,7 +30,9 @@ const topics = [
   'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Hindu culture', 'Vedas', 
   'Upanishads', 'Yoga philosophy', 'Ayurveda', 'Hindu temples', 'Bhagavad Gita',
   'Love and Relationships', 'Life and Happiness', 'Overcoming Challenges', 
-  'Finding Purpose', 'Mindfulness and Meditation'
+  'Finding Purpose', 'Mindfulness and Meditation', 'Spiritual Practices', 
+  'Festivals and Celebrations', 'Hindu Mythology', 'Deities and Worship', 
+  'Karma and Dharma', 'Pilgrimages'
 ];
 
 const hosts = ['Neha Sharma', 'Priya Kumar', 'Shreya Mehta'];
@@ -99,10 +101,10 @@ export const generatePodcast = functions
       },
       systemInstruction: `
         You are an expert in ${chosenTopics.join(', ')}. 
-        Generate a podcast script of at least 20 minutes or 25,000 words about these topics. 
-        Structure the response as an array of objects with dialogues between host ${hostName} and guest ${guestName}. 
-        Each object should have 'host' and 'guest' properties containing the dialogue.
-        Ensure that each podcast script is unique, creative, and covers different aspects of the topics to provide a fresh perspective every time.
+        Generate a podcast script that is engaging, informative, and captivating for the listeners. 
+        Structure the podcast as an engaging dialogue between the host, ${hostName}, and the guest, ${guestName}. 
+        Ensure the conversation flows naturally, covering various aspects of the topics such as historical significance, modern relevance, spiritual insights, and practical applications. 
+        Each dialogue should be well-researched, unique, and offer fresh perspectives to provide an enriching experience for the audience.
       `
     });
 
