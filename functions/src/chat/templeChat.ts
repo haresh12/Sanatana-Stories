@@ -84,7 +84,7 @@ export const templeChat = functions.https.onCall(async (data, context) => {
           welcomeMessage = 'Welcome to Badrinath Temple in Uttarakhand. How can I assist you today? Feel free to ask about Lord Vishnu, the temple’s significance, or the traditions followed here.';
           break;
         default:
-          welcomeMessage = `Welcome to ${templeName}. How can I assist you today?`;
+          welcomeMessage = `Welcome to ${templeName}, a place of great reverence and spiritual significance. How can I assist you today?`;
       }
 
       history = [
