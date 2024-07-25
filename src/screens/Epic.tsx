@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Tabs, Tab, CircularProgress } from '@mui/material';
+import { Container, Box, Tabs, Tab, CircularProgress } from '@mui/material';
 import { styled } from '@mui/system';
 import BackButton from '../components/BackButton';
 import ChatComponent from '../components/ChatComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { setActiveEpicsChat, clearEpicsMessages, clearAllEpicsMessages } from '../store/epicsChatSlice';
-import { collection, deleteDoc, doc, getDocs, query } from 'firebase/firestore';
+import { setActiveEpicsChat, clearAllEpicsMessages } from '../store/epicsChatSlice';
+import { collection, deleteDoc, getDocs, query } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 
 const StyledTab = styled(Tab)(({ theme }) => ({

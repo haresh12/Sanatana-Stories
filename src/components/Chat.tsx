@@ -1,9 +1,9 @@
-// src/components/Chat.tsx
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Box, Typography, TextField, IconButton, Container } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import MicIcon from '@mui/icons-material/Mic';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 import { motion } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
@@ -13,19 +13,21 @@ import { RootState } from '../store';
 interface ChatProps {
   templeId: string;
   templeName: string;
-  initialMessages: { role: string; text: string }[];
-  setMessages: React.Dispatch<React.SetStateAction<{ role: string; text: string }[]>>;
+  initialMessages: { role: string; text: string; audioUrl?: string }[];
+  setMessages: React.Dispatch<React.SetStateAction<{ role: string; text: string; audioUrl?: string }[]>>;
 }
 
 interface ChatResponse {
   message: string;
+  audioUrl: string;
 }
 
 const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setMessages }) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [listening, setListening] = useState(false);
-  const [animateOnce, setAnimateOnce] = useState(true);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
@@ -37,7 +39,7 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
         const handleTempleChat = httpsCallable<{ userId: string; templeName: string; message: string }, ChatResponse>(functions, 'templeChat');
         try {
           const response = await handleTempleChat({ userId: `${currentUser?.uid}`, templeName, message: '' });
-          setMessages([{ role: 'model', text: response.data.message }]);
+          setMessages([{ role: 'model', text: response.data.message, audioUrl: response.data.audioUrl }]);
         } catch (error) {
           console.error('Error fetching welcome message:', error);
         } finally {
@@ -60,7 +62,7 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
     const handleTempleChat = httpsCallable<{ userId: string; templeName: string; message: string }, ChatResponse>(functions, 'templeChat');
     try {
       const response = await handleTempleChat({ userId: `${currentUser?.uid}`, templeName, message: input });
-      setMessages((prevMessages) => [...prevMessages, { role: 'model', text: response.data.message }]);
+      setMessages((prevMessages) => [...prevMessages, { role: 'model', text: response.data.message, audioUrl: response.data.audioUrl }]);
     } catch (error) {
       console.error('Error sending message:', error);
     } finally {
@@ -108,26 +110,64 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
     }
   };
 
+  const playAudio = (index: number, audioUrl: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    if (playingIndex === index) {
+      setPlayingIndex(null);
+    } else {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.play().catch(error => {
+        console.error('Error playing audio:', error);
+      });
+      audioRef.current.onended = () => {
+        setPlayingIndex(null);
+      };
+      setPlayingIndex(index);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, []);
+
   return (
     <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', mt: 4, height: '80vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
-        {animateOnce && initialMessages.length === 0 ? (
-          <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} onAnimationComplete={() => setAnimateOnce(false)}>
-            <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
-              Chat about {templeName}
-            </Typography>
-          </motion.div>
-        ) : (
-          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
+      <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', mt: -3, height: '85vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
+        <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722' }}>
             Chat about {templeName}
           </Typography>
-        )}
+        </motion.div>
         <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
           {initialMessages.map((msg, index) => (
-            <Box key={index} sx={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
               <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
                 {msg.text}
               </Box>
+              {msg.role === 'model' && msg.audioUrl && (
+                <IconButton
+                  onClick={() => playAudio(index, `${msg.audioUrl}`)}
+                  sx={{
+                    ml: 1,
+                    borderRadius: '50%',
+                    backgroundColor: playingIndex === index ? '#388e3c' : '#4caf50',
+                    color: '#fff',
+                    p: 1,
+                    '&:hover': { backgroundColor: '#388e3c' },
+                  }}
+                >
+                  {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
+                </IconButton>
+              )}
             </Box>
           ))}
           {loading && (

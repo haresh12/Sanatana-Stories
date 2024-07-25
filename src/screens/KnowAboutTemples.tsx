@@ -55,8 +55,10 @@ const KnowAboutTemples: React.FC = () => {
     try {
       const handleTempleChat = httpsCallable(functions, 'templeChat');
       const response = await handleTempleChat({ userId: `${currentUser?.uid}`, templeName, message: '' });
-      const { message } = response.data as { message: string };
+      const { message, audioUrl } = response.data as { message: string, audioUrl : string};
       localStorage.setItem(`templeWelcomeMessage_${templeId}`, message);
+      localStorage.setItem(`templeWelcomeAudio_${templeId}`, audioUrl);
+
 
       navigate(`/temple/${templeId}`);
     } catch (error) {
