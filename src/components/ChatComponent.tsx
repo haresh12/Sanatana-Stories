@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { TextField, Container, Typography, Box, IconButton } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { httpsCallable } from 'firebase/functions';
@@ -12,6 +14,7 @@ import { setEpicsMessages, addEpicsMessage } from '../store/epicsChatSlice';
 interface Message {
   role: string;
   message: string;
+  audioUrl?: string;
 }
 
 // Extend the Window interface to include webkitSpeechRecognition
@@ -29,16 +32,20 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [listening, setListening] = useState(false);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     const initializeChat = async () => {
       if (currentUser && messages?.length === 0) {
+        setTyping(true);
         const handleChat = httpsCallable(functions, `${chatType}Chat`);
         const response = await handleChat({ userId: currentUser.uid, message: '' });
-        const responseData = response.data as { message: string };
-        dispatch(setEpicsMessages({ chatType, messages: [{ role: 'model', message: responseData.message }] }));
+        const responseData = response.data as { message: string, audioUrl: string };
+        dispatch(setEpicsMessages({ chatType, messages: [{ role: 'model', message: responseData.message, audioUrl: responseData.audioUrl }] }));
+        setTyping(false);
       }
     };
     initializeChat();
@@ -53,13 +60,18 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
     dispatch(addEpicsMessage({ chatType, message: newMessage }));
     setInput('');
 
-    const handleChat = httpsCallable(functions, `${chatType}Chat`);
-    const response = await handleChat({ userId: currentUser!.uid, message: input });
-    const responseData = response.data as { message: string };
-    const chatResponse: Message = { role: 'model', message: responseData.message };
-    dispatch(addEpicsMessage({ chatType, message: chatResponse }));
-    setLoading(false);
-    setTyping(false);
+    try {
+      const handleChat = httpsCallable(functions, `${chatType}Chat`);
+      const response = await handleChat({ userId: currentUser!.uid, message: input });
+      const responseData = response.data as { message: string, audioUrl: string };
+      const chatResponse: Message = { role: 'model', message: responseData.message, audioUrl: responseData.audioUrl };
+      dispatch(addEpicsMessage({ chatType, message: chatResponse }));
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setLoading(false);
+      setTyping(false);
+    }
   };
 
   const scrollToBottom = () => {
@@ -103,8 +115,37 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
     }
   };
 
+  const playAudio = (index: number, audioUrl: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    if (playingIndex === index) {
+      setPlayingIndex(null);
+    } else {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.play().catch(error => {
+        console.error('Error playing audio:', error);
+      });
+      audioRef.current.onended = () => {
+        setPlayingIndex(null);
+      };
+      setPlayingIndex(index);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, []);
+
   return (
-    <Container component="main" sx={{ display: 'flex', flexDirection: 'column', height: '90vh', justifyContent: 'center'}}>
+    <Container component="main" sx={{ display: 'flex', flexDirection: 'column', height: '90vh', justifyContent: 'center' }}>
       <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '90vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
           <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
@@ -113,10 +154,25 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
         </motion.div>
         <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
           {messages?.map((msg, index) => (
-            <Box key={index} sx={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
               <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
                 {msg.message}
               </Box>
+              {msg.role === 'model' && `${msg.audioUrl}` && (
+                <IconButton
+                  onClick={() => playAudio(index, `${msg.audioUrl}`)}
+                  sx={{
+                    ml: 1,
+                    borderRadius: '50%',
+                    backgroundColor: playingIndex === index ? '#388e3c' : '#4caf50',
+                    color: '#fff',
+                    p: 1,
+                    '&:hover': { backgroundColor: '#388e3c' },
+                  }}
+                >
+                  {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
+                </IconButton>
+              )}
             </Box>
           ))}
           {typing && (

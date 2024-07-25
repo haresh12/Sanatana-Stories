@@ -76,7 +76,7 @@ const TempleDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [story, setStory] = useState<string>('');
-  const [chatMessages, setChatMessages] = useState<{ role: string; text: string }[]>([]);
+  const [chatMessages, setChatMessages] = useState<{ role: string; text: string, audioUrl? : string }[]>([]);
 
   useEffect(() => {
     if (!templeId) {
@@ -110,8 +110,10 @@ const TempleDetail: React.FC = () => {
 
   useEffect(() => {
     const welcomeMessage = localStorage.getItem(`templeWelcomeMessage_${templeId}`);
+    const audioUrl = localStorage.getItem(`templeWelcomeAudio_${templeId}`);
+
     if (welcomeMessage) {
-      setChatMessages([{ role: 'model', text: welcomeMessage }]);
+      setChatMessages([{ role: 'model', text: welcomeMessage, audioUrl : `${audioUrl}` }]);
     }
   }, [templeId]);
 

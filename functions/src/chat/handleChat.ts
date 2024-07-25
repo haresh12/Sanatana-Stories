@@ -13,10 +13,10 @@ const genAI = new GoogleGenerativeAI('');
 const textToSpeechClient = new TextToSpeechClient();
 const writeFile = util.promisify(fs.writeFile);
 
-async function synthesizeSpeech(text: string, outputFile: string): Promise<void> {
+async function synthesizeSpeech(text: string, outputFile: string, voiceName: string): Promise<void> {
   const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
     input: { text },
-    voice: { languageCode: 'en-IN', ssmlGender: 'NEUTRAL' },
+    voice: { languageCode: 'en-IN', name: voiceName },
     audioConfig: { audioEncoding: 'MP3' },
   };
   const [response] = await textToSpeechClient.synthesizeSpeech(request);
@@ -60,6 +60,16 @@ export const handleChat = functions.https.onCall(async (data, context) => {
     const userChatRef = db.collection('users').doc(userId).collection('godChat').doc(godName);
     const chatDoc = await userChatRef.get();
     let history: any[] = [];
+
+    const getVoiceName = (godName: string): string => {
+      const goddesses = [
+        'goddess durga', 'goddess lakshmi', 'goddess saraswati',
+        'goddess kali', 'goddess radha', 'goddess sita', 'goddess parvati'
+      ];
+      return goddesses.includes(godName.toLowerCase()) ? 'en-IN-Wavenet-A' : 'en-IN-Neural2-C';
+    };
+
+    const voiceName = getVoiceName(godName);
 
     if (!chatDoc.exists) {
       let welcomeMessage = '';
@@ -117,7 +127,7 @@ export const handleChat = functions.https.onCall(async (data, context) => {
       }
 
       const welcomeAudioFile = path.join('/tmp', `${godName}_welcome.mp3`);
-      await synthesizeSpeech(welcomeMessage, welcomeAudioFile);
+      await synthesizeSpeech(welcomeMessage, welcomeAudioFile, voiceName);
       const welcomeAudioUrl = await uploadFileToStorage(welcomeAudioFile, `tts/${godName}_welcome_${Date.now()}.mp3`);
 
       history = [
@@ -138,7 +148,7 @@ export const handleChat = functions.https.onCall(async (data, context) => {
     const godResponse = { role: 'model', parts: [{ text, audioUrl: '' }] };
 
     const responseAudioFile = path.join('/tmp', `${godName}_response.mp3`);
-    await synthesizeSpeech(text, responseAudioFile);
+    await synthesizeSpeech(text, responseAudioFile, voiceName);
     const responseAudioUrl = await uploadFileToStorage(responseAudioFile, `tts/${godName}_response_${Date.now()}.mp3`);
 
     godResponse.parts[0].audioUrl = responseAudioUrl;
