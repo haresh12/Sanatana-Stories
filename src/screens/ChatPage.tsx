@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Box, IconButton } from '@mui/material';
+import { TextField, Container, Typography, Box, IconButton } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { collection, getDocs } from 'firebase/firestore';
@@ -16,6 +18,7 @@ import BackButton from '../components/BackButton';
 interface Message {
   role: string;
   message: string;
+  audioUrl?: string;
 }
 
 // Extend the Window interface to include webkitSpeechRecognition
@@ -35,17 +38,23 @@ const ChatPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [typing, setTyping] = useState(false);
   const [listening, setListening] = useState(false);
+  const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
     const fetchGodName = async () => {
-      const godsCollection = collection(db, 'gods');
-      const godsSnapshot = await getDocs(godsCollection);
-      const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
-      const god = godsList.find(g => g.id === godId);
-      if (god) {
-        dispatch(setGodName(god.name));
+      try {
+        const godsCollection = collection(db, 'gods');
+        const godsSnapshot = await getDocs(godsCollection);
+        const godsList = godsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as God[];
+        const god = godsList.find(g => g.id === godId);
+        if (god) {
+          dispatch(setGodName(god.name));
+        }
+      } catch (error) {
+        console.error('Error fetching god name:', error);
       }
     };
     fetchGodName();
@@ -54,10 +63,14 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     const initializeChat = async () => {
       if (currentUser && godName && messages.length === 0) {
-        const handleChat = httpsCallable(functions, 'handleChat');
-        const response = await handleChat({ userId: currentUser.uid, godName, message: '' });
-        const responseData = response.data as { message: string, welcomeMessage: string };
-        dispatch(setMessages([{ role: 'model', message: responseData.welcomeMessage }]));
+        try {
+          const handleChat = httpsCallable(functions, 'handleChat');
+          const response = await handleChat({ userId: currentUser.uid, godName, message: '' });
+          const responseData = response.data as { message: string; welcomeMessage: string; audioUrl: string };
+          dispatch(setMessages([{ role: 'model', message: responseData.welcomeMessage, audioUrl: responseData.audioUrl }]));
+        } catch (error) {
+          console.error('Error initializing chat:', error);
+        }
       }
     };
     initializeChat();
@@ -72,13 +85,18 @@ const ChatPage: React.FC = () => {
     dispatch(addMessage(newMessage));
     setInput('');
 
-    const handleChat = httpsCallable(functions, 'handleChat');
-    const response = await handleChat({ userId: currentUser!.uid, godName, message: input });
-    const responseData = response.data as { message: string };
-    const godResponse: Message = { role: 'model', message: responseData.message };
-    dispatch(addMessage(godResponse));
-    setLoading(false);
-    setTyping(false);
+    try {
+      const handleChat = httpsCallable(functions, 'handleChat');
+      const response = await handleChat({ userId: currentUser!.uid, godName, message: input });
+      const responseData = response.data as { message: string; audioUrl: string };
+      const godResponse: Message = { role: 'model', message: responseData.message, audioUrl: responseData.audioUrl };
+      dispatch(addMessage(godResponse));
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setLoading(false);
+      setTyping(false);
+    }
   };
 
   const scrollToBottom = () => {
@@ -112,7 +130,7 @@ const ChatPage: React.FC = () => {
         setListening(false);
       };
     } else {
-      alert("Your browser does not support speech recognition.");
+      alert('Your browser does not support speech recognition.');
     }
   }, []);
 
@@ -121,6 +139,35 @@ const ChatPage: React.FC = () => {
       recognitionRef.current.start();
     }
   };
+
+  const playAudio = (index: number, audioUrl: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    if (playingIndex === index) {
+      setPlayingIndex(null);
+    } else {
+      audioRef.current = new Audio(audioUrl);
+      audioRef.current.play().catch(error => {
+        console.error('Error playing audio:', error);
+      });
+      audioRef.current.onended = () => {
+        setPlayingIndex(null);
+      };
+      setPlayingIndex(index);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, []);
 
   return (
     <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
@@ -133,10 +180,25 @@ const ChatPage: React.FC = () => {
         </motion.div>
         <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
           {messages.map((msg, index) => (
-            <Box key={index} sx={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
               <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
                 {msg.message}
               </Box>
+              {msg.role === 'model' && msg.audioUrl && (
+                <IconButton
+                  onClick={() => playAudio(index, `${msg.audioUrl}`)}
+                  sx={{
+                    ml: 1,
+                    borderRadius: '50%',
+                    backgroundColor: playingIndex === index ? '#388e3c' : '#4caf50',
+                    color: '#fff',
+                    p: 1,
+                    '&:hover': { backgroundColor: '#388e3c' },
+                  }}
+                >
+                  {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
+                </IconButton>
+              )}
             </Box>
           ))}
           {typing && (

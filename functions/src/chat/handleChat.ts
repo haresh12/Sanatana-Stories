@@ -1,8 +1,42 @@
 import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { db } from '../firebaseApp';
+import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
+import * as fs from 'fs';
+import { admin } from '../firebaseApp';
+import * as path from 'path';
+import * as util from 'util';
 
-const genAI = new GoogleGenerativeAI("");
+const storage = admin.storage();
+const bucket = storage.bucket();
+const genAI = new GoogleGenerativeAI('');
+const textToSpeechClient = new TextToSpeechClient();
+const writeFile = util.promisify(fs.writeFile);
+
+async function synthesizeSpeech(text: string, outputFile: string): Promise<void> {
+  const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
+    input: { text },
+    voice: { languageCode: 'en-IN', ssmlGender: 'NEUTRAL' },
+    audioConfig: { audioEncoding: 'MP3' },
+  };
+  const [response] = await textToSpeechClient.synthesizeSpeech(request);
+  await writeFile(outputFile, response.audioContent as Uint8Array, 'binary');
+  console.log(`Audio content written to file: ${outputFile}`);
+}
+
+async function uploadFileToStorage(filePath: string, destination: string): Promise<string> {
+  const [file] = await bucket.upload(filePath, {
+    destination,
+    metadata: {
+      contentType: 'audio/mpeg',
+      metadata: {
+        firebaseStorageDownloadTokens: Math.random().toString(36).substring(2),
+      },
+    },
+  });
+  const [fileMetadata] = await file.getMetadata();
+  return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(file.name)}?alt=media&token=${fileMetadata?.metadata?.firebaseStorageDownloadTokens}`;
+}
 
 export const handleChat = functions.https.onCall(async (data, context) => {
   const { userId, godName, message } = data;
@@ -25,12 +59,9 @@ export const handleChat = functions.https.onCall(async (data, context) => {
   try {
     const userChatRef = db.collection('users').doc(userId).collection('godChat').doc(godName);
     const chatDoc = await userChatRef.get();
-    let history = [];
+    let history: any[] = [];
 
-    if (chatDoc.exists) {
-      const chatData = chatDoc.data();
-      history = chatData?.history || [];
-    } else {
+    if (!chatDoc.exists) {
       let welcomeMessage = '';
       switch (godName.toLowerCase()) {
         case 'lord rama':
@@ -85,13 +116,17 @@ export const handleChat = functions.https.onCall(async (data, context) => {
           welcomeMessage = 'Hello, I am here to help you.';
       }
 
+      const welcomeAudioFile = path.join('/tmp', `${godName}_welcome.mp3`);
+      await synthesizeSpeech(welcomeMessage, welcomeAudioFile);
+      const welcomeAudioUrl = await uploadFileToStorage(welcomeAudioFile, `tts/${godName}_welcome_${Date.now()}.mp3`);
+
       history = [
         { role: 'user', parts: [{ text: '' }] },
-        { role: 'model', parts: [{ text: welcomeMessage }] }
+        { role: 'model', parts: [{ text: welcomeMessage, audioUrl: welcomeAudioUrl }] }
       ];
 
       await userChatRef.set({ history });
-      return { message: welcomeMessage };
+      return { message: welcomeMessage, audioUrl: welcomeAudioUrl };
     }
 
     history.push({ role: 'user', parts: [{ text: message }] });
@@ -100,12 +135,17 @@ export const handleChat = functions.https.onCall(async (data, context) => {
     const result = await chat.sendMessage(message);
     const response = await result.response;
     const text = response.text();
-    const godResponse = { role: 'model', parts: [{ text }] };
+    const godResponse = { role: 'model', parts: [{ text, audioUrl: '' }] };
 
+    const responseAudioFile = path.join('/tmp', `${godName}_response.mp3`);
+    await synthesizeSpeech(text, responseAudioFile);
+    const responseAudioUrl = await uploadFileToStorage(responseAudioFile, `tts/${godName}_response_${Date.now()}.mp3`);
+
+    godResponse.parts[0].audioUrl = responseAudioUrl;
     history.push(godResponse);
     await userChatRef.set({ history });
 
-    return { message: text };
+    return { message: text, audioUrl: responseAudioUrl };
   } catch (error) {
     console.error("Error in handleChat function:", error);
     throw new functions.https.HttpsError('internal', 'Unable to process chat.');
