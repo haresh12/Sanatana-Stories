@@ -56,10 +56,10 @@ const TalkToGod = () => {
     setLoading(true);
     const handleChat = httpsCallable(functions, 'handleChat');
     const response = await handleChat({ userId: `${currentUser?.uid}`, godName: god.name, message: '' });
-    const responseData = response.data as { message: string };
-
+    const responseData = response.data as { message: string, audioUrl : string };
+    console.log("responseData",responseData)
     dispatch(setGodName(god.name));
-    dispatch(setMessages([{ role: 'model', message: responseData.message }]));
+    dispatch(setMessages([{ role: 'model', message: responseData.message, audioUrl : responseData.audioUrl }]));
     
     setLoading(false);
     navigate(`/talk-to-god/${god.id}`);
