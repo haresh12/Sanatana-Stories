@@ -11,8 +11,8 @@ import { generatePodcast } from './podcast/generatePodcast';
 import { ramayanChat } from './rmh/ramayanChat';
 import { mahabharatChat } from './rmh/mahabharatChat';
 import { puranasChat } from './rmh/hindupuranas';  
-import { updateMyth } from './dynamicContent/updateMyth';  
-import { updateFunFact } from './dynamicContent/updateFunFact';  
+import { generateMyth } from './dynamicContent/generateMyth';  
+import { generateFunFact } from './dynamicContent/generateFunFact';  
 import { getDetailedInfo } from './dynamicContent/knowMore';  
 
 
@@ -30,8 +30,8 @@ exports.generatePodcast = generatePodcast;
 exports.ramayanChat = ramayanChat;
 exports.mahabharatChat = mahabharatChat;
 exports.puranasChat = puranasChat;
-exports.updateMyth = updateMyth;
-exports.updateFunFact = updateFunFact;
+exports.generateMyth = generateMyth;
+exports.generateFunFact = generateFunFact;
 exports.getDetailedInfo = getDetailedInfo;
 
 

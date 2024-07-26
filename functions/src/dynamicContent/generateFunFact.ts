@@ -43,7 +43,7 @@ function shuffle(array: string[]) {
   return array;
 }
 
-export const updateFunFact = functions.pubsub.schedule('every 2 minutes').onRun(async (context) => {
+export const generateFunFact = functions.https.onCall(async (data, context) => {
   shuffle(topics);
   const chosenTopic = topics[0];
 
@@ -70,7 +70,9 @@ export const updateFunFact = functions.pubsub.schedule('every 2 minutes').onRun(
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
 
+    return { content: text, topic: chosenTopic };
   } catch (error) {
     console.error("Error generating fun fact:", error);
+    throw new functions.https.HttpsError('internal', 'Unable to generate fun fact.');
   }
 });

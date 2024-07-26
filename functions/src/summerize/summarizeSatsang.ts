@@ -22,30 +22,34 @@ export const summarizeSatsang = functions.https.onCall(async (data, context) => 
 
     const transcript = transcriptParts.map(part => part.text).join(' ');
 
+    const prompt = `
+      Here is a transcript from a video:
+      "${transcript}"
+      
+      First, classify the content of this transcript. Respond with "spiritual" if it is related to spiritual or satsang topics, otherwise respond with "other".
+      If the content is spiritual, make sure if transcript contains any single word about hindu things then it is spritual video provide a summary that highlights the main points, essential details, and key takeaways. Ensure the summary is concise, engaging, and easy to understand.
+      If the content is not spiritual, then don't need to say anything about transcript of video we just need to say this video is not spritual so can't not generate transcript but we need to say it funny way
+    `;
+
     const model = genAI.getGenerativeModel({
-        model: 'gemini-1.5-pro',
-        systemInstruction: `
-          You are an expert summarizer. Your task is to transform the provided transcript into a concise, coherent, and engaging summary. Highlight the main points, essential details, and key takeaways. Make the summary easy to read and understand for a general audience, ensuring that it captures the essence of the content effectively.
-        `,
-        generationConfig: {
-          temperature: 0.7,
-          topK: 50,
-          topP: 0.9,
-        },
-      });
-  
-      const prompt = `
-        Here is a transcript from a Satsang video. Please provide a summary that highlights the main points, essential details, and key takeaways. Ensure the summary is concise, engaging, and easy to understand:
-        "${transcript}"
-      `;
-  
+      model: 'gemini-1.5-pro',
+      systemInstruction: `
+        You are an expert in analyzing and summarizing content. Your task is to classify the provided transcript and either summarize it if it is spiritual or provide a humorous response if it is not.
+      `,
+      generationConfig: {
+        temperature: 0.7,
+        topK: 50,
+        topP: 0.9,
+        maxOutputTokens: 300,
+      },
+    });
 
     const result = await model.generateContent(prompt);
-    const summary = await result.response.text();
+    const responseText = await result.response.text();
 
-    return { summary };
+    return { summary: responseText.trim() };
   } catch (error) {
-    console.error('Error summarizing video:', error);
-    throw new functions.https.HttpsError('internal', 'Unable to summarize video. Please ensure the video has captions enabled.');
+    console.error('Error processing video:', error);
+    throw new functions.https.HttpsError('internal', 'Unable to process video. Please ensure the video has captions enabled.');
   }
 });
