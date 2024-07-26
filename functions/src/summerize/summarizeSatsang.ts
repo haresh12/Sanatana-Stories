@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions';
 import { YoutubeTranscript } from 'youtube-transcript';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI("");
+const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
 export const summarizeSatsang = functions.https.onCall(async (data, context) => {
   const { videoUrl } = data;

@@ -1,8 +1,8 @@
 import * as admin from 'firebase-admin';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
+import * as functions from 'firebase-functions';
 const db = admin.firestore();
-const genAI = new GoogleGenerativeAI("");
+const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
 export const sendAIMessage = async () => {
   const messagesRef = db.collection('comments').orderBy('timestamp', 'desc').limit(5);

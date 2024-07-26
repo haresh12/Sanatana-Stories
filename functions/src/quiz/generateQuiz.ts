@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI('');
+const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
 const mustTopics = [
   'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Bhagavad Gita', 'Hindu gods and goddesses',
