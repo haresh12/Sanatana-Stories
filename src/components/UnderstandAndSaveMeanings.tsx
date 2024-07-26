@@ -209,27 +209,23 @@ const UnderstandAndSaveMeanings: React.FC = () => {
       <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '20px', fontWeight: 'bold', color: '#ff5722' }}>
         Hanuman Chalisa
       </Typography>
-      <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-        <Card sx={{ marginBottom: '20px', backgroundColor: '#e0f7fa', borderRadius: '15px', padding: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
-          <CardContent>
-            <Typography variant="h6" align="center" gutterBottom sx={{ color: '#00796b' }}>
-              Many people recite the Hanuman Chalisa daily but struggle to grasp its deeper meanings. With this feature, you can click on any word to understand its significance and save it for future reference.
-            </Typography>
+      <Card sx={{ marginBottom: '20px', backgroundColor: '#e0f7fa', borderRadius: '15px', padding: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
+        <CardContent>
+          <Typography variant="h6" align="center" gutterBottom sx={{ color: '#00796b' }}>
+            Many people recite the Hanuman Chalisa daily but struggle to grasp its deeper meanings. With this feature, you can click on any word to understand its significance and save it for future reference.
+          </Typography>
+        </CardContent>
+      </Card>
+      {chalisaText.split('\n\n').map((paragraph, index) => (
+        <Card key={index} sx={{ marginBottom: '10px', backgroundColor: '#f5f5f5', borderRadius: '15px', padding: '10px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
+          <CardContent onMouseUp={handleTextSelect}>
+            <Typography
+              variant="body1"
+              sx={{ color: '#000', fontSize: '18px', lineHeight: 1.6 }}
+              dangerouslySetInnerHTML={{ __html: highlightText(paragraph) }}
+            />
           </CardContent>
         </Card>
-      </motion.div>
-      {chalisaText.split('\n\n').map((paragraph, index) => (
-        <motion.div key={index} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Card sx={{ marginBottom: '10px', backgroundColor: '#f5f5f5', borderRadius: '15px', padding: '10px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
-            <CardContent onMouseUp={handleTextSelect}>
-              <Typography
-                variant="body1"
-                sx={{ color: '#000', fontSize: '18px', lineHeight: 1.6 }}
-                dangerouslySetInnerHTML={{ __html: highlightText(paragraph) }}
-              />
-            </CardContent>
-          </Card>
-        </motion.div>
       ))}
       <Popover
         id={id}

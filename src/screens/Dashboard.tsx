@@ -218,8 +218,8 @@ const Dashboard: React.FC = () => {
 
     const updateContent = async () => {
       try {
-        const updateFunFact = httpsCallable(functions, 'updateFunFact');
-        const updateMyth = httpsCallable(functions, 'updateMyth');
+        const updateFunFact = httpsCallable(functions, 'generateFunFact');
+        const updateMyth = httpsCallable(functions, 'generateMyth');
 
         await updateFunFact();
         await updateMyth();
@@ -228,7 +228,7 @@ const Dashboard: React.FC = () => {
       }
     };
 
-    const interval = setInterval(updateContent, 2 * 60 * 1000); // 2 minutes
+    const interval = setInterval(updateContent, 5 * 60 * 1000);
 
     return () => {
       unsubscribeFunFact();
