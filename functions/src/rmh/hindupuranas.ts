@@ -9,7 +9,7 @@ import * as util from 'util';
 
 const storage = admin.storage();
 const bucket = storage.bucket();
-const genAI = new GoogleGenerativeAI('');
+const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 const textToSpeechClient = new TextToSpeechClient();
 const writeFile = util.promisify(fs.writeFile);
 

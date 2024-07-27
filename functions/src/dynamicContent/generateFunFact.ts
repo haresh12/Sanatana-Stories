@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { db, admin } from '../firebaseApp';
 
-const genAI = new GoogleGenerativeAI('');
+const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
 const topics = [
   'Hanuman Chalisa', 'Ramayana', 'Mahabharata', 'Hindu Puranas', 'Hindu temples',

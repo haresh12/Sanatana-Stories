@@ -1,21 +1,14 @@
 import * as functions from 'firebase-functions';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
-import * as admin from 'firebase-admin';
 import * as ffmpeg from 'fluent-ffmpeg';
 import * as fs from 'fs';
 import * as path from 'path';
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.applicationDefault(),
-    storageBucket: 'sanatan-36755.appspot.com'
-  });
-}
+import { admin } from '../firebaseApp';
 
 const storage = admin.storage();
 const bucket = storage.bucket();
-const genAI = new GoogleGenerativeAI('');
+const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 const textToSpeechClient = new TextToSpeechClient();
 
 function shuffle(array: string[]) {

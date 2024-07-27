@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getFunctions } from 'firebase/functions';
 import { getStorage } from 'firebase/storage';
+import { getRemoteConfig } from 'firebase/remote-config'
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -19,5 +20,11 @@ const googleProvider = new GoogleAuthProvider();
 const db = getFirestore(app);
 const functions = getFunctions(app);
 const storage = getStorage(app);
+const remoteConfig = getRemoteConfig();
 
-export { auth, googleProvider, db, functions, storage };
+
+remoteConfig.settings = {
+    fetchTimeoutMillis: 60000,
+    minimumFetchIntervalMillis: 14400000
+}
+export { auth, googleProvider, db, functions, storage, remoteConfig };
