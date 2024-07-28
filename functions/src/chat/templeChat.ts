@@ -54,10 +54,10 @@ export const templeChat = functions.https.onCall(async (data, context) => {
       Remember to maintain a respectful and informative tone, embodying the spirit and reverence associated with ${templeName}.
     `,
     generationConfig: {
-      temperature: 0.7,
+      temperature: 1,
       topK: 50,
       topP: 0.9,
-      maxOutputTokens: 150,
+      maxOutputTokens: 1000,
     },
   });
 

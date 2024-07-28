@@ -87,9 +87,9 @@ export const generatePodcast = functions
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-pro',
       generationConfig: {
-        temperature: 1.0, // Increased temperature for more creativity
+        temperature: 1.0, 
         topK: 50,
-        topP: 0.95, // Adjusted topP for a balance between diversity and coherence
+        topP: 0.95,
         responseMimeType: "application/json"
       },
       systemInstruction: `
