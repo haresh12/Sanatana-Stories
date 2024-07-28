@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Container, Typography, Button, Card, CardContent, Box, Snackbar, Alert } from '@mui/material';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
@@ -19,23 +19,29 @@ const StartChantingAndAnalysis: React.FC = () => {
   const [score, setScore] = useState<number | null>(null);
   const [timestamp, setTimestamp] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+  const accumulatedTranscriptRef = useRef<string>('');
 
   const startListening = useCallback(() => {
     const recognition = new (window as any).webkitSpeechRecognition();
     recognitionRef.current = recognition;
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = 'hi-IN';
+    recognition.lang = 'en-US';
 
     recognition.onstart = () => {
       setListening(true);
     };
 
     recognition.onresult = (event: any) => {
-      const transcriptText = Array.from(event.results)
-        .map((result: any) => result[0].transcript)
-        .join('');
-      setTranscript(transcriptText);
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; ++i) {
+        if (event.results[i].isFinal) {
+          accumulatedTranscriptRef.current += event.results[i][0].transcript + ' ';
+        } else {
+          interimTranscript += event.results[i][0].transcript;
+        }
+      }
+      setTranscript(accumulatedTranscriptRef.current + interimTranscript);
     };
 
     recognition.onerror = (event: any) => {
@@ -45,6 +51,7 @@ const StartChantingAndAnalysis: React.FC = () => {
 
     recognition.onend = () => {
       setListening(false);
+      setTranscript(accumulatedTranscriptRef.current); // Set the final transcript
     };
 
     recognition.start();
@@ -63,6 +70,7 @@ const StartChantingAndAnalysis: React.FC = () => {
     setAnalysis(null);
     setScore(null);
     setTimestamp(null);
+    accumulatedTranscriptRef.current = ''; // Reset accumulated transcript
     startListening();
   };
 
@@ -71,7 +79,7 @@ const StartChantingAndAnalysis: React.FC = () => {
     setLoading(true);
     try {
       const analyzeChanting = httpsCallable<{ transcript: string }, AnalysisResponse>(functions, 'analyzeChanting');
-      const response = await analyzeChanting({ transcript });
+      const response = await analyzeChanting({ transcript: accumulatedTranscriptRef.current });
       const analysisResult = response.data.analysisText;
       const analysisScore = response.data.score;
       const currentTimestamp = new Date().toISOString();
