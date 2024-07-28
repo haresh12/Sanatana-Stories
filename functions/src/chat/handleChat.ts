@@ -49,10 +49,10 @@ export const handleChat = functions.https.onCall(async (data, context) => {
       If a question is outside your domain, respond with a gentle and humorous reminder of your expertise.
     `,
     generationConfig: {
-      temperature: 0.7,
+      temperature: 1,
       topK: 50,
       topP: 0.9,
-      maxOutputTokens: 150,
+      maxOutputTokens: 1000,
     },
   });
 

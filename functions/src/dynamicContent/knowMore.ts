@@ -13,10 +13,10 @@ export const getDetailedInfo = functions.https.onCall(async (data, context) => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
     generationConfig: {
-      temperature: 0.3,  
+      temperature: 0.5,  
       topK: 20, 
-      topP: 0.6, 
-      maxOutputTokens: 100,  
+      topP: 0.8, 
+      maxOutputTokens: 160,  
     },
     systemInstruction: systemInstruction
   });

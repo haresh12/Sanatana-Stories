@@ -58,7 +58,7 @@ export const ramayanChat = functions.https.onCall(async (data, context) => {
       temperature: 0.7,
       topK: 50,
       topP: 0.9,
-      maxOutputTokens: 150,
+      maxOutputTokens: 1000,
     },
   });
 
