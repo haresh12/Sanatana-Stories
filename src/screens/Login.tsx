@@ -12,6 +12,7 @@ import { RootState } from '../store';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import WhyThisProduct from '../components/WhyThisProduct';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -117,6 +118,13 @@ const Login: React.FC = () => {
       errorMessage = error.message;
     }
     setError(errorMessage);
+  };
+
+  const handleOpenWhyThisProduct = () => {
+    const element = document.getElementById('why-this-product-container');
+    if (element) {
+      element.style.display = 'block';
+    }
   };
 
   return (
@@ -292,13 +300,33 @@ const Login: React.FC = () => {
                 >
                   Don't have an account? Sign Up
                 </Link>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: '#ff5722',
+                    marginTop: '10px',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    animation: 'blink 1.5s infinite',
+                    '@keyframes blink': {
+                      '0%': { opacity: 1 },
+                      '50%': { opacity: 0.5 },
+                      '100%': { opacity: 1 },
+                    },
+                  }}
+                  onClick={handleOpenWhyThisProduct}
+                >
+                  Why this product and its use cases?
+                </Typography>
               </Box>
             </form>
           </Box>
         </Paper>
       </motion.div>
+      <Box id="why-this-product-container" sx={{ display: 'none', marginTop: '20px' }}>
+        <WhyThisProduct />
+      </Box>
     </Container>
-
   );
 };
 
