@@ -1,13 +1,13 @@
 import React, { useState, MouseEvent } from 'react';
-import { Container, Typography, Popover, Button, CircularProgress, Card, CardContent, Box } from '@mui/material';
+import { Container, Typography, Popover, Button, CircularProgress, Card, CardContent, Box, Tabs, Tab } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
 import { saveMeaning, clearMeaning } from '../store/chalisaSlice';
-import { motion } from 'framer-motion';
+import { styled } from '@mui/system';
 
-const chalisaText = `
+const hanumanChalisaHindi = `
 ॥ श्री हनुमान चालीसा ॥
 श्रीगुरु चरन सरोज रज, निज मनु मुकुरु सुधारि।
 बरनउं रघुबर बिमल जसु, जो दायकु फल चारि॥
@@ -140,6 +140,154 @@ const chalisaText = `
 राम लखन सीता सहित, हृदय बसहु सुर भूप॥
 `;
 
+const hanumanChalisaEnglishHindi = `
+॥ Shri Hanuman Chalisa ॥
+Shriguru charan saroja raja, nija manu mukuru sudhari।
+Baranaun Raghuvara bimala jasu, jo dayaku phala chari॥
+
+Buddhihin tanu janike, sumirau Pavana-Kumara।
+Bala buddhi vidya dehu mohi, harahu kalesa bikara॥
+
+Jaya Hanuman gyan guna sagara।
+Jaya Kapisa tihu loka ujagara॥
+
+Rama duta atulita bala dhama।
+Anjani-putra Pavanasuta nama॥
+
+Mahabira bikrama bajarangI।
+Kumati nivara sumati ke sangI॥
+
+Kanchana barana biraja subesa।
+Kanan kundala kuncita kesa॥
+
+Hatha bajra au dhvaja birajai।
+Kandhe munja janeu sajai॥
+
+Sankara suvan Kesari Nandana।
+Teja pratapa maha jaga bandana॥
+
+Vidyavan guni ati chatur।
+Rama kaja karibe ko atura॥
+
+Prabhu charitra sunibe ko rasiya।
+Rama Lakhan Sita mana basiya॥
+
+Sukshma rupa dhari Siyahi dikhava।
+Bikata rupa dhari Lanka jarava॥
+
+Bhima rupa dhari asura sanhare।
+Ramachandra ke kaja sanvare॥
+
+Laye Sajivana Lakhan jiyaye।
+Shriraghubira harashi ura laye॥
+
+Raghupati kinhi bahuta badai।
+Tuma mama priya Bharata-hi sam bhai॥
+
+Sahasa badana tumharo jasa gavai।
+Asa kahi Shripati kantha lagavai॥
+
+Sankadika Brahmada Munisa।
+Narada Sarada sahita Ahisa॥
+
+Yama Kubera Digapala jahan te।
+Kavi kobida kahi sake kahan te॥
+
+Tuma upakara Sugrivahin kinha।
+Rama milaya rajapada dinha॥
+
+Tumharo mantra Vibhishana mana।
+Lankesvara bhaye saba jaga jana॥
+
+Yuga sahasra yojana para bhanu।
+Lilyo tahi madhura phala janu॥
+
+Prabhu mudrika meli mukha mahi।
+Jaladhi langhi gaye acharaja nahi॥
+
+Durgama kaja jagata ke jete।
+Sugama anugraha tumhare tete॥
+
+Rama dware tuma rakhavare।
+Hota na ajna binu paisare॥
+
+Saba sukha lahai tumhari sarana।
+Tuma rakshaka kahu ko darana॥
+
+Apana teja samharao apai।
+Tino loka hanka te kampai॥
+
+Bhuta pisacha nikata nahi avai।
+Mahabira jaba nama sunavai॥
+
+Nase roga harai saba pira।
+Japata nirantara Hanumata bira॥
+
+Sankata te Hanumana chhuravai।
+Mana krama vachana dhyana jo lavai॥
+
+Saba para Rama tapasvi raja।
+Tina ke kaja sakala tuma saja॥
+
+Aura manoratha jo koi lavai।
+SoI amita jIvana phala pavai॥
+
+Charo yuga paratapa tumhara।
+Hai parasiddha jagata ujiyara॥
+
+Sadhu santa ke tuma rakhavare।
+Asura nikandana Rama dulare॥
+
+Ashta siddhi nau nidhi ke data।
+Asa bara dina Janaki mata॥
+
+Rama rasayana tumhare pasa।
+Sada raho Raghupati ke dasa॥
+
+Tumhare bhajana Rama ko pavai।
+Janma janma ke dukha bisaravai॥
+
+Antakala Raghubara pura jai।
+Jahan janma Haribhakta kahai॥
+
+Aura devata chitta na dharai।
+Hanumata sei sarba sukha karai॥
+
+Sankata katai mitai saba pira।
+Jo sumirai Hanumata balbira॥
+
+Jaya jaya jaya Hanuman Gosai।
+Kripa karahu guru deva ki naI॥
+
+Jo sat bara patha kara koi।
+Chhutahi bandi maha sukha hoi॥
+
+Jo yaha padhai Hanuman Chalisa।
+Hoya siddhi sakhi Gaurisa॥
+
+Tulasidasa sada Hari chera।
+Kijai natha hridaya maha dera॥
+
+॥ Doha ॥
+Pavanasuta sankata harana, mangala murati rupa।
+Rama Lakhan Sita sahita, hridaya basahu sura bhupa॥
+`;
+
+const StyledTabs = styled(Tabs)(({ theme }) => ({
+  backgroundColor: '#ffffffcc',
+  borderRadius: '8px',
+  padding: '5px',
+  marginBottom: '20px',
+}));
+
+const StyledTab = styled(Tab)(({ theme }) => ({
+  fontWeight: 'bold',
+  '&.Mui-selected': {
+    backgroundColor: '#ff5722',
+    color: '#fff',
+  },
+}));
+
 const UnderstandAndSaveMeanings: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const savedWords = useSelector((state: RootState) => state.chalisa.savedMeanings);
@@ -147,6 +295,7 @@ const UnderstandAndSaveMeanings: React.FC = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [meaning, setMeaning] = useState('');
   const [loading, setLoading] = useState(false);
+  const [language, setLanguage] = useState<'hindi' | 'english'>('hindi');
 
   const handleTextSelect = (event: MouseEvent<HTMLElement>) => {
     const selection = window.getSelection();
@@ -204,8 +353,35 @@ const UnderstandAndSaveMeanings: React.FC = () => {
     return highlightedText;
   };
 
+  const handleLanguageToggle = (event: React.ChangeEvent<{}>, newLanguage: 'hindi' | 'english') => {
+    setLanguage(newLanguage);
+  };
+
+  const formatText = (text: string) => {
+    return text.split('\n\n').map((paragraph, index) => (
+      <Card key={index} sx={{ marginBottom: '10px', backgroundColor: '#f5f5f5', borderRadius: '15px', padding: '10px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
+        <CardContent onMouseUp={handleTextSelect}>
+          {paragraph.split('\n').map((line, lineIndex) => (
+            <Typography
+              key={lineIndex}
+              variant="body1"
+              sx={{ color: '#000', fontSize: '18px', lineHeight: 1.6 }}
+              dangerouslySetInnerHTML={{ __html: highlightText(line) }}
+            />
+          ))}
+        </CardContent>
+      </Card>
+    ));
+  };
+
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
+      <Box display="flex" justifyContent="center" mb={2}>
+        <StyledTabs value={language} onChange={handleLanguageToggle} aria-label="language toggle tabs" centered>
+          <StyledTab value="hindi" label="Hindi" />
+          <StyledTab value="english" label="English" />
+        </StyledTabs>
+      </Box>
       <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '20px', fontWeight: 'bold', color: '#ff5722' }}>
         Hanuman Chalisa
       </Typography>
@@ -216,17 +392,7 @@ const UnderstandAndSaveMeanings: React.FC = () => {
           </Typography>
         </CardContent>
       </Card>
-      {chalisaText.split('\n\n').map((paragraph, index) => (
-        <Card key={index} sx={{ marginBottom: '10px', backgroundColor: '#f5f5f5', borderRadius: '15px', padding: '10px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
-          <CardContent onMouseUp={handleTextSelect}>
-            <Typography
-              variant="body1"
-              sx={{ color: '#000', fontSize: '18px', lineHeight: 1.6 }}
-              dangerouslySetInnerHTML={{ __html: highlightText(paragraph) }}
-            />
-          </CardContent>
-        </Card>
-      ))}
+      {formatText(language === 'hindi' ? hanumanChalisaHindi : hanumanChalisaEnglishHindi)}
       <Popover
         id={id}
         open={open}
@@ -240,8 +406,9 @@ const UnderstandAndSaveMeanings: React.FC = () => {
           vertical: 'bottom',
           horizontal: 'left',
         }}
+        sx={{ maxWidth: '100%', width: '90%' }}
       >
-        <Box sx={{ padding: '10px', maxWidth: '300px' }}>
+        <Box sx={{ padding: '10px', maxWidth: '300px', width: '100%' }}>
           <Typography variant="h6" sx={{ marginBottom: '10px', color: '#ff5722' }}>
             Meaning of: {selectedText}
           </Typography>
