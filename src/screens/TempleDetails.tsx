@@ -28,6 +28,7 @@ function TabPanel(props: TabPanelProps) {
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
       {value === index && (
@@ -113,7 +114,7 @@ const TempleDetail: React.FC = () => {
     const audioUrl = localStorage.getItem(`templeWelcomeAudio_${templeId}`);
 
     if (welcomeMessage) {
-      setChatMessages([{ role: 'model', text: welcomeMessage, audioUrl : `${audioUrl}` }]);
+      setChatMessages([{ role: 'model', text: welcomeMessage, audioUrl: `${audioUrl}` }]);
     }
   }, [templeId]);
 
@@ -150,8 +151,8 @@ const TempleDetail: React.FC = () => {
       <BackButton />
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
         <StyledTabs value={value} onChange={handleChange} aria-label="temple details tabs" centered>
-          <StyledTab label="Stories" />
-          <StyledTab label="Chat" />
+          <StyledTab label="Stories" id="simple-tab-0" aria-controls="simple-tabpanel-0" />
+          <StyledTab label="Chat" id="simple-tab-1" aria-controls="simple-tabpanel-1" />
         </StyledTabs>
       </Box>
       <Box sx={{ flexGrow: 1 }}>

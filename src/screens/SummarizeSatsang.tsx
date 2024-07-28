@@ -56,36 +56,36 @@ const SummarizeSatsang: React.FC = () => {
     <Box sx={{ minHeight: '100vh', paddingTop: '80px', paddingBottom: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <style>
         {`
-          .dots::after {
-            content: '.';
-            animation: dots 1s steps(5, end) infinite;
-          }
+      .dots::after {
+        content: '.';
+        animation: dots 1s steps(5, end) infinite;
+      }
 
-          @keyframes dots {
-            0%, 20% {
-              color: rgba(0, 0, 0, 0);
-              text-shadow:
-                .25em 0 0 rgba(0, 0, 0, 0),
-                .5em 0 0 rgba(0, 0, 0, 0);
-            }
-            40% {
-              color: black;
-              text-shadow:
-                .25em 0 0 rgba(0, 0, 0, 0),
-                .5em 0 0 rgba(0, 0, 0, 0);
-            }
-            60% {
-              text-shadow:
-                .25em 0 0 black,
-                .5em 0 0 rgba(0, 0, 0, 0);
-            }
-            80%, 100% {
-              text-shadow:
-                .25em 0 0 black,
-                .5em 0 0 black;
-            }
-          }
-        `}
+      @keyframes dots {
+        0%, 20% {
+          color: rgba(0, 0, 0, 0);
+          text-shadow:
+            .25em 0 0 rgba(0, 0, 0, 0),
+            .5em 0 0 rgba(0, 0, 0, 0);
+        }
+        40% {
+          color: black;
+          text-shadow:
+            .25em 0 0 rgba(0, 0, 0, 0),
+            .5em 0 0 rgba(0, 0, 0, 0);
+        }
+        60% {
+          text-shadow:
+            .25em 0 0 black,
+            .5em 0 0 rgba(0, 0, 0, 0);
+        }
+        80%, 100% {
+          text-shadow:
+            .25em 0 0 black,
+            .5em 0 0 black;
+        }
+      }
+    `}
       </style>
       <Container>
         <motion.div initial="hidden" animate="visible" variants={cardAnimation}>
@@ -113,6 +113,8 @@ const SummarizeSatsang: React.FC = () => {
                       fontSize: '18px',
                     },
                   }}
+                  aria-label="YouTube Video URL"
+                  aria-required="true"
                 />
                 <CardActions sx={{ justifyContent: 'center', padding: 0 }}>
                   <Button
@@ -130,12 +132,14 @@ const SummarizeSatsang: React.FC = () => {
                       },
                       transition: 'all 0.3s ease',
                     }}
+                    aria-busy={loading}
+                    aria-live="polite"
                   >
                     {loading ? <span>Summarizing<span className="dots"></span></span> : 'Summarize'}
                   </Button>
                 </CardActions>
                 {error && (
-                  <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+                  <Typography variant="body2" color="error" sx={{ mt: 2 }} role="alert">
                     {error}
                   </Typography>
                 )}
@@ -161,6 +165,7 @@ const SummarizeSatsang: React.FC = () => {
         </Box>
       </Container>
     </Box>
+
   );
 };
 

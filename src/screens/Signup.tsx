@@ -143,194 +143,226 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <Container
-      component="main"
-      maxWidth="xs"
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        padding: isMobile ? '10px' : '20px',
-      }}
+<Container
+  component="main"
+  maxWidth="xs"
+  sx={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '100vh',
+    padding: isMobile ? '10px' : '20px',
+  }}
+>
+  <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+    <Paper
+      elevation={10}
+      component="section"
+      sx={{ padding: isMobile ? '20px' : '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
     >
-      <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-        <Paper elevation={10} sx={{ padding: isMobile ? '20px' : '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
-          <Box display="flex" flexDirection="column" alignItems="center">
-            <Avatar sx={{ margin: '10px', backgroundColor: '#ff5722' }}>
-              <LockOutlinedIcon />
-            </Avatar>
-            <Typography component="h1" variant="h5" sx={{ color: '#ff5722' }}>
-              Sign Up
+      <Box display="flex" flexDirection="column" alignItems="center">
+        <Avatar sx={{ margin: '10px', backgroundColor: '#ff5722' }}>
+          <LockOutlinedIcon aria-hidden="true" />
+        </Avatar>
+        <Typography component="h1" variant="h5" sx={{ color: '#ff5722' }}>
+          Sign Up
+        </Typography>
+        {error && (
+          <Alert role="alert" severity="error" sx={{ marginTop: '10px' }}>
+            {error}
+          </Alert>
+        )}
+        <form onSubmit={handleSignup} style={{ marginTop: '20px', width: '100%' }} aria-label="Signup form">
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="name"
+            label="Name"
+            name="name"
+            autoComplete="name"
+            autoFocus
+            value={name}
+            onChange={(e) => setUserName(e.target.value)}
+            error={!!validationErrors.name}
+            helperText={validationErrors.name}
+            InputProps={{
+              style: {
+                color: '#000',
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#ff5722',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#ff5722',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#ff5722',
+                },
+              },
+              '& .MuiInputLabel-outlined': {
+                color: '#ff5722',
+              },
+              '& .MuiInputLabel-outlined.Mui-focused': {
+                color: '#ff5722',
+              },
+            }}
+            aria-describedby="name-helper-text"
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="email"
+            label="Email Address"
+            name="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={!!validationErrors.email}
+            helperText={validationErrors.email}
+            InputProps={{
+              style: {
+                color: '#000',
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#ff5722',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#ff5722',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#ff5722',
+                },
+              },
+              '& .MuiInputLabel-outlined': {
+                color: '#ff5722',
+              },
+              '& .MuiInputLabel-outlined.Mui-focused': {
+                color: '#ff5722',
+              },
+            }}
+            aria-describedby="email-helper-text"
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            error={!!validationErrors.password}
+            helperText={validationErrors.password}
+            InputProps={{
+              style: {
+                color: '#000',
+              },
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                '& fieldset': {
+                  borderColor: '#ff5722',
+                },
+                '&:hover fieldset': {
+                  borderColor: '#ff5722',
+                },
+                '&.Mui-focused fieldset': {
+                  borderColor: '#ff5722',
+                },
+              },
+              '& .MuiInputLabel-outlined': {
+                color: '#ff5722',
+              },
+              '& .MuiInputLabel-outlined.Mui-focused': {
+                color: '#ff5722',
+              },
+            }}
+            aria-describedby="password-helper-text"
+          />
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%' }}>
+            <Button
+              type="submit"
+              variant="contained"
+              fullWidth
+              disabled={loadingSignup}
+              sx={{
+                marginTop: '20px',
+                backgroundColor: '#ff5722',
+                color: '#fff',
+                borderRadius: '50px',
+                padding: '10px 0',
+                fontSize: '16px',
+                textTransform: 'none',
+                '&:focus': {
+                  outline: '2px solid #ff5722',
+                  outlineOffset: '2px',
+                },
+              }}
+            >
+              {loadingSignup ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Sign Up'}
+            </Button>
+          </motion.div>
+          <Box mt={2} textAlign="center">
+            <Typography variant="body2" sx={{ color: '#ff5722' }}>
+              or
             </Typography>
-            {error && <Alert severity="error" sx={{ marginTop: '10px' }}>{error}</Alert>}
-            <form onSubmit={handleSignup} style={{ marginTop: '20px', width: '100%' }}>
-              <TextField
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', marginTop: '10px' }}>
+              <Button
                 variant="outlined"
-                margin="normal"
-                required
                 fullWidth
-                id="name"
-                label="Name"
-                name="name"
-                autoComplete="name"
-                autoFocus
-                value={name}
-                onChange={(e) => setUserName(e.target.value)}
-                error={!!validationErrors.name}
-                helperText={validationErrors.name}
-                InputProps={{
-                  style: {
-                    color: '#000'
-                  }
-                }}
+                startIcon={<GoogleIcon />}
+                onClick={handleGoogleSignup}
+                disabled={loadingGoogle}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                  },
-                  '& .MuiInputLabel-outlined': {
-                    color: '#ff5722',
-                  },
-                  '& .MuiInputLabel-outlined.Mui-focused': {
-                    color: '#ff5722',
+                  borderColor: '#ff5722',
+                  color: '#ff5722',
+                  borderRadius: '50px',
+                  padding: '10px 0',
+                  fontSize: '16px',
+                  textTransform: 'none',
+                  '&:focus': {
+                    outline: '2px solid #ff5722',
+                    outlineOffset: '2px',
                   },
                 }}
-              />
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                error={!!validationErrors.email}
-                helperText={validationErrors.email}
-                InputProps={{
-                  style: {
-                    color: '#000'
-                  }
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                  },
-                  '& .MuiInputLabel-outlined': {
-                    color: '#ff5722',
-                  },
-                  '& .MuiInputLabel-outlined.Mui-focused': {
-                    color: '#ff5722',
-                  },
-                }}
-              />
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                error={!!validationErrors.password}
-                helperText={validationErrors.password}
-                InputProps={{
-                  style: {
-                    color: '#000'
-                  }
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                  },
-                  '& .MuiInputLabel-outlined': {
-                    color: '#ff5722',
-                  },
-                  '& .MuiInputLabel-outlined.Mui-focused': {
-                    color: '#ff5722',
-                  },
-                }}
-              />
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%' }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  disabled={loadingSignup}
-                  sx={{
-                    marginTop: '20px',
-                    backgroundColor: '#ff5722',
-                    color: '#fff',
-                    borderRadius: '50px',
-                    padding: '10px 0',
-                    fontSize: '16px',
-                    textTransform: 'none',
-                  }}
-                >
-                  {loadingSignup ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Sign Up'}
-                </Button>
-              </motion.div>
-              <Box mt={2} textAlign="center">
-                <Typography variant="body2" sx={{ color: '#ff5722' }}>or</Typography>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', marginTop: '10px' }}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    startIcon={<GoogleIcon />}
-                    onClick={handleGoogleSignup}
-                    disabled={loadingGoogle}
-                    sx={{
-                      borderColor: '#ff5722',
-                      color: '#ff5722',
-                      borderRadius: '50px',
-                      padding: '10px 0',
-                      fontSize: '16px',
-                      textTransform: 'none',
-                    }}
-                  >
-                    {loadingGoogle ? <CircularProgress size={24} sx={{ color: '#ff5722' }} /> : 'Sign Up with Google'}
-                  </Button>
-                </motion.div>
-                <Link to="/" style={{ textDecoration: 'none', color: '#ff5722', marginTop: '20px', display: 'block' }}>
-                  Already have an account? Login
-                </Link>
-              </Box>
-            </form>
+              >
+                {loadingGoogle ? <CircularProgress size={24} sx={{ color: '#ff5722' }} /> : 'Sign Up with Google'}
+              </Button>
+            </motion.div>
+            <Link
+              to="/"
+              style={{
+                textDecoration: 'none',
+                color: '#ff5722',
+                marginTop: '20px',
+                display: 'block',
+                textAlign: 'center',
+              }}
+              aria-label="Already have an account? Login"
+            >
+              Already have an account? Login
+            </Link>
           </Box>
-        </Paper>
-      </motion.div>
-    </Container>
+        </form>
+      </Box>
+    </Paper>
+  </motion.div>
+</Container>
+
   );
 };
 

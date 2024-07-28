@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from './store';
+import { useDispatch } from 'react-redux';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebaseConfig';
 import { setUser } from './store/authSlice';
@@ -12,8 +11,6 @@ import TalkToGod from './screens/TalkToGod';
 import ChatPage from './screens/ChatPage';
 import PrivateRoute from './components/PrivateRoute';
 import Epic from './screens/Epic';
-import Mahabharat from './screens/Mahabharat';
-import HinduPuranas from './screens/HinduPuranas';
 import HanumanChalisa from './screens/HanumanChalisa';
 import Community from './screens/Community';
 import KnowAboutTemples from './screens/KnowAboutTemples';
@@ -64,8 +61,6 @@ const App: React.FC = () => {
           }
         />
         <Route path="/epic" element={<PrivateRoute><Epic /></PrivateRoute>} />
-        <Route path="/mahabharat" element={<PrivateRoute><Mahabharat /></PrivateRoute>} />
-        <Route path="/hindu-puranas" element={<PrivateRoute><HinduPuranas /></PrivateRoute>} />
         <Route path="/hanuman-chalisa" element={<PrivateRoute><HanumanChalisa /></PrivateRoute>} />
         <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
         <Route path="/know-about-temples" element={<PrivateRoute><KnowAboutTemples /></PrivateRoute>} />

@@ -55,7 +55,7 @@ const KnowAboutTemples: React.FC = () => {
     try {
       const handleTempleChat = httpsCallable(functions, 'templeChat');
       const response = await handleTempleChat({ userId: `${currentUser?.uid}`, templeName, message: '' });
-      const { message, audioUrl } = response.data as { message: string, audioUrl : string};
+      const { message, audioUrl } = response.data as { message: string, audioUrl: string };
       localStorage.setItem(`templeWelcomeMessage_${templeId}`, message);
       localStorage.setItem(`templeWelcomeAudio_${templeId}`, audioUrl);
 
@@ -70,7 +70,7 @@ const KnowAboutTemples: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: { xs: '20px', sm: '40px' }, paddingBottom: { xs: '20px', sm: '40px' }, position: 'relative' }}>
-      <BackButton />  
+      <BackButton />
       <Grid container spacing={{ xs: 2, sm: 4 }} justifyContent="center">
         {temples.map((temple: Temple, index: number) => (
           <Grid item key={temple.id} xs={12} sm={6} md={4}>
@@ -93,6 +93,18 @@ const KnowAboutTemples: React.FC = () => {
                   transform: 'scale(1.05)',
                   boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
                 },
+                cursor: 'pointer',
+                '&:focus': {
+                  outline: '2px solid #ff5722',
+                },
+              }}
+              role="button"
+              aria-label={`Temple card for ${temple.name}`}
+              tabIndex={0}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  handleCardClick(temple.id, temple.name);
+                }
               }}
             >
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
@@ -117,7 +129,20 @@ const KnowAboutTemples: React.FC = () => {
                     <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#fff', width: '100%' }}>
                       {temple.name}
                     </Typography>
-                    <Typography variant="body2" sx={{ marginTop: '10px', color: '#fff', textAlign: 'left', width: '100%', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        marginTop: '10px',
+                        color: '#fff',
+                        textAlign: 'left',
+                        width: '100%',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 4,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
                       {truncateDescription(temple.description, 50)}
                     </Typography>
                   </CardContent>
@@ -127,15 +152,16 @@ const KnowAboutTemples: React.FC = () => {
           </Grid>
         ))}
       </Grid>
-      <Modal open={loading || showLoader}>
+      <Modal open={loading || showLoader} aria-labelledby="loading-modal" aria-describedby="loading-details">
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <CircularProgress color='success'/>
-          <Typography variant="h6" sx={{ color: '#fff', mt: 2 }}>
+          <CircularProgress color="success" />
+          <Typography id="loading-details" variant="h6" sx={{ color: '#fff', mt: 2 }}>
             {loading ? 'Loading temples...' : 'Loading details...'}
           </Typography>
         </Box>
       </Modal>
     </Container>
+
   );
 };
 
