@@ -32,7 +32,7 @@ const GenerateButton = styled(Button)(({ theme }) => ({
   color: '#fff',
   fontWeight: 'bold',
   borderRadius: '30px',
-  marginBottom : theme.spacing(4),
+  marginBottom: theme.spacing(4),
   padding: '10px 30px',
   fontSize: '16px',
   '&:hover': {
@@ -223,15 +223,19 @@ const GeneratePodcast: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '10px', height: '100vh', alignItems: 'center' }}>
+    <Container
+      component="main"
+      maxWidth="lg"
+      sx={{ paddingTop: '20px', paddingBottom: '10px', height: '100vh', alignItems: 'center' }}
+    >
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <StyledTabs value={tabIndex} onChange={handleTabChange} centered>
-          <StyledTab label="Generate Podcast" />
-          <StyledTab label="Previous Podcasts" />
+        <StyledTabs value={tabIndex} onChange={handleTabChange} centered aria-label="Podcast Tabs">
+          <StyledTab label="Generate Podcast" id="tab-0" aria-controls="tabpanel-0" />
+          <StyledTab label="Previous Podcasts" id="tab-1" aria-controls="tabpanel-1" />
         </StyledTabs>
       </Box>
       {tabIndex === 0 && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} role="tabpanel" id="tabpanel-0" aria-labelledby="tab-0">
           <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
             <Typography variant="h4" gutterBottom sx={{ color: '#ff5722', fontWeight: 'bold' }}>
               Generate Spiritual Podcast
@@ -248,15 +252,16 @@ const GeneratePodcast: React.FC = () => {
       )}
 
       {tabIndex === 1 && (
-        <Grid container spacing={2} sx={{ marginTop: '20px' }}>
+        <Grid container spacing={2} sx={{ marginTop: '20px' }} role="tabpanel" id="tabpanel-1" aria-labelledby="tab-1">
           <Grid item xs={12} md={4}>
-            <List sx={{ backgroundColor: '#ffe0b2', borderRadius: '20px', padding: '10px', maxHeight: '70vh', overflow: 'auto' }}>
+            <List sx={{ backgroundColor: '#ffe0b2', borderRadius: '20px', padding: '10px', maxHeight: '70vh', overflow: 'auto' }} aria-label="Previous Podcasts">
               {podcasts.map((podcast) => (
                 <ListItem
                   key={podcast.id}
                   button
                   onClick={() => handlePodcastClick(podcast)}
                   sx={{ borderBottom: '1px solid #ccc', padding: '10px 20px' }}
+                  aria-label={`Podcast ${podcast.title}`}
                 >
                   <ListItemText
                     primary={
@@ -265,11 +270,9 @@ const GeneratePodcast: React.FC = () => {
                       </Typography>
                     }
                     secondary={
-                      <>
-                        <Typography variant="caption" sx={{ color: '#666' }}>
-                          {new Date(podcast.timestamp.seconds * 1000).toLocaleDateString()}
-                        </Typography>
-                      </>
+                      <Typography variant="caption" sx={{ color: '#666' }}>
+                        {new Date(podcast.timestamp.seconds * 1000).toLocaleDateString()}
+                      </Typography>
                     }
                   />
                 </ListItem>
@@ -286,7 +289,7 @@ const GeneratePodcast: React.FC = () => {
               >
                 <ResultCard>
                   <CardContent>
-                    <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px'  , textAlign : 'center'}}>
+                    <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>
                       {title}
                     </Typography>
                     {script.map((segment, index) => (
@@ -314,6 +317,7 @@ const GeneratePodcast: React.FC = () => {
                             },
                             transition: 'all 0.3s ease',
                           }}
+                          aria-label="Stop Podcast"
                         >
                           Stop
                         </Button>
@@ -333,6 +337,7 @@ const GeneratePodcast: React.FC = () => {
                             },
                             transition: 'all 0.3s ease',
                           }}
+                          aria-label="Listen to Podcast"
                         >
                           Listen
                         </Button>
@@ -348,7 +353,7 @@ const GeneratePodcast: React.FC = () => {
       <AnimatePresence>
         {loading && (
           <LoadingContainer>
-            <CircularProgress color="inherit" />
+            <CircularProgress color="inherit" aria-label="Loading" />
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -372,7 +377,7 @@ const GeneratePodcast: React.FC = () => {
           >
             <ResultCard>
               <CardContent>
-                <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px', alignSelf : 'center', textAlign : 'center' }}>
+                <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px', alignSelf: 'center', textAlign: 'center' }}>
                   {title}
                 </Typography>
                 {script.map((segment, index) => (
@@ -400,6 +405,7 @@ const GeneratePodcast: React.FC = () => {
                         },
                         transition: 'all 0.3s ease',
                       }}
+                      aria-label="Stop Podcast"
                     >
                       Stop
                     </Button>
@@ -419,6 +425,7 @@ const GeneratePodcast: React.FC = () => {
                         },
                         transition: 'all 0.3s ease',
                       }}
+                      aria-label="Listen to Podcast"
                     >
                       Listen
                     </Button>
@@ -430,6 +437,7 @@ const GeneratePodcast: React.FC = () => {
         )}
       </AnimatePresence>
     </Container>
+
   );
 
 };

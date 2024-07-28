@@ -274,7 +274,12 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
+    <Container
+      component="main"
+      maxWidth="lg"
+      sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}
+      role="main"
+    >
       <Box
         sx={{
           position: 'absolute',
@@ -298,11 +303,12 @@ const Dashboard: React.FC = () => {
               backgroundColor: '#e64a19',
             },
           }}
+          aria-label="Logout"
         >
           Logout
         </Button>
       </Box>
-
+  
       <Dialog
         open={open}
         TransitionComponent={Transition}
@@ -320,7 +326,7 @@ const Dashboard: React.FC = () => {
           },
         }}
       >
-        <DialogTitle id="alert-dialog-slide-title">{"Logout Confirmation"}</DialogTitle>
+        <DialogTitle id="alert-dialog-slide-title">Logout Confirmation</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
             Are you sure you want to logout? You'll miss us!
@@ -330,12 +336,16 @@ const Dashboard: React.FC = () => {
           <Button onClick={handleClose} sx={{ fontWeight: 'bold', color: '#ff5722' }}>
             Cancel
           </Button>
-          <Button onClick={handleLogout} sx={{ fontWeight: 'bold', color: '#ff5722' }} autoFocus>
+          <Button
+            onClick={handleLogout}
+            sx={{ fontWeight: 'bold', color: '#ff5722' }}
+            autoFocus
+          >
             Yes, Logout
           </Button>
         </DialogActions>
       </Dialog>
-
+  
       <Dialog
         open={detailedOpen}
         TransitionComponent={Transition}
@@ -353,7 +363,7 @@ const Dashboard: React.FC = () => {
           },
         }}
       >
-        <DialogTitle id="detailed-dialog-title">{"Detailed Information"}</DialogTitle>
+        <DialogTitle id="detailed-dialog-title">Detailed Information</DialogTitle>
         <DialogContent>
           <DialogContentText id="detailed-dialog-description">
             {fetching ? 'Fetching...' : detailedInfo}
@@ -365,7 +375,7 @@ const Dashboard: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
+  
       <Typography
         variant="h4"
         align="center"
@@ -387,6 +397,14 @@ const Dashboard: React.FC = () => {
               whileHover="hover"
               whileTap="tap"
               onClick={() => card.route && navigate(card.route)}
+              role="button"
+              aria-label={`Navigate to ${card.title}`}
+              tabIndex={0}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter' && card.route) {
+                  navigate(card.route);
+                }
+              }}
             >
               <Card
                 sx={{
@@ -413,7 +431,9 @@ const Dashboard: React.FC = () => {
                 <CardContent>
                   <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
                     {card.icon ? (
-                      <Avatar sx={{ backgroundColor: 'rgba(0, 0, 0, 0.1)', marginBottom: '10px' }}>{card.icon}</Avatar>
+                      <Avatar sx={{ backgroundColor: 'rgba(0, 0, 0, 0.1)', marginBottom: '10px' }} aria-hidden="true">
+                        {card.icon}
+                      </Avatar>
                     ) : null}
                     <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', marginTop: '20px', color: '#fff' }}>
                       {card.title}
@@ -429,6 +449,7 @@ const Dashboard: React.FC = () => {
                           sx={{ color: '#fff', fontWeight: 'bold', padding: '5px 10px' }}
                           onClick={() => fetchDetailedInfo(card.title === 'Fun Fact' ? funFact : myth, card.title.toLowerCase() as 'funFact' | 'myth')}
                           disabled={fetching && fetchingCard === card.title.toLowerCase()}
+                          aria-label={`Know more about ${card.title}`}
                         >
                           {fetching && fetchingCard === card.title.toLowerCase() ? 'Fetching...' : 'Know More'}
                         </Button>

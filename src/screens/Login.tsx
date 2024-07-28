@@ -133,16 +133,24 @@ const Login: React.FC = () => {
       }}
     >
       <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-        <Paper elevation={10} sx={{ padding: isMobile ? '20px' : '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
+        <Paper
+          elevation={10}
+          component="section"
+          sx={{ padding: isMobile ? '20px' : '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
+        >
           <Box display="flex" flexDirection="column" alignItems="center">
             <Avatar sx={{ margin: '10px', backgroundColor: '#ff5722' }}>
-              <LockOutlinedIcon />
+              <LockOutlinedIcon aria-hidden="true" />
             </Avatar>
             <Typography component="h1" variant="h5" sx={{ color: '#ff5722' }}>
               Login
             </Typography>
-            {error && <Alert severity="error" sx={{ marginTop: '10px' }}>{error}</Alert>}
-            <form onSubmit={handleLogin} style={{ marginTop: '20px', width: '100%' }}>
+            {error && (
+              <Alert role="alert" severity="error" sx={{ marginTop: '10px' }}>
+                {error}
+              </Alert>
+            )}
+            <form onSubmit={handleLogin} style={{ marginTop: '20px', width: '100%' }} aria-label="Login form">
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -159,8 +167,8 @@ const Login: React.FC = () => {
                 helperText={validationErrors.email}
                 InputProps={{
                   style: {
-                    color: '#000'
-                  }
+                    color: '#000',
+                  },
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -181,6 +189,7 @@ const Login: React.FC = () => {
                     color: '#ff5722',
                   },
                 }}
+                aria-describedby="email-helper-text"
               />
               <TextField
                 variant="outlined"
@@ -198,8 +207,8 @@ const Login: React.FC = () => {
                 helperText={validationErrors.password}
                 InputProps={{
                   style: {
-                    color: '#000'
-                  }
+                    color: '#000',
+                  },
                 }}
                 sx={{
                   '& .MuiOutlinedInput-root': {
@@ -220,6 +229,7 @@ const Login: React.FC = () => {
                     color: '#ff5722',
                   },
                 }}
+                aria-describedby="password-helper-text"
               />
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%' }}>
                 <Button
@@ -234,18 +244,24 @@ const Login: React.FC = () => {
                     padding: '10px 0',
                     fontSize: '16px',
                     textTransform: 'none',
+                    '&:focus': {
+                      outline: '2px solid #ff5722',
+                      outlineOffset: '2px',
+                    },
                   }}
                 >
                   Login
                 </Button>
               </motion.div>
               <Box mt={2} textAlign="center">
-                <Typography variant="body2" sx={{ color: '#ff5722' }}>or</Typography>
+                <Typography variant="body2" sx={{ color: '#ff5722' }}>
+                  or
+                </Typography>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', marginTop: '10px' }}>
                   <Button
                     variant="outlined"
                     fullWidth
-                    startIcon={<GoogleIcon />}
+                    startIcon={<GoogleIcon aria-hidden="true" />}
                     onClick={handleGoogleLogin}
                     sx={{
                       borderColor: '#ff5722',
@@ -254,12 +270,26 @@ const Login: React.FC = () => {
                       padding: '10px 0',
                       fontSize: '16px',
                       textTransform: 'none',
+                      '&:focus': {
+                        outline: '2px solid #ff5722',
+                        outlineOffset: '2px',
+                      },
                     }}
                   >
                     Login with Google
                   </Button>
                 </motion.div>
-                <Link to="/signup" style={{ textDecoration: 'none', color: '#ff5722', marginTop: '20px', display: 'block' }}>
+                <Link
+                  to="/signup"
+                  style={{
+                    textDecoration: 'none',
+                    color: '#ff5722',
+                    marginTop: '20px',
+                    display: 'block',
+                    textAlign: 'center',
+                  }}
+                  aria-label="Don't have an account? Sign Up"
+                >
                   Don't have an account? Sign Up
                 </Link>
               </Box>
@@ -268,6 +298,7 @@ const Login: React.FC = () => {
         </Paper>
       </motion.div>
     </Container>
+
   );
 };
 

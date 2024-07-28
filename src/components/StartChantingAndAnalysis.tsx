@@ -121,6 +121,7 @@ const StartChantingAndAnalysis: React.FC = () => {
                 transition: 'all 0.3s ease',
               }}
               disabled={loading}
+              aria-label="Start chanting"
             >
               {loading ? 'Analyzing...' : 'Start Chanting'}
             </Button>
@@ -140,6 +141,7 @@ const StartChantingAndAnalysis: React.FC = () => {
                 fontWeight: 'bold',
                 transition: 'all 0.3s ease',
               }}
+              aria-label="Stop chanting"
             >
               Stop Chanting
             </Button>
@@ -182,6 +184,7 @@ const StartChantingAndAnalysis: React.FC = () => {
                   },
                 }}
                 dangerouslySetInnerHTML={{ __html: analysis }}
+                aria-label="Analysis result"
               />
               {score !== null && (
                 <Typography variant="h6" sx={{ color: '#00796b', marginTop: '10px' }}>
@@ -193,7 +196,7 @@ const StartChantingAndAnalysis: React.FC = () => {
         </motion.div>
       )}
       <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="error">
+        <Alert onClose={handleCloseSnackbar} severity="error" aria-label="Error notification">
           {error}
         </Alert>
       </Snackbar>

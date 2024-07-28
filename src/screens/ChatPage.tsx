@@ -170,18 +170,72 @@ const ChatPage: React.FC = () => {
   }, []);
 
   return (
-    <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}>
-      <BackButton /> {/* Add BackButton here */}
-      <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '98vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
+    <Container
+      component="main"
+      maxWidth="lg"
+      sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}
+      role="main"
+      aria-label={`Chat with ${godName}`}
+    >
+      <BackButton />
+      <Box
+        sx={{
+          padding: 2,
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          height: '98vh',
+          borderRadius: '20px',
+          boxShadow: 4,
+          backgroundColor: '#ffffff',
+        }}
+      >
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
+          <Typography
+            variant="h4"
+            align="center"
+            gutterBottom
+            sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}
+            tabIndex={0}
+          >
             Chat with {godName}
           </Typography>
         </motion.div>
-        <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+        <Box
+          sx={{
+            flex: 1,
+            overflowY: 'auto',
+            padding: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+          aria-live="polite"
+        >
           {messages.map((msg, index) => (
-            <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
-              <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
+            <Box
+              key={index}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                mb: 1,
+              }}
+            >
+              <Box
+                sx={{
+                  maxWidth: '75%',
+                  bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50',
+                  color: '#fff',
+                  p: 2,
+                  borderRadius: '20px',
+                  wordWrap: 'break-word',
+                }}
+                tabIndex={0}
+                aria-label={`${msg.role === 'user' ? 'User' : 'God'} message: ${msg.message}`}
+              >
                 {msg.message}
               </Box>
               {msg.role === 'model' && msg.audioUrl && (
@@ -195,6 +249,7 @@ const ChatPage: React.FC = () => {
                     p: 1,
                     '&:hover': { backgroundColor: '#388e3c' },
                   }}
+                  aria-label={playingIndex === index ? 'Pause audio' : 'Play audio'}
                 >
                   {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
                 </IconButton>
@@ -203,7 +258,17 @@ const ChatPage: React.FC = () => {
           ))}
           {typing && (
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
-              <Box sx={{ maxWidth: '75%', bgcolor: '#4caf50', color: '#000', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
+              <Box
+                sx={{
+                  maxWidth: '75%',
+                  bgcolor: '#4caf50',
+                  color: '#000',
+                  p: 2,
+                  borderRadius: '20px',
+                  wordWrap: 'break-word',
+                }}
+                aria-live="polite"
+              >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '40px', height: '11px' }}>
                   <Box className="dot-elastic"></Box>
                   <Box className="dot-elastic"></Box>
@@ -239,57 +304,74 @@ const ChatPage: React.FC = () => {
               },
             }}
             placeholder="Type your message..."
+            aria-label="Type your message"
           />
-          <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1 }}>
+          <IconButton
+            onClick={handleSendMessage}
+            disabled={loading}
+            sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1 }}
+            aria-label="Send message"
+          >
             <SendIcon />
           </IconButton>
-          <IconButton onClick={handleSpeechInput} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: listening ? '#ff5722' : '#e0e0e0', color: '#fff', ml: 1, animation: listening ? 'pulse 1s infinite' : 'none' }}>
+          <IconButton
+            onClick={handleSpeechInput}
+            sx={{
+              borderRadius: '50%',
+              padding: '10px',
+              backgroundColor: listening ? '#ff5722' : '#e0e0e0',
+              color: '#fff',
+              ml: 1,
+              animation: listening ? 'pulse 1s infinite' : 'none',
+            }}
+            aria-label={listening ? 'Listening...' : 'Start listening'}
+          >
             <MicIcon />
           </IconButton>
         </Box>
       </Box>
       <style>
         {`
-      @keyframes dotElastic {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.5);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-      .dot-elastic {
-        width: 8px;
-        height: 8px;
-        background-color: #fff;
-        border-radius: 50%;
-        animation: dotElastic 0.6s infinite;
-      }
-      .dot-elastic:nth-of-type(1) {
-        animation-delay: 0s;
-      }
-      .dot-elastic:nth-of-type(2) {
-        animation-delay: 0.1s;
-      }
-      .dot-elastic:nth-of-type(3) {
-        animation-delay: 0.2s;
-      }
-
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-      `}
+          @keyframes dotElastic {
+            0% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.5);
+            }
+            100% {
+              transform: scale(1);
+            }
+          }
+          .dot-elastic {
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: dotElastic 0.6s infinite;
+          }
+          .dot-elastic:nth-of-type(1) {
+            animation-delay: 0s;
+          }
+          .dot-elastic:nth-of-type(2) {
+            animation-delay: 0.1s;
+          }
+          .dot-elastic:nth-of-type(3) {
+            animation-delay: 0.2s;
+          }
+  
+          @keyframes pulse {
+            0% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.1);
+            }
+            100% {
+              transform: scale(1);
+            }
+          }
+        `}
       </style>
     </Container>
   );

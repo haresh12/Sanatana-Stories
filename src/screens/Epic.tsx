@@ -78,38 +78,133 @@ const Epic: React.FC = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" style={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <CircularProgress />
+      <Container
+        component="main"
+        maxWidth="lg"
+        style={{
+          paddingTop: '40px',
+          paddingBottom: '40px',
+          position: 'relative',
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}
+        role="status"
+        aria-live="polite"
+      >
+        <CircularProgress aria-label="Loading" />
       </Container>
     );
   }
 
   return (
-    <Container maxWidth="lg" style={{ paddingTop: '20px', paddingBottom: '20px', position: 'relative', height: '100vh' }}>
+    <Container
+      component="main"
+      maxWidth="lg"
+      style={{ paddingTop: '20px', paddingBottom: '20px', position: 'relative', height: '100vh' }}
+      role="main"
+      aria-label="Epic Chat"
+    >
       <BackButton />
       <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <StyledTabs value={tabIndex} onChange={handleTabChange} centered>
-          <StyledTab label="Ramayan" />
-          <StyledTab label="Mahabharat" />
-          <StyledTab label="Hindu Puranas" />
+        <StyledTabs
+          value={tabIndex}
+          onChange={handleTabChange}
+          centered
+          aria-label="Epic Chat Tabs"
+        >
+          <StyledTab label="Ramayan" id="tab-0" aria-controls="tabpanel-0" />
+          <StyledTab label="Mahabharat" id="tab-1" aria-controls="tabpanel-1" />
+          <StyledTab label="Hindu Puranas" id="tab-2" aria-controls="tabpanel-2" />
         </StyledTabs>
       </Box>
       {tabIndex === 0 && (
-        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+        <Box
+          id="tabpanel-0"
+          role="tabpanel"
+          aria-labelledby="tab-0"
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+        >
           <ChatComponent chatType="ramayan" />
         </Box>
       )}
       {tabIndex === 1 && (
-        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+        <Box
+          id="tabpanel-1"
+          role="tabpanel"
+          aria-labelledby="tab-1"
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+        >
           <ChatComponent chatType="mahabharat" />
         </Box>
       )}
       {tabIndex === 2 && (
-        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
+        <Box
+          id="tabpanel-2"
+          role="tabpanel"
+          aria-labelledby="tab-2"
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+        >
           <ChatComponent chatType="puranas" />
         </Box>
       )}
+      <style>
+        {`
+      @keyframes dotElastic {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.5);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+      .dot-elastic {
+        width: 8px;
+        height: 8px;
+        background-color: #fff;
+        border-radius: 50%;
+        animation: dotElastic 0.6s infinite;
+      }
+      .dot-elastic:nth-of-type(1) {
+        animation-delay: 0s;
+      }
+      .dot-elastic:nth-of-type(2) {
+        animation-delay: 0.1s;
+      }
+      .dot-elastic:nth-of-type(3) {
+        animation-delay: 0.2s;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+        }
+        70% {
+          transform: scale(1.1);
+          box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+        }
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
+      }
+    `}
+      </style>
     </Container>
+
   );
 };
 

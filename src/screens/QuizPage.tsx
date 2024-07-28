@@ -228,7 +228,7 @@ const Quiz: React.FC = () => {
         )}
         {loading ? (
           <>
-            <CircularProgress />
+            <CircularProgress aria-busy="true" />
             <Typography variant="h6" sx={{ color: '#ff5722', marginTop: '20px' }}>
               {darkFacts[factIndex]}
             </Typography>
@@ -238,7 +238,12 @@ const Quiz: React.FC = () => {
             <Typography variant="h6" sx={{ color: '#f44336', fontWeight: 'bold' }}>
               Failed to generate quiz. Please try again.
             </Typography>
-            <Button onClick={handleRetry} variant="contained" color="primary" sx={{ marginTop: '20px', backgroundColor: '#ff5722' }}>
+            <Button
+              onClick={handleRetry}
+              variant="contained"
+              color="primary"
+              sx={{ marginTop: '20px', backgroundColor: '#ff5722' }}
+            >
               Retry
             </Button>
           </Box>
@@ -254,7 +259,10 @@ const Quiz: React.FC = () => {
               >
                 <QuestionCard>
                   <CardContent>
-                    <Typography variant="h6" sx={{ marginBottom: '20px', color: '#333', borderRadius: '20px', padding: '10px', backgroundColor: '#ffcccb', fontSize: '1rem' }}>
+                    <Typography
+                      variant="h6"
+                      sx={{ marginBottom: '20px', color: '#333', borderRadius: '20px', padding: '10px', backgroundColor: '#ffcccb', fontSize: '1rem' }}
+                    >
                       {questions[currentQuestionIndex].question}
                     </Typography>
                     <ProgressContainer>
@@ -270,6 +278,10 @@ const Quiz: React.FC = () => {
                           sx={{
                             color: progress === 100 ? '#4caf50' : '#ff5722',
                           }}
+                          aria-valuenow={progress}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-label="Quiz Progress"
                         />
                         <Box
                           sx={{
@@ -283,9 +295,9 @@ const Quiz: React.FC = () => {
                             justifyContent: 'center',
                           }}
                         >
-                          <Typography variant="caption" component="div" color="textSecondary">{`${Math.round(
-                            progress
-                          )}%`}</Typography>
+                          <Typography variant="caption" component="div" color="textSecondary">
+                            {`${Math.round(progress)}%`}
+                          </Typography>
                         </Box>
                       </Box>
                     </ProgressContainer>
@@ -301,6 +313,8 @@ const Quiz: React.FC = () => {
                           isIncorrect={isIncorrect}
                           onClick={() => handleAnswerSelect(option)}
                           disabled={selectedAnswer !== null}
+                          aria-pressed={selectedAnswer === option}
+                          aria-describedby="option-description"
                         >
                           {option}
                         </OptionButton>
@@ -313,20 +327,48 @@ const Quiz: React.FC = () => {
           )
         )}
       </Box>
-      <Modal open={modalOpen} onClose={handleModalClose}>
-        <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <Card sx={{ padding: '20px', borderRadius: '20px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', backgroundColor: '#ffebee', textAlign: 'center' }}>
+      <Modal open={modalOpen} onClose={handleModalClose} aria-labelledby="quiz-result-title" aria-describedby="quiz-result-description">
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          }}
+        >
+          <Card
+            sx={{
+              padding: '20px',
+              borderRadius: '20px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+              backgroundColor: '#ffebee',
+              textAlign: 'center',
+            }}
+          >
             <CardContent>
-              <Typography variant="h4" sx={{ color: '#333', mb: 2 }}>
+              <Typography id="quiz-result-title" variant="h4" sx={{ color: '#333', mb: 2 }}>
                 Quiz Completed!
               </Typography>
-              <Typography variant="h6" sx={{ color: '#333', mb: 2 }}>
-                Your score: {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0)}/{questions.length}
+              <Typography id="quiz-result-description" variant="h6" sx={{ color: '#333', mb: 2 }}>
+                Your score: {questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0)}/{questions.length}
               </Typography>
-              <Typography variant="h6" sx={{ color: questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 3 ? '#4caf50' : '#f44336', mb: 2 }}>
-                {questions.reduce((acc, question, index) => question.correctAnswer === userAnswers[index] ? acc + 1 : acc, 0) > 3 ? 'Passed 😊' : 'Failed 😢'}
+              <Typography
+                variant="h6"
+                sx={{
+                  color: questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0) > 3 ? '#4caf50' : '#f44336',
+                  mb: 2,
+                }}
+              >
+                {questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0) > 3 ? 'Passed 😊' : 'Failed 😢'}
               </Typography>
-              <Button variant="contained" color="primary" onClick={handleModalClose} sx={{ mt: 2, borderRadius: '50%', backgroundColor: '#ff5722' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleModalClose}
+                sx={{ mt: 2, borderRadius: '50%', backgroundColor: '#ff5722' }}
+              >
                 Close
               </Button>
             </CardContent>
@@ -334,6 +376,7 @@ const Quiz: React.FC = () => {
         </Box>
       </Modal>
     </Container>
+
   );
 }
 

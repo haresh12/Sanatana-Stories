@@ -65,7 +65,7 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
     setLoading(true);
     try {
       const storyDocRef = doc(db, `users/${currentUser?.uid}/stories/${templeId}`);
-      await deleteDoc(storyDocRef); // Delete the existing story
+      await deleteDoc(storyDocRef);
 
       const generateStory = httpsCallable(functions, 'generateStory');
       const response = await generateStory({ templeName });
@@ -127,7 +127,7 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
       } finally {
         setAudioLoading(false);
       }
-    }, 3000); // 3-second delay
+    }, 3000);
   };
 
   const handlePause = () => {
@@ -176,17 +176,17 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
       >
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
-            <CircularProgress color="success" />
+            <CircularProgress color="success" aria-label="Loading story" />
           </Box>
         ) : error ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
-            <Typography variant="h6" color="error">
+            <Typography variant="h6" color="error" aria-label="Error message">
               {error}
             </Typography>
           </Box>
         ) : (
           <CardContent sx={{ overflowY: 'auto', flex: '1 1 auto' }}>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', textAlign: 'justify', fontSize: '18px' }}>
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', textAlign: 'justify', fontSize: '18px' }} aria-label="Story content">
               {renderStoryWithHighlights()}
             </Typography>
           </CardContent>
@@ -208,6 +208,7 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
               transition: 'all 0.3s ease',
               mr: 2,
             }}
+            aria-label="Generate new story"
           >
             Generate New
           </Button>
@@ -229,8 +230,9 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
                     },
                     transition: 'all 0.3s ease',
                   }}
+                  aria-label="Audio loading"
                 >
-                  <CircularProgress size={24} color="inherit" />
+                  <CircularProgress size={24} color="inherit" aria-label="Loading audio" />
                 </Button>
               ) : isPlaying ? (
                 <Button
@@ -248,6 +250,7 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
                     },
                     transition: 'all 0.3s ease',
                   }}
+                  aria-label="Pause audio"
                 >
                   Pause
                 </Button>
@@ -267,6 +270,7 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
                     },
                     transition: 'all 0.3s ease',
                   }}
+                  aria-label="Listen to story"
                 >
                   Listen
                 </Button>

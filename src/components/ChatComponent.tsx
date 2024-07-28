@@ -11,19 +11,6 @@ import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
 import { setEpicsMessages, addEpicsMessage } from '../store/epicsChatSlice';
 
-interface Message {
-  role: string;
-  message: string;
-  audioUrl?: string;
-}
-
-// Extend the Window interface to include webkitSpeechRecognition
-declare global {
-  interface Window {
-    webkitSpeechRecognition: any;
-  }
-}
-
 const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
   const dispatch = useDispatch();
   const messages = useSelector((state: RootState) => state.epicsChat.epicsMessages[chatType]);
@@ -38,17 +25,15 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   useEffect(() => {
-    const initializeChat = async () => {
-      if (currentUser && messages?.length === 0) {
-        setTyping(true);
-        const handleChat = httpsCallable(functions, `${chatType}Chat`);
-        const response = await handleChat({ userId: currentUser.uid, message: '' });
+    if (currentUser && messages?.length === 0) {
+      setTyping(true);
+      const handleChat = httpsCallable(functions, `${chatType}Chat`);
+      handleChat({ userId: currentUser.uid, message: '' }).then(response => {
         const responseData = response.data as { message: string, audioUrl: string };
         dispatch(setEpicsMessages({ chatType, messages: [{ role: 'model', message: responseData.message, audioUrl: responseData.audioUrl }] }));
         setTyping(false);
-      }
-    };
-    initializeChat();
+      });
+    }
   }, [currentUser, messages?.length, dispatch, chatType]);
 
   const handleSendMessage = async () => {
@@ -56,7 +41,7 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
     setLoading(true);
     setTyping(true);
 
-    const newMessage: Message = { role: 'user', message: input };
+    const newMessage = { role: 'user', message: input };
     dispatch(addEpicsMessage({ chatType, message: newMessage }));
     setInput('');
 
@@ -64,7 +49,7 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
       const handleChat = httpsCallable(functions, `${chatType}Chat`);
       const response = await handleChat({ userId: currentUser!.uid, message: input });
       const responseData = response.data as { message: string, audioUrl: string };
-      const chatResponse: Message = { role: 'model', message: responseData.message, audioUrl: responseData.audioUrl };
+      const chatResponse = { role: 'model', message: responseData.message, audioUrl: responseData.audioUrl };
       dispatch(addEpicsMessage({ chatType, message: chatResponse }));
     } catch (error) {
       console.error('Error sending message:', error);
@@ -158,7 +143,7 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
               <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
                 {msg.message}
               </Box>
-              {msg.role === 'model' && `${msg.audioUrl}` && (
+              {msg.role === 'model' && msg.audioUrl && (
                 <IconButton
                   onClick={() => playAudio(index, `${msg.audioUrl}`)}
                   sx={{
@@ -169,6 +154,7 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
                     p: 1,
                     '&:hover': { backgroundColor: '#388e3c' },
                   }}
+                  aria-label={playingIndex === index ? "Pause audio" : "Play audio"}
                 >
                   {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
                 </IconButton>
@@ -213,11 +199,12 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
               },
             }}
             placeholder="Type your message..."
+            aria-label="Message input"
           />
-          <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1 }}>
+          <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1 }} aria-label="Send message">
             <SendIcon />
           </IconButton>
-          <IconButton onClick={handleSpeechInput} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: listening ? '#ff5722' : '#e0e0e0', color: '#fff', ml: 1, animation: listening ? 'pulse 1s infinite' : 'none' }}>
+          <IconButton onClick={handleSpeechInput} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: listening ? '#ff5722' : '#e0e0e0', color: '#fff', ml: 1, animation: listening ? 'pulse 1s infinite' : 'none' }} aria-label="Start voice input">
             <MicIcon />
           </IconButton>
         </Box>

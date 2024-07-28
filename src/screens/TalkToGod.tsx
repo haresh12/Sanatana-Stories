@@ -50,24 +50,23 @@ const TalkToGod = () => {
     };
 
     fetchGods();
-  }, [dispatch, gods]);
+  }, [dispatch]);
 
   const handleCardClick = async (god: God) => {
     setLoading(true);
     const handleChat = httpsCallable(functions, 'handleChat');
     const response = await handleChat({ userId: `${currentUser?.uid}`, godName: god.name, message: '' });
-    const responseData = response.data as { message: string, audioUrl : string };
-    console.log("responseData",responseData)
+    const responseData = response.data as { message: string, audioUrl: string };
     dispatch(setGodName(god.name));
-    dispatch(setMessages([{ role: 'model', message: responseData.message, audioUrl : responseData.audioUrl }]));
-    
+    dispatch(setMessages([{ role: 'model', message: responseData.message, audioUrl: responseData.audioUrl }]));
+
     setLoading(false);
     navigate(`/talk-to-god/${god.id}`);
   };
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
-      <BackButton /> 
+      <BackButton />
       <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '40px', fontWeight: 'bold', color: '#ff5722' }}>
         Talk to Your God
       </Typography>
@@ -75,20 +74,20 @@ const TalkToGod = () => {
         {gods.map((god, index) => (
           <Grid item key={god.id} xs={12} sm={6} md={4} lg={3} display="flex" justifyContent="center">
             <motion.div variants={cardVariants} initial="hidden" animate="visible" whileHover="hover">
-              <Card 
-                sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  justifyContent: 'center', 
-                  alignItems: 'center', 
-                  textAlign: 'center', 
-                  padding: '20px', 
-                  borderRadius: '15px', 
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)', 
-                  height: { xs: '275px', sm: '325px' }, 
-                  width: '100%', 
-                  maxWidth: { xs: '100%', sm: '350px' }, 
-                  backgroundColor: colors[index % colors.length], 
+              <Card
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  padding: '20px',
+                  borderRadius: '15px',
+                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+                  height: { xs: '275px', sm: '325px' },
+                  width: '100%',
+                  maxWidth: { xs: '100%', sm: '350px' },
+                  backgroundColor: colors[index % colors.length],
                   transition: 'transform 0.2s, box-shadow 0.2s',
                   '&:hover': {
                     transform: 'scale(1.05)',
@@ -96,46 +95,56 @@ const TalkToGod = () => {
                   },
                 }}
                 onClick={() => handleCardClick(god)}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    handleCardClick(god);
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={`Talk to ${god.name}`}
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
-                    <Avatar 
-                      src={god.image} 
-                      alt={god.name} 
-                      sx={{ 
-                        width: 80, 
-                        height: 80, 
-                        margin: 'auto', 
-                        marginBottom: '10px', 
+                    <Avatar
+                      src={god.image}
+                      alt={god.name}
+                      sx={{
+                        width: 80,
+                        height: 80,
+                        margin: 'auto',
+                        marginBottom: '10px',
                         boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
                         transition: 'transform 0.3s',
                         '&:hover': {
                           transform: 'scale(1.5)',
                         }
-                      }} 
-                    />
-                    <Typography 
-                      variant="h6" 
-                      component="div" 
-                      sx={{ 
-                        fontWeight: 'bold', 
-                        marginTop: '10px', 
-                        color: '#fff' 
                       }}
+                    />
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      sx={{
+                        fontWeight: 'bold',
+                        marginTop: '10px',
+                        color: '#fff'
+                      }}
+                      aria-label={`God Name: ${god.name}`}
                     >
                       {god.name}
                     </Typography>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        marginTop: '5px', 
-                        color: '#fff', 
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        marginTop: '5px',
+                        color: '#fff',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         display: '-webkit-box',
                         WebkitLineClamp: 4,
                         WebkitBoxOrient: 'vertical'
                       }}
+                      aria-label={`God Description: ${god.description}`}
                     >
                       {god.description}
                     </Typography>
@@ -148,7 +157,7 @@ const TalkToGod = () => {
       </Grid>
       <Modal open={loading}>
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
-          <CircularProgress color='success'/>
+          <CircularProgress color='success' />
           <Typography variant="h6" sx={{ color: '#fff', mt: 2 }}>
             Initiating chat...
           </Typography>

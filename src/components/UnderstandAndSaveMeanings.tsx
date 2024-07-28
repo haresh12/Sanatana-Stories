@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../store';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
-import { motion } from 'framer-motion';
 import { saveMeaning, clearMeaning } from '../store/chalisaSlice';
+import { motion } from 'framer-motion';
 
 const chalisaText = `
 ॥ श्री हनुमान चालीसा ॥

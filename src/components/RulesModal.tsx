@@ -20,12 +20,20 @@ const RulesModal: React.FC<RulesModalProps> = ({ open, handleClose }) => {
                     boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
                 },
             }}
+            aria-labelledby="community-rules-title"
+            aria-describedby="community-rules-description"
         >
-            <DialogTitle sx={{ fontWeight: 'bold', color: '#ff5722', textAlign: 'center' }}>
+            <DialogTitle 
+                id="community-rules-title" 
+                sx={{ fontWeight: 'bold', color: '#ff5722', textAlign: 'center' }}
+            >
                 Community Rules
             </DialogTitle>
             <DialogContent>
-                <DialogContentText sx={{ color: '#555', textAlign: 'center' }}>
+                <DialogContentText 
+                    id="community-rules-description" 
+                    sx={{ color: '#555', textAlign: 'center' }}
+                >
                     <Box component="div" sx={{ mb: 2 }}>
                         Welcome to the Community Chat! Please adhere to the following rules:
                     </Box>
