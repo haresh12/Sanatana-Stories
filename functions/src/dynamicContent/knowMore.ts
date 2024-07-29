@@ -31,7 +31,6 @@ export const getDetailedInfo = functions.https.onCall(async (data, context) => {
 
     return { detailedInfo };
   } catch (error) {
-    console.error("Error fetching detailed information:", error);
     throw new functions.https.HttpsError('internal', 'Unable to fetch detailed information.');
   }
 });

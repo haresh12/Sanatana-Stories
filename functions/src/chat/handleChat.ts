@@ -21,7 +21,6 @@ async function synthesizeSpeech(text: string, outputFile: string, voiceName: str
   };
   const [response] = await textToSpeechClient.synthesizeSpeech(request);
   await writeFile(outputFile, response.audioContent as Uint8Array, 'binary');
-  console.log(`Audio content written to file: ${outputFile}`);
 }
 
 async function uploadFileToStorage(filePath: string, destination: string): Promise<string> {
@@ -38,6 +37,10 @@ async function uploadFileToStorage(filePath: string, destination: string): Promi
   return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(file.name)}?alt=media&token=${fileMetadata?.metadata?.firebaseStorageDownloadTokens}`;
 }
 
+function cleanTextForAudio(text: string): string {
+  return text.replace(/\*\*/g, '').replace(/[\u{1F600}-\u{1F6FF}]/gu, '');
+}
+
 export const handleChat = functions.https.onCall(async (data, context) => {
   const { userId, godName, message } = data;
 
@@ -52,7 +55,6 @@ export const handleChat = functions.https.onCall(async (data, context) => {
       temperature: 1,
       topK: 50,
       topP: 0.9,
-      maxOutputTokens: 1000,
     },
   });
 
@@ -132,11 +134,13 @@ export const handleChat = functions.https.onCall(async (data, context) => {
 
       history = [
         { role: 'user', parts: [{ text: '' }] },
-        { role: 'model', parts: [{ text: welcomeMessage, audioUrl: welcomeAudioUrl }] }
+        { role: 'model', parts: [{ text: welcomeMessage }] }
       ];
 
       await userChatRef.set({ history });
       return { message: welcomeMessage, audioUrl: welcomeAudioUrl };
+    } else {
+      history = chatDoc.data()?.history || [];
     }
 
     history.push({ role: 'user', parts: [{ text: message }] });
@@ -145,19 +149,18 @@ export const handleChat = functions.https.onCall(async (data, context) => {
     const result = await chat.sendMessage(message);
     const response = await result.response;
     const text = response.text();
-    const godResponse = { role: 'model', parts: [{ text, audioUrl: '' }] };
+    const cleanedText = cleanTextForAudio(text);
 
     const responseAudioFile = path.join('/tmp', `${godName}_response.mp3`);
-    await synthesizeSpeech(text, responseAudioFile, voiceName);
+    await synthesizeSpeech(cleanedText, responseAudioFile, voiceName);
     const responseAudioUrl = await uploadFileToStorage(responseAudioFile, `tts/${godName}_response_${Date.now()}.mp3`);
 
-    godResponse.parts[0].audioUrl = responseAudioUrl;
-    history.push(godResponse);
-    await userChatRef.set({ history });
+    // Save the god's response audio URL in Firestore
+    await userChatRef.update({ history });
+    await userChatRef.update({ responseAudioUrl });
 
     return { message: text, audioUrl: responseAudioUrl };
   } catch (error) {
-    console.error("Error in handleChat function:", error);
     throw new functions.https.HttpsError('internal', 'Unable to process chat.');
   }
 });

@@ -72,7 +72,6 @@ export const generateMyth = functions.https.onCall(async (data, context) => {
 
     return { content: text, topic: chosenTopic };
   } catch (error) {
-    console.error("Error generating myth:", error);
     throw new functions.https.HttpsError('internal', 'Unable to generate myth.');
   }
 });

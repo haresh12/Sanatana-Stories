@@ -16,12 +16,11 @@ const writeFile = util.promisify(fs.writeFile);
 async function synthesizeSpeech(text: string, outputFile: string): Promise<void> {
   const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
     input: { text },
-    voice: { languageCode: 'en-IN', name: 'en-IN-Wavenet-C' },  
+    voice: { languageCode: 'en-IN', name: 'en-IN-Wavenet-C' },
     audioConfig: { audioEncoding: 'MP3' },
   };
   const [response] = await textToSpeechClient.synthesizeSpeech(request);
   await writeFile(outputFile, response.audioContent as Uint8Array, 'binary');
-  console.log(`Audio content written to file: ${outputFile}`);
 }
 
 async function uploadFileToStorage(filePath: string, destination: string): Promise<string> {
@@ -36,6 +35,10 @@ async function uploadFileToStorage(filePath: string, destination: string): Promi
   });
   const [fileMetadata] = await file.getMetadata();
   return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(file.name)}?alt=media&token=${fileMetadata?.metadata?.firebaseStorageDownloadTokens}`;
+}
+
+function cleanTextForAudio(text: string): string {
+  return text.replace(/\*\*/g, '').replace(/[\u{1F600}-\u{1F64F}]/gu, '');
 }
 
 export const puranasChat = functions.https.onCall(async (data, context) => {
@@ -55,10 +58,10 @@ export const puranasChat = functions.https.onCall(async (data, context) => {
       Remember to maintain a respectful and informative tone, embodying the wisdom and reverence associated with the Hindu Puranas.
     `,
     generationConfig: {
-      temperature: 0.7,
+      temperature: 1,
       topK: 50,
       topP: 0.9,
-      maxOutputTokens: 1000,
+      maxOutputTokens: 5000
     },
   });
 
@@ -76,11 +79,13 @@ export const puranasChat = functions.https.onCall(async (data, context) => {
 
       history = [
         { role: 'user', parts: [{ text: '' }] },
-        { role: 'model', parts: [{ text: welcomeMessage, audioUrl: welcomeAudioUrl }] }
+        { role: 'model', parts: [{ text: welcomeMessage }] }
       ];
 
-      await userChatRef.set({ history });
+      await userChatRef.set({ history, welcomeAudioUrl });
       return { message: welcomeMessage, audioUrl: welcomeAudioUrl };
+    } else {
+      history = chatDoc.data()?.history || [];
     }
 
     history.push({ role: 'user', parts: [{ text: message }] });
@@ -89,19 +94,20 @@ export const puranasChat = functions.https.onCall(async (data, context) => {
     const result = await chat.sendMessage(message);
     const response = await result.response;
     const text = response.text();
-    const puranasResponse = { role: 'model', parts: [{ text, audioUrl: '' }] };
+    const cleanedText = cleanTextForAudio(text);
 
     const responseAudioFile = path.join('/tmp', 'puranas_response.mp3');
-    await synthesizeSpeech(text, responseAudioFile);
+    await synthesizeSpeech(cleanedText, responseAudioFile);
     const responseAudioUrl = await uploadFileToStorage(responseAudioFile, `tts/puranas_response_${Date.now()}.mp3`);
 
-    puranasResponse.parts[0].audioUrl = responseAudioUrl;
+    const puranasResponse = { role: 'model', parts: [{ text }] };
+
+    puranasResponse.parts.push({ text: responseAudioUrl });
     history.push(puranasResponse);
-    await userChatRef.set({ history });
+    await userChatRef.update({ history });
 
     return { message: text, audioUrl: responseAudioUrl };
   } catch (error) {
-    console.error("Error in puranasChat function:", error);
     throw new functions.https.HttpsError('internal', 'Unable to process chat.');
   }
 });

@@ -16,7 +16,7 @@ const initialState: ChatState = {
   epicsMessages: {
     ramayan: [],
     mahabharat: [],
-    puranasChat: []
+    puranas: []
   }
 };
 
