@@ -21,6 +21,8 @@ const selectedTopics = [
   'Hindu cosmology and creation myths'
 ];
 
+const difficultyLevels = ['easy', 'medium', 'advanced'];
+
 interface QuizQuestion {
   question: string;
   options: string[];
@@ -40,7 +42,7 @@ function shuffle(array: string[]): string[] {
   return array;
 }
 
-const generateQuizContent = async (chosenTopics: string[]): Promise<GenerateQuizQuestionsResponse | null> => {
+const generateQuizContent = async (chosenTopics: string[], difficulty: string): Promise<GenerateQuizQuestionsResponse | null> => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
     generationConfig: {
@@ -51,9 +53,8 @@ const generateQuizContent = async (chosenTopics: string[]): Promise<GenerateQuiz
     }
   });
 
-
   const prompt = `
-  Generate a JSON with up to 6 questions about ${chosenTopics.join(', ')}. Each question should have 2 to 4 options where users can select an answer. Also provide the correct answer for each question. Use the following schema:
+  Generate a JSON with up to 6 ${difficulty} questions about ${chosenTopics.join(', ')}. Each question should have 2 to 4 options where users can select an answer. Also provide the correct answer for each question. Use the following schema:
   {
     "type": "object",
     "properties": {
@@ -104,14 +105,15 @@ export const generateQuiz = functions.https.onCall(async (data, context) => {
   try {
     const shuffledMustTopics = shuffle([...mustTopics]);
     const shuffledShouldTopics = shuffle([...selectedTopics]);
+    const chosenDifficulty = difficultyLevels[Math.floor(Math.random() * difficultyLevels.length)];
 
     const chosenTopics = [shuffledMustTopics[0], ...shuffledShouldTopics.slice(0, 2 + Math.floor(Math.random() * 2))];
     
-    let questions = await generateQuizContent(chosenTopics);
+    let questions = await generateQuizContent(chosenTopics, chosenDifficulty);
 
     if (!questions) {
       // Retry with a fallback prompt
-      questions = await generateQuizContent(['Hindu Puranas', 'Ramayan', 'Mahabharat']);
+      questions = await generateQuizContent(['Hindu Puranas', 'Ramayan', 'Mahabharat'], chosenDifficulty);
       if (!questions) {
         throw new functions.https.HttpsError('internal', 'Unable to generate valid quiz questions.');
       }

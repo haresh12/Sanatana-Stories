@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Container, Typography, Box, Card, CardContent, CircularProgress, Button, CardActions, Tabs, Tab, Grid, List, ListItem, ListItemText } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot } from 'firebase/firestore';
 import { functions, db } from '../firebaseConfig';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
@@ -130,20 +130,20 @@ const GeneratePodcast: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
 
+
   useEffect(() => {
-    const fetchPodcasts = async () => {
-      if (!currentUser) return;
-      const podcastsRef = collection(db, 'users', currentUser.uid, 'podcasts');
-      const q = query(podcastsRef);
-      const querySnapshot = await getDocs(q);
+    if (!currentUser) return;
+
+    const podcastsRef = collection(db, 'users', currentUser.uid, 'podcasts');
+    const unsubscribe = onSnapshot(podcastsRef, (querySnapshot) => {
       const fetchedPodcasts = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
       })) as Podcast[];
       setPodcasts(fetchedPodcasts);
-    };
+    });
 
-    fetchPodcasts();
+    return () => unsubscribe();
   }, [currentUser]);
 
   useEffect(() => {
@@ -151,7 +151,7 @@ const GeneratePodcast: React.FC = () => {
     if (loading) {
       interval = setInterval(() => {
         setFactIndex((prevIndex: number) => (prevIndex + 1) % facts.length);
-      }, 5000); // Change fact every 5 seconds
+      }, 5000);
     }
     return () => {
       if (interval) {
