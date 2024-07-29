@@ -61,7 +61,7 @@ export const puranasChat = functions.https.onCall(async (data, context) => {
       temperature: 1,
       topK: 50,
       topP: 0.9,
-      maxOutputTokens: 5000
+      maxOutputTokens: 10000
     },
   });
 

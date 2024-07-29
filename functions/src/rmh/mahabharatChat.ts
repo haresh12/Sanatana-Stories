@@ -61,7 +61,7 @@ export const mahabharatChat = functions.https.onCall(async (data, context) => {
       temperature: 0.8,
       topK: 40,
       topP: 0.9,
-      maxOutputTokens: 5000
+      maxOutputTokens: 10000
     },
   });
 
