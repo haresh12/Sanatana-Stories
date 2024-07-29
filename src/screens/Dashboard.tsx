@@ -15,13 +15,12 @@ import TalkToGodIcon from '@mui/icons-material/EmojiPeople';
 import CommunityIcon from '@mui/icons-material/People';
 import TemplesIcon from '@mui/icons-material/TempleHindu';
 import QuizIcon from '@mui/icons-material/Quiz';
-import { keyframes } from '@mui/system';
+import { keyframes, styled, useTheme } from '@mui/system';
 import { fetchAndActivate, getValue } from 'firebase/remote-config';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<any, any>;
-  },
+  props: TransitionProps & { children: React.ReactElement<any, any> },
   ref: React.Ref<unknown>,
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -52,15 +51,11 @@ const cardAnimation = {
   hover: {
     scale: 1.05,
     boxShadow: '0 10px 20px rgba(0,0,0,0.3)',
-    transition: {
-      duration: 0.3,
-    },
+    transition: { duration: 0.3 },
   },
   tap: {
     scale: 0.95,
-    transition: {
-      duration: 0.3,
-    },
+    transition: { duration: 0.3 },
   },
 };
 
@@ -68,15 +63,11 @@ const quizCardAnimation = {
   hover: {
     scale: 1.05,
     animation: `${pulsingShadow} 1.5s infinite`,
-    transition: {
-      duration: 0.3,
-    },
+    transition: { duration: 0.3 },
   },
   tap: {
     scale: 0.95,
-    transition: {
-      duration: 0.3,
-    },
+    transition: { duration: 0.3 },
   },
 };
 
@@ -164,7 +155,10 @@ const defaultCards = [
   }
 ];
 
-
+const truncateText = (text: string, maxLength: number) => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -172,13 +166,16 @@ const Dashboard: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [funFact, setFunFact] = useState('');
   const [animateFunFact, setAnimateFunFact] = useState(false);
-  const [cards, setCards] = useState(defaultCards)
+  const [cards, setCards] = useState(defaultCards);
   const [animateMyth, setAnimateMyth] = useState(false);
   const [myth, setMyth] = useState('');
   const [detailedInfo, setDetailedInfo] = useState<string>('');
   const [detailedOpen, setDetailedOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [fetchingCard, setFetchingCard] = useState<'funFact' | 'myth' | null>(null);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -277,7 +274,11 @@ const Dashboard: React.FC = () => {
     <Container
       component="main"
       maxWidth="lg"
-      sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}
+      sx={{
+        paddingTop: isMobile ? '20px' : '40px',
+        paddingBottom: isMobile ? '20px' : '40px',
+        position: 'relative',
+      }}
       role="main"
     >
       <Box
@@ -295,7 +296,7 @@ const Dashboard: React.FC = () => {
             backgroundColor: '#ff5722',
             color: '#fff',
             fontWeight: 'bold',
-            padding: '10px 20px',
+            padding: isMobile ? '5px 10px' : '10px 20px',
             borderRadius: '25px',
             boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
             transition: 'all 0.3s ease',
@@ -308,7 +309,7 @@ const Dashboard: React.FC = () => {
           Logout
         </Button>
       </Box>
-  
+
       <Dialog
         open={open}
         TransitionComponent={Transition}
@@ -345,7 +346,7 @@ const Dashboard: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-  
+
       <Dialog
         open={detailedOpen}
         TransitionComponent={Transition}
@@ -375,21 +376,22 @@ const Dashboard: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
-  
+
       <Typography
         variant="h4"
         align="center"
         gutterBottom
         sx={{
-          marginBottom: '40px',
+          marginBottom: isMobile ? '20px' : '40px',
           fontWeight: 'bold',
           color: '#fff',
-          marginTop: { xs: '50px', md: '0px' },
+          fontSize: 18,
+          marginTop: { xs: '40px', md: '0px' },
         }}
       >
         Welcome to the Spiritual Dashboard
       </Typography>
-      <Grid container spacing={4} justifyContent="center">
+      <Grid container spacing={isMobile ? 2 : 4} justifyContent="center">
         {cards.map((card, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <motion.div
@@ -410,13 +412,13 @@ const Dashboard: React.FC = () => {
                 sx={{
                   backgroundColor: card.color,
                   boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                  height: '220px',
+                  height: isMobile ? '180px' : '220px',
                   width: '100%',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'center',
                   textAlign: 'center',
-                  padding: '20px',
+                  padding: isMobile ? '10px' : '20px',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   borderRadius: '15px',
@@ -435,11 +437,11 @@ const Dashboard: React.FC = () => {
                         {card.icon}
                       </Avatar>
                     ) : null}
-                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', marginTop: '20px', color: '#fff' }}>
+                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', marginTop: isMobile ? '10px' : '20px', color: '#fff' }}>
                       {card.title}
                     </Typography>
-                    <Typography variant="body2" sx={{ marginTop: '10px', color: '#fff' }}>
-                      {card.title === 'Fun Fact' ? funFact : card.title === 'Myth' ? myth : card.description}
+                    <Typography variant="body2" sx={{ marginTop: '10px', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                      {card.title === 'Fun Fact' ? truncateText(funFact, 300) : card.title === 'Myth' ? truncateText(myth, 300) : card.description}
                     </Typography>
                     {(card.title === 'Fun Fact' || card.title === 'Myth') && (
                       <Box display="flex" flexDirection="column" alignItems="flex-end" sx={{ width: '100%', marginTop: '10px' }}>
@@ -464,6 +466,6 @@ const Dashboard: React.FC = () => {
       </Grid>
     </Container>
   );
-}
+};
 
 export default Dashboard;

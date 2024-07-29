@@ -147,10 +147,10 @@ const Login: React.FC = () => {
           sx={{ padding: isMobile ? '20px' : '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
         >
           <Box display="flex" flexDirection="column" alignItems="center">
-            <Avatar sx={{ margin: '10px', backgroundColor: '#ff5722' }}>
-              <LockOutlinedIcon aria-hidden="true" />
+            <Avatar sx={{ margin: '10px', backgroundColor: '#ff5722', width: isMobile ? 40 : 56, height: isMobile ? 40 : 56 }}>
+              <LockOutlinedIcon aria-hidden="true" sx={{ fontSize: isMobile ? 20 : 24 }} />
             </Avatar>
-            <Typography component="h1" variant="h5" sx={{ color: '#ff5722' }}>
+            <Typography component="h1" variant="h5" sx={{ color: '#ff5722', fontSize: isMobile ? '1.2rem' : '1.5rem' }}>
               Login
             </Typography>
             {error && (
@@ -196,6 +196,7 @@ const Login: React.FC = () => {
                   '& .MuiInputLabel-outlined.Mui-focused': {
                     color: '#ff5722',
                   },
+                  fontSize: isMobile ? '0.8rem' : '1rem',
                 }}
                 aria-describedby="email-helper-text"
               />
@@ -236,6 +237,7 @@ const Login: React.FC = () => {
                   '& .MuiInputLabel-outlined.Mui-focused': {
                     color: '#ff5722',
                   },
+                  fontSize: isMobile ? '0.8rem' : '1rem',
                 }}
                 aria-describedby="password-helper-text"
               />
@@ -249,8 +251,8 @@ const Login: React.FC = () => {
                     backgroundColor: '#ff5722',
                     color: '#fff',
                     borderRadius: '50px',
-                    padding: '10px 0',
-                    fontSize: '16px',
+                    padding: isMobile ? '8px 0' : '10px 0',
+                    fontSize: isMobile ? '0.9rem' : '1rem',
                     textTransform: 'none',
                     '&:focus': {
                       outline: '2px solid #ff5722',
@@ -275,8 +277,8 @@ const Login: React.FC = () => {
                       borderColor: '#ff5722',
                       color: '#ff5722',
                       borderRadius: '50px',
-                      padding: '10px 0',
-                      fontSize: '16px',
+                      padding: isMobile ? '8px 0' : '10px 0',
+                      fontSize: isMobile ? '0.9rem' : '1rem',
                       textTransform: 'none',
                       '&:focus': {
                         outline: '2px solid #ff5722',
@@ -295,6 +297,7 @@ const Login: React.FC = () => {
                     marginTop: '20px',
                     display: 'block',
                     textAlign: 'center',
+                    fontSize: isMobile ? '0.8rem' : '1rem',
                   }}
                   aria-label="Don't have an account? Sign Up"
                 >
@@ -313,6 +316,7 @@ const Login: React.FC = () => {
                       '50%': { opacity: 0.5 },
                       '100%': { opacity: 1 },
                     },
+                    fontSize: isMobile ? '0.8rem' : '1rem',
                   }}
                   onClick={handleOpenWhyThisProduct}
                 >

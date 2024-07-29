@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { TextField, Container, Typography, Box, IconButton } from '@mui/material';
+import { TextField, Container, Typography, Box, IconButton, useMediaQuery } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -42,6 +42,7 @@ const ChatPage: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   useEffect(() => {
     const fetchGodName = async () => {
@@ -173,14 +174,21 @@ const ChatPage: React.FC = () => {
     <Container
       component="main"
       maxWidth="lg"
-      sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        justifyContent: 'center',
+        backgroundColor: '#f0f0f0',
+        padding: isMobile ? '8px' : '24px',
+      }}
       role="main"
       aria-label={`Chat with ${godName}`}
     >
       <BackButton />
       <Box
         sx={{
-          padding: 2,
+          padding: isMobile ? '8px' : '24px',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
@@ -190,25 +198,37 @@ const ChatPage: React.FC = () => {
           backgroundColor: '#ffffff',
         }}
       >
-        <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+        {isMobile ? (
           <Typography
-            variant="h4"
+            variant="h5"
             align="center"
             gutterBottom
-            sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}
+            sx={{ fontWeight: 'bold', color: '#ff5722', mt: 4 }}
             tabIndex={0}
           >
             Chat with {godName}
           </Typography>
-        </motion.div>
+        ) : (
+          <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+            <Typography
+              variant="h4"
+              align="center"
+              gutterBottom
+              sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}
+              tabIndex={0}
+            >
+              Chat with {godName}
+            </Typography>
+          </motion.div>
+        )}
         <Box
           sx={{
             flex: 1,
             overflowY: 'auto',
-            padding: 2,
+            padding: isMobile ? '8px' : '16px',
             display: 'flex',
             flexDirection: 'column',
-            gap: 2,
+            gap: isMobile ? '8px' : '16px',
             scrollbarWidth: 'none',
             '&::-webkit-scrollbar': { display: 'none' },
           }}
@@ -221,7 +241,7 @@ const ChatPage: React.FC = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                mb: 1,
+                mb: isMobile ? '8px' : '16px',
               }}
             >
               <Box
@@ -229,7 +249,7 @@ const ChatPage: React.FC = () => {
                   maxWidth: '75%',
                   bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50',
                   color: '#fff',
-                  p: 2,
+                  p: isMobile ? '8px' : '16px',
                   borderRadius: '20px',
                   wordWrap: 'break-word',
                 }}
@@ -322,7 +342,6 @@ const ChatPage: React.FC = () => {
               backgroundColor: listening ? '#ff5722' : '#e0e0e0',
               color: '#fff',
               ml: 1,
-              animation: listening ? 'pulse 1s infinite' : 'none',
             }}
             aria-label={listening ? 'Listening...' : 'Start listening'}
           >
@@ -333,48 +352,21 @@ const ChatPage: React.FC = () => {
       <style>
         {`
           @keyframes dotElastic {
-            0% {
-              transform: scale(1);
-            }
-            50% {
-              transform: scale(1.5);
-            }
-            100% {
-              transform: scale(1);
-            }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
           }
           .dot-elastic {
-            width: 8px;
-            height: 8px;
-            background-color: #fff;
-            border-radius: 50%;
-            animation: dotElastic 0.6s infinite;
+            width: 8px; height: 8px; background-color: #fff; border-radius: 50%; animation: dotElastic 0.6s infinite;
           }
-          .dot-elastic:nth-of-type(1) {
-            animation-delay: 0s;
-          }
-          .dot-elastic:nth-of-type(2) {
-            animation-delay: 0.1s;
-          }
-          .dot-elastic:nth-of-type(3) {
-            animation-delay: 0.2s;
-          }
-  
-          @keyframes pulse {
-            0% {
-              transform: scale(1);
-            }
-            50% {
-              transform: scale(1.1);
-            }
-            100% {
-              transform: scale(1);
-            }
-          }
+          .dot-elastic:nth-of-type(1) { animation-delay: 0s; }
+          .dot-elastic:nth-of-type(2) { animation-delay: 0.1s; }
+          .dot-elastic:nth-of-type(3) { animation-delay: 0.2s; }
         `}
       </style>
     </Container>
   );
+
 };
 
 export default ChatPage;

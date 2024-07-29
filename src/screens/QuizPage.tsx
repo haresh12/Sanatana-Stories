@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, Card, CardContent, CircularProgress, Button, Modal, CircularProgress as MuiCircularProgress } from '@mui/material';
+import { Container, Typography, Box, Card, CardContent, CircularProgress, Button, Modal } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
 import { functions, db } from '../firebaseConfig';
@@ -7,7 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { collection, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 interface QuizQuestion {
   question: string;
@@ -33,7 +34,7 @@ const OptionButton = styled(Button)<{ isCorrect?: boolean; isIncorrect?: boolean
   marginTop: theme.spacing(1),
   textAlign: 'left',
   justifyContent: 'flex-start',
-  padding: theme.spacing(1.5),
+  padding: theme.spacing(1),
   borderRadius: '25px',
   backgroundColor: isCorrect ? '#4caf50' : isIncorrect ? '#f44336' : '#ff5722',
   color: '#fff',
@@ -45,7 +46,7 @@ const OptionButton = styled(Button)<{ isCorrect?: boolean; isIncorrect?: boolean
   '&:active': {
     transform: 'scale(0.95)',
   },
-  fontSize: '1rem',
+  fontSize: theme.breakpoints.down('sm') ? '0.75rem' : '1rem',
   fontWeight: 'bold',
   boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
   '& .MuiButton-label': {
@@ -55,16 +56,16 @@ const OptionButton = styled(Button)<{ isCorrect?: boolean; isIncorrect?: boolean
 }));
 
 const QuestionCard = styled(Card)(({ theme }) => ({
-  marginBottom: '20px',
-  padding: '20px',
+  marginBottom: theme.spacing(2),
+  padding: theme.spacing(2),
   borderRadius: '20px',
   boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
   backgroundColor: '#ffebee',
 }));
 
 const TopicsContainer = styled(Box)(({ theme }) => ({
-  marginBottom: '20px',
-  padding: '10px 20px',
+  marginBottom: theme.spacing(2),
+  padding: theme.spacing(1, 2),
   borderRadius: '10px',
   backgroundColor: '#e0f7fa',
   boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
@@ -105,6 +106,9 @@ const Quiz: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const navigate = useNavigate();
   const [factIndex, setFactIndex] = useState(0);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const validateResponse = (data: GenerateQuizQuestionsResponse): boolean => {
     return (
@@ -214,13 +218,13 @@ const Quiz: React.FC = () => {
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
-    <Container maxWidth="md" sx={{ paddingTop: '40px', paddingBottom: '40px' }}>
+    <Container maxWidth="md" sx={{ paddingTop: isMobile ? '20px' : '40px', paddingBottom: isMobile ? '20px' : '40px' }}>
       <Box textAlign="center">
-        <Typography variant="h4" sx={{ fontWeight: 'bold', marginBottom: '20px', color: '#ff5722' }}>
+        <Typography variant={isMobile ? 'h5' : 'h4'} sx={{ fontWeight: 'bold', marginBottom: isMobile ? '10px' : '20px', color: '#ff5722' }}>
           Quiz
         </Typography>
         {!loading && !retry && (
-          <TopicsContainer>
+          <TopicsContainer sx={{ padding: isMobile ? '8px' : '10px 20px' }}>
             <Typography variant="h6" sx={{ color: '#00796b', fontWeight: 'bold' }}>
               Topics: {topics.join(', ')}
             </Typography>
@@ -228,7 +232,7 @@ const Quiz: React.FC = () => {
         )}
         {loading ? (
           <>
-            <CircularProgress aria-busy="true" />
+            <CircularProgress aria-busy="true" size={isMobile ? 40 : 60} />
             <Typography variant="h6" sx={{ color: '#ff5722', marginTop: '20px' }}>
               {darkFacts[factIndex]}
             </Typography>
@@ -257,23 +261,23 @@ const Quiz: React.FC = () => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
               >
-                <QuestionCard>
+                <QuestionCard sx={{ padding: isMobile ? '15px' : '20px' }}>
                   <CardContent>
                     <Typography
                       variant="h6"
-                      sx={{ marginBottom: '20px', color: '#333', borderRadius: '20px', padding: '10px', backgroundColor: '#ffcccb', fontSize: '1rem' }}
+                      sx={{ marginBottom: isMobile ? '10px' : '20px', color: '#333', borderRadius: '20px', padding: '10px', backgroundColor: '#ffcccb', fontSize: isMobile ? '0.875rem' : '1rem' }}
                     >
                       {questions[currentQuestionIndex].question}
                     </Typography>
                     <ProgressContainer>
-                      <Typography variant="body1" sx={{ marginRight: '10px', color: '#333', fontSize: '0.875rem' }}>
+                      <Typography variant="body1" sx={{ marginRight: '10px', color: '#333', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
                         Question {currentQuestionIndex + 1} of {questions.length}
                       </Typography>
                       <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                        <MuiCircularProgress
+                        <CircularProgress
                           variant="determinate"
                           value={progress}
-                          size={40}
+                          size={isMobile ? 50 : 60}
                           thickness={4}
                           sx={{
                             color: progress === 100 ? '#4caf50' : '#ff5722',
@@ -314,7 +318,7 @@ const Quiz: React.FC = () => {
                           onClick={() => handleAnswerSelect(option)}
                           disabled={selectedAnswer !== null}
                           aria-pressed={selectedAnswer === option}
-                          aria-describedby="option-description"
+                          sx={{ padding: isMobile ? '8px' : '15px', fontSize: isMobile ? '0.75rem' : '1rem' }}
                         >
                           {option}
                         </OptionButton>
@@ -348,14 +352,14 @@ const Quiz: React.FC = () => {
             }}
           >
             <CardContent>
-              <Typography id="quiz-result-title" variant="h4" sx={{ color: '#333', mb: 2 }}>
+              <Typography id="quiz-result-title" variant={isMobile ? 'h5' : 'h4'} sx={{ color: '#333', mb: 2 }}>
                 Quiz Completed!
               </Typography>
-              <Typography id="quiz-result-description" variant="h6" sx={{ color: '#333', mb: 2 }}>
+              <Typography id="quiz-result-description" variant={isMobile ? 'h6' : 'h5'} sx={{ color: '#333', mb: 2 }}>
                 Your score: {questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0)}/{questions.length}
               </Typography>
               <Typography
-                variant="h6"
+                variant={isMobile ? 'h6' : 'h5'}
                 sx={{
                   color: questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0) > 3 ? '#4caf50' : '#f44336',
                   mb: 2,
@@ -376,7 +380,6 @@ const Quiz: React.FC = () => {
         </Box>
       </Modal>
     </Container>
-
   );
 }
 

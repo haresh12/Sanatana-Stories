@@ -10,6 +10,8 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
 import { addEpicsMessage } from '../store/epicsChatSlice';
+import { useTheme } from '@mui/system';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
   const dispatch = useDispatch();
@@ -23,6 +25,9 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleSendMessage = async () => {
     if (input.trim() === '') return;
@@ -140,17 +145,17 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
   }
 
   return (
-    <Container component="main" sx={{ display: 'flex', flexDirection: 'column', height: '90vh', justifyContent: 'center' }}>
-      <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '90vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
+    <Container component="main" sx={{ display: 'flex', flexDirection: 'column', height: isMobile ? '85vh' : '90vh', justifyContent: 'center' }}>
+      <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: isMobile ? '85vh' : '90vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}>
+          <Typography variant={isMobile ? 'h5' : 'h4'} align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: isMobile ? 1 : 2 }}>
             Chat about {chatType.charAt(0).toUpperCase() + chatType.slice(1)}
           </Typography>
         </motion.div>
         <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
           {messages.map((msg, index) => (
             <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
-              <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
+              <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word', fontSize: isMobile ? '0.875rem' : '1rem' }}>
                 {msg.message}
               </Box>
               {msg.role === 'model' && msg.audioUrl && (
@@ -161,19 +166,20 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
                     borderRadius: '50%',
                     backgroundColor: playingIndex === index ? '#388e3c' : '#4caf50',
                     color: '#fff',
-                    p: 1,
+                    p: isMobile ? 0.5 : 1,
                     '&:hover': { backgroundColor: '#388e3c' },
+                    fontSize: isMobile ? '1rem' : '1.25rem',
                   }}
                   aria-label={playingIndex === index ? "Pause audio" : "Play audio"}
                 >
-                  {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
+                  {playingIndex === index ? <PauseIcon sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }} /> : <PlayArrowIcon sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }} />}
                 </IconButton>
               )}
             </Box>
           ))}
           {typing && (
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
-              <Box sx={{ maxWidth: '75%', bgcolor: '#4caf50', color: '#000', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
+              <Box sx={{ maxWidth: '75%', bgcolor: '#4caf50', color: '#000', p: 2, borderRadius: '20px', wordWrap: 'break-word', fontSize: isMobile ? '0.875rem' : '1rem' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '40px', height: '11px' }}>
                   <Box className="dot-elastic"></Box>
                   <Box className="dot-elastic"></Box>
@@ -207,15 +213,16 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                 borderColor: '#ff5722',
               },
+              fontSize: isMobile ? '0.875rem' : '1rem',
             }}
             placeholder="Type your message..."
             aria-label="Message input"
           />
-          <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1 }} aria-label="Send message">
-            <SendIcon />
+          <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: isMobile ? '8px' : '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1, fontSize: isMobile ? '1rem' : '1.25rem' }} aria-label="Send message">
+            <SendIcon sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }} />
           </IconButton>
-          <IconButton onClick={handleSpeechInput} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: listening ? '#ff5722' : '#e0e0e0', color: '#fff', ml: 1, animation: listening ? 'pulse 1s infinite' : 'none' }} aria-label="Start voice input">
-            <MicIcon />
+          <IconButton onClick={handleSpeechInput} sx={{ borderRadius: '50%', padding: isMobile ? '8px' : '10px', backgroundColor: listening ? '#ff5722' : '#e0e0e0', color: '#fff', ml: 1, animation: listening ? 'pulse 1s infinite' : 'none', fontSize: isMobile ? '1rem' : '1.25rem' }} aria-label="Start voice input">
+            <MicIcon sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }} />
           </IconButton>
         </Box>
       </Box>
