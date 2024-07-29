@@ -11,6 +11,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import RulesModal from '../components/RulesModal';
 import { setHasSeenRules } from '../store/authSlice';
 import BackButton from '../components/BackButton';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 interface Message {
     id: string;
@@ -40,6 +42,9 @@ const Community: React.FC = () => {
     const [isListening, setIsListening] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
     useEffect(() => {
         const fetchMessages = async () => {
@@ -147,37 +152,95 @@ const Community: React.FC = () => {
         <Container
             component="main"
             maxWidth="lg"
-            sx={{ display: 'flex', flexDirection: 'column', height: '100vh', justifyContent: 'center', backgroundColor: '#f0f0f0' }}
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100vh',
+                justifyContent: 'center',
+                backgroundColor: '#f0f0f0',
+                padding: isMobile ? '10px' : '20px',
+            }}
             role="main"
             aria-label="Community Chat"
         >
-            <BackButton /> {/* Add BackButton here */}
+            <BackButton />
             {!hasSeenRules ? (
                 <RulesModal open={!hasSeenRules} handleClose={handleCloseRules} />
             ) : (
                 <Box
-                    sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '98vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}
+                    sx={{
+                        padding: isMobile ? '10px' : '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        height: '98vh',
+                        borderRadius: '20px',
+                        boxShadow: 4,
+                        backgroundColor: '#ffffff',
+                    }}
                 >
                     <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-                        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }} tabIndex={0}>
+                        <Typography
+                            variant={isMobile ? 'h5' : 'h4'}
+                            align="center"
+                            gutterBottom
+                            sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}
+                            tabIndex={0}
+                        >
                             Community Chat
                         </Typography>
                     </motion.div>
                     <Box
-                        sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}
+                        sx={{
+                            flex: 1,
+                            overflowY: 'auto',
+                            padding: 2,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: isMobile ? 1 : 2,
+                            scrollbarWidth: 'none',
+                            '&::-webkit-scrollbar': { display: 'none' },
+                        }}
                         aria-live="polite"
                     >
                         {messages.map((msg) => (
-                            <Box key={msg.id} sx={{ display: 'flex', flexDirection: 'column', alignItems: msg.user === currentUser?.email ? 'flex-end' : 'flex-start', mb: 1 }}>
+                            <Box
+                                key={msg.id}
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: msg.user === currentUser?.email ? 'flex-end' : 'flex-start',
+                                    mb: isMobile ? 0.5 : 1,
+                                }}
+                            >
                                 <Box
-                                    sx={{ maxWidth: '75%', bgcolor: msg.user === currentUser?.email ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word', textAlign: msg.user === currentUser?.email ? 'right' : 'left' }}
+                                    sx={{
+                                        maxWidth: '75%',
+                                        bgcolor: msg.user === currentUser?.email ? '#ff5722' : '#4caf50',
+                                        color: '#fff',
+                                        p: 2,
+                                        borderRadius: '20px',
+                                        wordWrap: 'break-word',
+                                        textAlign: 'left',
+                                        alignSelf: msg.user === currentUser?.email ? 'flex-end' : 'flex-start',
+                                    }}
                                     tabIndex={0}
                                     aria-label={`${msg.user === currentUser?.email ? 'You' : msg.name || 'Anonymous'}: ${msg.text}`}
                                 >
                                     {msg.text}
                                 </Box>
                                 {msg.user !== currentUser?.email && (
-                                    <Typography variant="caption" sx={{ color: '#888', textAlign: 'left', fontSize: '0.875rem', fontWeight: 'bold', ml: 1 }}>
+                                    <Typography
+                                        variant="caption"
+                                        sx={{
+                                            color: '#888',
+                                            textAlign: 'left',
+                                            fontSize: '0.875rem',
+                                            fontWeight: 'bold',
+                                            mt: 0.5,
+                                            ml: 1,
+                                        }}
+                                    >
                                         {msg.name || 'Anonymous'}
                                     </Typography>
                                 )}
@@ -213,14 +276,30 @@ const Community: React.FC = () => {
                         <IconButton
                             onClick={handleSendMessage}
                             disabled={loading}
-                            sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', minWidth: 56, height: 56 }}
+                            sx={{
+                                borderRadius: '50%',
+                                padding: isMobile ? '8px' : '10px',
+                                backgroundColor: '#ff5722',
+                                color: '#fff',
+                                minWidth: 48,
+                                height: 48,
+                            }}
                             aria-label="Send message"
                         >
                             {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : <SendIcon />}
                         </IconButton>
                         <IconButton
                             onClick={handleSpeechInput}
-                            sx={{ marginLeft: 1, borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', minWidth: 56, height: 56, animation: isListening ? 'pulse 1.5s infinite' : 'none' }}
+                            sx={{
+                                marginLeft: 1,
+                                borderRadius: '50%',
+                                padding: isMobile ? '8px' : '10px',
+                                backgroundColor: '#ff5722',
+                                color: '#fff',
+                                minWidth: 48,
+                                height: 48,
+                                animation: isListening ? 'pulse 1.5s infinite' : 'none',
+                            }}
                             aria-label={isListening ? 'Listening...' : 'Start listening'}
                         >
                             <MicIcon />
@@ -230,52 +309,54 @@ const Community: React.FC = () => {
             )}
             <style>
                 {`
-            @keyframes dotElastic {
-              0% {
-                transform: scale(1);
+              @keyframes dotElastic {
+                0% {
+                  transform: scale(1);
+                }
+                50% {
+                  transform: scale(1.5);
+                }
+                100% {
+                  transform: scale(1);
+                }
               }
-              50% {
-                transform: scale(1.5);
+              .dot-elastic {
+                width: 8px;
+                height: 8px;
+                background-color: #fff;
+                border-radius: 50%;
+                animation: dotElastic 0.6s infinite;
               }
-              100% {
-                transform: scale(1);
+              .dot-elastic:nth-of-type(1) {
+                animation-delay: 0s;
               }
-            }
-            .dot-elastic {
-              width: 8px;
-              height: 8px;
-              background-color: #fff;
-              border-radius: 50%;
-              animation: dotElastic 0.6s infinite;
-            }
-            .dot-elastic:nth-of-type(1) {
-              animation-delay: 0s;
-            }
-            .dot-elastic:nth-of-type(2) {
-              animation-delay: 0.1s;
-            }
-            .dot-elastic:nth-of-type(3) {
-              animation-delay: 0.2s;
-            }
-            @keyframes pulse {
-              0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+              .dot-elastic:nth-of-type(2) {
+                animation-delay: 0.1s;
               }
-              70% {
-                transform: scale(1.1);
-                box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+              .dot-elastic:nth-of-type(3) {
+                animation-delay: 0.2s;
               }
-              100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+              @keyframes pulse {
+                0% {
+                  transform: scale(1);
+                  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+                }
+                70% {
+                  transform: scale(1.1);
+                  box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+                }
+                100% {
+                  transform: scale(1);
+                  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+                }
               }
-            }
-          `}
+            `}
             </style>
         </Container>
-
     );
+
+
+
 };
 
 export default Community;

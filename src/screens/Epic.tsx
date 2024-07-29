@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Box, Tabs, Tab, CircularProgress } from '@mui/material';
-import { styled } from '@mui/system';
+import { styled, useTheme } from '@mui/system';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import BackButton from '../components/BackButton';
 import ChatComponent from '../components/ChatComponent';
 import { useDispatch, useSelector } from 'react-redux';
@@ -22,6 +23,10 @@ const StyledTab = styled(Tab)(({ theme }) => ({
     color: '#ff5722',
   },
   transition: 'color 0.3s',
+  [theme.breakpoints.down('sm')]: {
+    minWidth: '80px',
+    fontSize: '0.8rem',
+  },
 }));
 
 const StyledTabs = styled(Tabs)(({ theme }) => ({
@@ -39,6 +44,9 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
     justifyContent: 'center',
   },
   marginBottom: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    marginBottom: theme.spacing(1),
+  },
 }));
 
 const Epic: React.FC = () => {
@@ -46,6 +54,9 @@ const Epic: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const dispatch = useDispatch();
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
@@ -113,15 +124,16 @@ const Epic: React.FC = () => {
   }
 
   return (
+    <>
+    <BackButton/>
     <Container
       component="main"
       maxWidth="lg"
-      style={{ paddingTop: '20px', paddingBottom: '20px', position: 'relative', height: '100vh' }}
+      style={{ paddingTop: '20px', paddingBottom: '20px', position: 'relative', height: '100vh'}}
       role="main"
       aria-label="Epic Chat"
     >
-      <BackButton />
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: isMobile ? 1 : 2, mt : isMobile ? 4 : 2 }}>
         <StyledTabs
           value={tabIndex}
           onChange={handleTabChange}
@@ -218,6 +230,7 @@ const Epic: React.FC = () => {
     `}
       </style>
     </Container>
+    </>
   );
 };
 
