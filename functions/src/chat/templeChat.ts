@@ -13,15 +13,14 @@ const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 const textToSpeechClient = new TextToSpeechClient();
 const writeFile = util.promisify(fs.writeFile);
 
-async function synthesizeSpeech(text: string, outputFile: string): Promise<void> {
+async function synthesizeSpeech(text: string, outputFile: string, voiceName: string): Promise<void> {
   const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
     input: { text },
-    voice: { languageCode: 'en-IN', name: 'en-IN-Wavenet-C' },
+    voice: { languageCode: 'en-IN', name: voiceName },
     audioConfig: { audioEncoding: 'MP3' },
   };
   const [response] = await textToSpeechClient.synthesizeSpeech(request);
   await writeFile(outputFile, response.audioContent as Uint8Array, 'binary');
-  console.log(`Audio content written to file: ${outputFile}`);
 }
 
 async function uploadFileToStorage(filePath: string, destination: string): Promise<string> {
@@ -36,6 +35,10 @@ async function uploadFileToStorage(filePath: string, destination: string): Promi
   });
   const [fileMetadata] = await file.getMetadata();
   return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(file.name)}?alt=media&token=${fileMetadata?.metadata?.firebaseStorageDownloadTokens}`;
+}
+
+function cleanTextForAudio(text: string): string {
+  return text.replace(/\*\*/g, '').replace(/[\u{1F600}-\u{1F6FF}]/gu, '');
 }
 
 export const templeChat = functions.https.onCall(async (data, context) => {
@@ -57,14 +60,17 @@ export const templeChat = functions.https.onCall(async (data, context) => {
       temperature: 1,
       topK: 50,
       topP: 0.9,
-      maxOutputTokens: 1000,
     },
   });
 
   try {
     const userChatRef = db.collection('users').doc(userId).collection('templeChat').doc(templeName);
     const chatDoc = await userChatRef.get();
-    let history = [];
+    let history: any[] = [];
+
+    const getVoiceName = (): string => 'en-IN-Wavenet-C';
+
+    const voiceName = getVoiceName();
 
     if (!chatDoc.exists) {
       let welcomeMessage = '';
@@ -119,37 +125,40 @@ export const templeChat = functions.https.onCall(async (data, context) => {
       }
 
       const welcomeAudioFile = path.join('/tmp', `${templeName}_welcome.mp3`);
-      await synthesizeSpeech(welcomeMessage, welcomeAudioFile);
+      await synthesizeSpeech(welcomeMessage, welcomeAudioFile, voiceName);
       const welcomeAudioUrl = await uploadFileToStorage(welcomeAudioFile, `tts/${templeName}_welcome_${Date.now()}.mp3`);
 
       history = [
         { role: 'user', parts: [{ text: '' }] },
-        { role: 'model', parts: [{ text: welcomeMessage, audioUrl: welcomeAudioUrl }] }
+        { role: 'model', parts: [{ text: welcomeMessage }] }
       ];
 
       await userChatRef.set({ history });
       return { message: welcomeMessage, audioUrl: welcomeAudioUrl };
+    } else {
+      history = chatDoc.data()?.history || [];
     }
 
+    // Add the new user message and model response to the history
     history.push({ role: 'user', parts: [{ text: message }] });
 
     const chat = model.startChat({ history, generationConfig: { maxOutputTokens: 100 } });
     const result = await chat.sendMessage(message);
     const response = await result.response;
     const text = response.text();
-    const templeResponse = { role: 'model', parts: [{ text, audioUrl: '' }] };
+    const cleanedText = cleanTextForAudio(text);
 
     const responseAudioFile = path.join('/tmp', `${templeName}_response.mp3`);
-    await synthesizeSpeech(text, responseAudioFile);
+    await synthesizeSpeech(cleanedText, responseAudioFile, voiceName);
     const responseAudioUrl = await uploadFileToStorage(responseAudioFile, `tts/${templeName}_response_${Date.now()}.mp3`);
 
-    templeResponse.parts[0].audioUrl = responseAudioUrl;
-    history.push(templeResponse);
-    await userChatRef.set({ history });
+
+    // Save the god's response audio URL in Firestore
+    await userChatRef.update({ history });
+    await userChatRef.update({ responseAudioUrl });
 
     return { message: text, audioUrl: responseAudioUrl };
   } catch (error) {
-    console.error("Error in handleTempleChat function:", error);
     throw new functions.https.HttpsError('internal', 'Unable to process chat.');
   }
 });

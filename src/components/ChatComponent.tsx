@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { TextField, Container, Typography, Box, IconButton } from '@mui/material';
+import { TextField, Container, Typography, Box, IconButton, CircularProgress } from '@mui/material';
 import MicIcon from '@mui/icons-material/Mic';
 import SendIcon from '@mui/icons-material/Send';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
@@ -9,7 +9,7 @@ import { RootState } from '../store';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
-import { setEpicsMessages, addEpicsMessage } from '../store/epicsChatSlice';
+import { addEpicsMessage } from '../store/epicsChatSlice';
 
 const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
   const dispatch = useDispatch();
@@ -23,18 +23,6 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-
-  useEffect(() => {
-    if (currentUser && messages?.length === 0) {
-      setTyping(true);
-      const handleChat = httpsCallable(functions, `${chatType}Chat`);
-      handleChat({ userId: currentUser.uid, message: '' }).then(response => {
-        const responseData = response.data as { message: string, audioUrl: string };
-        dispatch(setEpicsMessages({ chatType, messages: [{ role: 'model', message: responseData.message, audioUrl: responseData.audioUrl }] }));
-        setTyping(false);
-      });
-    }
-  }, [currentUser, messages?.length, dispatch, chatType]);
 
   const handleSendMessage = async () => {
     if (input.trim() === '') return;
@@ -129,6 +117,28 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
     };
   }, []);
 
+  if (messages.length === 0) {
+    return (
+      <Container
+        component="main"
+        maxWidth="lg"
+        style={{
+          paddingTop: '40px',
+          paddingBottom: '40px',
+          position: 'relative',
+          height: '100vh',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+        role="status"
+        aria-live="polite"
+      >
+        <CircularProgress aria-label="Loading" />
+      </Container>
+    );
+  }
+
   return (
     <Container component="main" sx={{ display: 'flex', flexDirection: 'column', height: '90vh', justifyContent: 'center' }}>
       <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '90vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
@@ -138,7 +148,7 @@ const ChatComponent: React.FC<{ chatType: string }> = ({ chatType }) => {
           </Typography>
         </motion.div>
         <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-          {messages?.map((msg, index) => (
+          {messages.map((msg, index) => (
             <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
               <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }}>
                 {msg.message}

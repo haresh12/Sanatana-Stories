@@ -72,7 +72,6 @@ export const generateFunFact = functions.https.onCall(async (data, context) => {
 
     return { content: text, topic: chosenTopic };
   } catch (error) {
-    console.error("Error generating fun fact:", error);
     throw new functions.https.HttpsError('internal', 'Unable to generate fun fact.');
   }
 });

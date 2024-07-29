@@ -5,9 +5,11 @@ import BackButton from '../components/BackButton';
 import ChatComponent from '../components/ChatComponent';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
-import { setActiveEpicsChat, clearAllEpicsMessages } from '../store/epicsChatSlice';
+import { setActiveEpicsChat, clearAllEpicsMessages, setEpicsMessages } from '../store/epicsChatSlice';
 import { collection, deleteDoc, getDocs, query } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
+import { httpsCallable } from 'firebase/functions';
+import { functions } from '../firebaseConfig';
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 'bold',
@@ -69,10 +71,22 @@ const Epic: React.FC = () => {
         await Promise.all(promises);
 
         dispatch(clearAllEpicsMessages());
+      };
+
+      const loadInitialMessages = async () => {
+        const chatTypes = ['ramayan', 'mahabharat', 'puranas'];
+        const loadMessagePromises = chatTypes.map(async chatType => {
+          const handleChat = httpsCallable(functions, `${chatType}Chat`);
+          const response = await handleChat({ userId: currentUser.uid, message: '' });
+          const responseData = response.data as { message: string, audioUrl: string };
+          dispatch(setEpicsMessages({ chatType, messages: [{ role: 'model', message: responseData.message, audioUrl: responseData.audioUrl }] }));
+        });
+
+        await Promise.all(loadMessagePromises);
         setLoading(false);
       };
 
-      clearChats();
+      clearChats().then(loadInitialMessages);
     }
   }, [dispatch, currentUser]);
 
@@ -204,7 +218,6 @@ const Epic: React.FC = () => {
     `}
       </style>
     </Container>
-
   );
 };
 
