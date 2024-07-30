@@ -7,6 +7,8 @@ import { motion } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
 import { functions, db, storage } from '../firebaseConfig';
 import { getDownloadURL, ref } from 'firebase/storage';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 interface StoriesProps {
   templeId: string;
@@ -23,6 +25,8 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
   const [highlightedWordIndex, setHighlightedWordIndex] = useState<number>(-1);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const fetchStory = async () => {
@@ -150,19 +154,19 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
     <Container maxWidth="md" sx={{ paddingBottom: '40px', height: '85vh' }}>
       {!initialStory ? (
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: -5 }}>
+          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: isMobile ? -3 : -5, fontSize: isMobile ? '1.5rem' : '2rem' }}>
             Story about {templeName}
           </Typography>
         </motion.div>
       ) : (
-        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: -5 }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: isMobile ? - 3 : -5, fontSize: isMobile ? '1.3rem' : '2rem' }}>
           Story about {templeName}
         </Typography>
       )}
       <Card
         sx={{
           mt: 2,
-          p: 2,
+          p: isMobile ? 1 : 2,
           boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
           borderRadius: '15px',
           backgroundColor: '#fff',
@@ -172,6 +176,7 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
           '&:hover': {
             boxShadow: '0 8px 16px rgba(0,0,0,0.3)',
           },
+          margin: isMobile ? '10px 0' : '20px 0',
         }}
       >
         {loading ? (
@@ -186,12 +191,12 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
           </Box>
         ) : (
           <CardContent sx={{ overflowY: 'auto', flex: '1 1 auto' }}>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', textAlign: 'justify', fontSize: '18px' }} aria-label="Story content">
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', textAlign: 'justify', fontSize: isMobile ? '16px' : '18px' }} aria-label="Story content">
               {renderStoryWithHighlights()}
             </Typography>
           </CardContent>
         )}
-        <CardActions sx={{ justifyContent: 'center' }}>
+        <CardActions sx={{ justifyContent: 'center', flexWrap: 'wrap', gap: isMobile ? 1 : 2 }}>
           <Button
             variant="contained"
             color="primary"
@@ -199,14 +204,13 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
             sx={{
               backgroundColor: '#ff7043',
               borderRadius: '30px',
-              padding: '10px 30px',
-              fontSize: '16px',
+              padding: isMobile ? '8px 20px' : '10px 30px',
+              fontSize: isMobile ? '12px' : '16px',
               '&:hover': {
                 backgroundColor: '#ff5722',
                 transform: 'scale(1.05)',
               },
               transition: 'all 0.3s ease',
-              mr: 2,
             }}
             aria-label="Generate new story"
           >
@@ -222,8 +226,8 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
                   sx={{
                     backgroundColor: '#81c784',
                     borderRadius: '30px',
-                    padding: '10px 30px',
-                    fontSize: '16px',
+                    padding: isMobile ? '8px 20px' : '10px 30px',
+                    fontSize: isMobile ? '12px' : '16px',
                     '&:hover': {
                       backgroundColor: '#66bb6a',
                       transform: 'scale(1.05)',
@@ -232,7 +236,7 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
                   }}
                   aria-label="Audio loading"
                 >
-                  <CircularProgress size={24} color="inherit" aria-label="Loading audio" />
+                  <CircularProgress size={20} color="inherit" aria-label="Loading audio" />
                 </Button>
               ) : isPlaying ? (
                 <Button
@@ -242,8 +246,8 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
                   sx={{
                     backgroundColor: '#81c784',
                     borderRadius: '30px',
-                    padding: '10px 30px',
-                    fontSize: '16px',
+                    padding: isMobile ? '8px 20px' : '10px 30px',
+                    fontSize: isMobile ? '12px' : '16px',
                     '&:hover': {
                       backgroundColor: '#66bb6a',
                       transform: 'scale(1.05)',
@@ -262,8 +266,8 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
                   sx={{
                     backgroundColor: '#81c784',
                     borderRadius: '30px',
-                    padding: '10px 30px',
-                    fontSize: '16px',
+                    padding: isMobile ? '8px 20px' : '10px 30px',
+                    fontSize: isMobile ? '12px' : '16px',
                     '&:hover': {
                       backgroundColor: '#66bb6a',
                       transform: 'scale(1.05)',

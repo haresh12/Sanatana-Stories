@@ -9,6 +9,7 @@ import { collection, addDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import { styled, useTheme } from '@mui/system';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import BackButton from '../components/BackButton';
 
 interface QuizQuestion {
   question: string;
@@ -218,6 +219,8 @@ const Quiz: React.FC = () => {
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   return (
+    <>
+    <BackButton/>
     <Container maxWidth="md" sx={{ paddingTop: isMobile ? '20px' : '40px', paddingBottom: isMobile ? '20px' : '40px' }}>
       <Box textAlign="center">
         <Typography variant={isMobile ? 'h5' : 'h4'} sx={{ fontWeight: 'bold', marginBottom: isMobile ? '10px' : '20px', color: '#ff5722' }}>
@@ -380,7 +383,9 @@ const Quiz: React.FC = () => {
         </Box>
       </Modal>
     </Container>
+    </>
   );
+  
 }
 
 export default Quiz;
