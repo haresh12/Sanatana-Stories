@@ -146,7 +146,6 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
 
   return (
     <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
         <Typography 
           variant="h4" 
           align="center" 
@@ -154,21 +153,20 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
           sx={{ 
             fontWeight: 'bold', 
             color: '#ff5722', 
-            mt : isMobile ? -3 : 0,
+            mt : isMobile ? -3 : -4,
             fontSize: isMobile ? '1.2rem' : '2rem' 
           }} 
           aria-label={`Chat about ${templeName}`}
         >
           Chat about {templeName}
         </Typography>
-      </motion.div>
       <Box sx={{ 
         padding: isMobile ? 1 : 2, 
         display: 'flex', 
         flexDirection: 'column', 
         justifyContent: 'space-between', 
-        mt: isMobile ? 1 : -3, 
-        height: '85vh', 
+        mt: isMobile ? 1 : 0, 
+        height: '81vh', 
         borderRadius: '20px', 
         boxShadow: 4, 
         backgroundColor: '#ffffff' 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Typography, Box, TextField, Button, Card, CardContent, CardActions } from '@mui/material';
+import { Container, Typography, Box, TextField, Button, Card, CardContent, CardActions, Grid, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { motion } from 'framer-motion';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
@@ -32,6 +32,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   padding: theme.spacing(4),
   maxWidth: '800px',
   margin: '0 auto',
+  marginBottom: theme.spacing(4),
 }));
 
 const SummarizeSatsang: React.FC = () => {
@@ -74,6 +75,16 @@ const SummarizeSatsang: React.FC = () => {
       setLoading(false);
     }
   };
+
+  const spiritualVideos = [
+    { url: 'https://www.youtube.com/watch?v=_cZa_7KaQ3c', title: 'Spiritual Video 1' },
+    { url: 'https://www.youtube.com/watch?v=lSq3h-_PTVY&t=346s', title: 'Spiritual Video 2' },
+  ];
+
+  const nonSpiritualVideos = [
+    { url: 'https://www.youtube.com/watch?v=_cZa_7KaQ3c', title: 'Non-Spiritual Video 1' },
+    { url: 'https://www.youtube.com/watch?v=lSq3h-_PTVY&t=346s', title: 'Non-Spiritual Video 2' },
+  ];
 
   return (
     <StyledContainer>
@@ -190,6 +201,48 @@ const SummarizeSatsang: React.FC = () => {
             </CardContent>
           </StyledCard>
         </motion.div>
+        <Grid container spacing={2} sx={{ mt: 4 }}>
+          <Grid item xs={12} md={6}>
+            <motion.div initial="hidden" animate="visible" variants={cardAnimation}>
+              <StyledCard sx={{ backgroundColor: '#e8f5e9' }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#388e3c', mb: 2 }}>
+                    Spiritual Videos
+                  </Typography>
+                  <List>
+                    {spiritualVideos.map((video, index) => (
+                      <ListItem key={index} disablePadding>
+                        <ListItemButton onClick={() => setVideoUrl(video.url)}>
+                          <ListItemText primary={video.title} secondary={video.url} />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardContent>
+              </StyledCard>
+            </motion.div>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <motion.div initial="hidden" animate="visible" variants={cardAnimation}>
+              <StyledCard sx={{ backgroundColor: '#ffebee' }}>
+                <CardContent>
+                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#d32f2f', mb: 2 }}>
+                    Non-Spiritual Videos
+                  </Typography>
+                  <List>
+                    {nonSpiritualVideos.map((video, index) => (
+                      <ListItem key={index} disablePadding>
+                        <ListItemButton onClick={() => setVideoUrl(video.url)}>
+                          <ListItemText primary={video.title} secondary={video.url} />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </CardContent>
+              </StyledCard>
+            </motion.div>
+          </Grid>
+        </Grid>
       </Box>
     </StyledContainer>
   );

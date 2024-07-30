@@ -166,7 +166,6 @@ const GeneratePodcast: React.FC = () => {
 
   const handleGenerate = async () => {
     if (!currentUser) {
-      console.error('No user is logged in');
       return;
     }
 
@@ -175,12 +174,10 @@ const GeneratePodcast: React.FC = () => {
       const generatePodcast = httpsCallable<{ userId: string }, GeneratePodcastResponse>(functions, 'generatePodcast');
       const response = await generatePodcast({ userId: currentUser.uid });
       const data = response.data;
-      console.log('data.script', data.script)
       setScript(data.script);
       setAudioUrl(data.audioUrl);
       setTitle(data.title);
     } catch (error) {
-      console.error('Error generating podcast:', error);
     } finally {
       setLoading(false);
     }

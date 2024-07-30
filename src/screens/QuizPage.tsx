@@ -136,8 +136,6 @@ const Quiz: React.FC = () => {
         const generateQuiz = httpsCallable<{}, GenerateQuizQuestionsResponse>(functions, 'generateQuiz');
         const response = await generateQuiz();
         const data = response.data as GenerateQuizQuestionsResponse;
-
-        console.log('Data here is', data)
         if (validateResponse(data)) {
           setQuestions(data.questions.questions);
           setTopics(data.topics);
