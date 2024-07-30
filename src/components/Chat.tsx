@@ -9,6 +9,8 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from '../firebaseConfig';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 interface ChatProps {
   templeId: string;
@@ -31,6 +33,9 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (initialMessages.length === 0) {
@@ -141,16 +146,48 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
 
   return (
     <Container component="main" maxWidth="lg" sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-      <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', mt: -3, height: '85vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
-        <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-          <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722' }} aria-label={`Chat about ${templeName}`}>
-            Chat about {templeName}
-          </Typography>
-        </motion.div>
-        <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+      <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
+        <Typography 
+          variant="h4" 
+          align="center" 
+          gutterBottom 
+          sx={{ 
+            fontWeight: 'bold', 
+            color: '#ff5722', 
+            mt : isMobile ? -3 : 0,
+            fontSize: isMobile ? '1.2rem' : '2rem' 
+          }} 
+          aria-label={`Chat about ${templeName}`}
+        >
+          Chat about {templeName}
+        </Typography>
+      </motion.div>
+      <Box sx={{ 
+        padding: isMobile ? 1 : 2, 
+        display: 'flex', 
+        flexDirection: 'column', 
+        justifyContent: 'space-between', 
+        mt: isMobile ? 1 : -3, 
+        height: '85vh', 
+        borderRadius: '20px', 
+        boxShadow: 4, 
+        backgroundColor: '#ffffff' 
+      }}>
+        <Box 
+          sx={{ 
+            flex: 1, 
+            overflowY: 'auto', 
+            padding: isMobile ? 1 : 2, 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: isMobile ? 1 : 2, 
+            scrollbarWidth: 'none', 
+            '&::-webkit-scrollbar': { display: 'none' } 
+          }}
+        >
           {initialMessages.map((msg, index) => (
             <Box key={index} sx={{ display: 'flex', alignItems: 'center', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', mb: 1 }}>
-              <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: 2, borderRadius: '20px', wordWrap: 'break-word' }} aria-live="polite">
+              <Box sx={{ maxWidth: '75%', bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50', color: '#fff', p: isMobile ? 1 : 2, borderRadius: '20px', wordWrap: 'break-word' }} aria-live="polite">
                 {msg.text}
               </Box>
               {msg.role === 'model' && msg.audioUrl && (
@@ -161,19 +198,19 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
                     borderRadius: '50%',
                     backgroundColor: playingIndex === index ? '#388e3c' : '#4caf50',
                     color: '#fff',
-                    p: 1,
+                    p: isMobile ? 0.5 : 1,
                     '&:hover': { backgroundColor: '#388e3c' },
                   }}
                   aria-label={playingIndex === index ? "Pause audio" : "Play audio"}
                 >
-                  {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
+                  {playingIndex === index ? <PauseIcon sx={{ fontSize: isMobile ? '16px' : '20px' }} /> : <PlayArrowIcon sx={{ fontSize: isMobile ? '16px' : '20px' }} />}
                 </IconButton>
               )}
             </Box>
           ))}
           {loading && (
             <Box sx={{ display: 'flex', justifyContent: 'flex-start', mb: 1 }}>
-              <Box sx={{ maxWidth: '75%', bgcolor: '#4caf50', color: '#000', p: 2, borderRadius: '20px', wordWrap: 'break-word' }} aria-live="polite">
+              <Box sx={{ maxWidth: '75%', bgcolor: '#4caf50', color: '#000', p: isMobile ? 1 : 2, borderRadius: '20px', wordWrap: 'break-word' }} aria-live="polite">
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '40px', height: '11px' }}>
                   <Box className="dot-elastic"></Box>
                   <Box className="dot-elastic"></Box>
@@ -208,11 +245,11 @@ const Chat: React.FC<ChatProps> = ({ templeId, templeName, initialMessages, setM
             placeholder="Type your message..."
             aria-label="Message input"
           />
-          <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1 }} aria-label="Send message">
-            <SendIcon />
+          <IconButton onClick={handleSendMessage} disabled={loading} sx={{ borderRadius: '50%', padding: isMobile ? '5px' : '10px', backgroundColor: '#ff5722', color: '#fff', ml: 1 }} aria-label="Send message">
+            <SendIcon sx={{ fontSize: isMobile ? '20px' : '24px' }} />
           </IconButton>
-          <IconButton onClick={handleSpeechInput} sx={{ borderRadius: '50%', padding: '10px', backgroundColor: listening ? '#ff5722' : '#e0e0e0', color: '#fff', ml: 1, animation: listening ? 'pulse 1s infinite' : 'none' }} aria-label="Start voice input">
-            <MicIcon />
+          <IconButton onClick={handleSpeechInput} sx={{ borderRadius: '50%', padding: isMobile ? '5px' : '10px', backgroundColor: listening ? '#ff5722' : '#e0e0e0', color: '#fff', ml: 1, animation: listening ? 'pulse 1s infinite' : 'none' }} aria-label="Start voice input">
+            <MicIcon sx={{ fontSize: isMobile ? '20px' : '24px' }} />
           </IconButton>
         </Box>
       </Box>

@@ -7,6 +7,8 @@ import Stories from '../components/Stories';
 import Chat from '../components/Chat';
 import { styled } from '@mui/system';
 import BackButton from '../components/BackButton'; 
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 interface Temple {
   name: string;
@@ -32,7 +34,7 @@ function TabPanel(props: TabPanelProps) {
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 2 }}>
           {children}
         </Box>
       )}
@@ -59,8 +61,8 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 'bold',
-  minWidth: '160px',  
-  padding: theme.spacing(1, 2),  
+  minWidth: '100px',  
+  padding: theme.spacing(1, 1.5),  
   '&.Mui-selected': {
     color: '#ff5722',
   },
@@ -68,6 +70,11 @@ const StyledTab = styled(Tab)(({ theme }) => ({
     color: '#ff5722',
   },
   transition: 'color 0.3s',
+  [theme.breakpoints.down('sm')]: {
+    minWidth: '90px',
+    fontSize: '0.8rem',
+    padding: theme.spacing(1, 1),
+  },
 }));
 
 const TempleDetail: React.FC = () => {
@@ -78,6 +85,9 @@ const TempleDetail: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [story, setStory] = useState<string>('');
   const [chatMessages, setChatMessages] = useState<{ role: string; text: string, audioUrl? : string }[]>([]);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     if (!templeId) {
@@ -147,10 +157,24 @@ const TempleDetail: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '10px', height: '100vh' }}>
+    <Container 
+      maxWidth="lg" 
+      sx={{ 
+        paddingTop: { xs: '10px', sm: '40px' }, 
+        paddingBottom: { xs: '10px', sm: '20px' }, 
+        height: '100vh',
+        ...(isMobile && { padding: '0px px 20px 10px' })
+      }}
+    >
       <BackButton />
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
-        <StyledTabs value={value} onChange={handleChange} aria-label="temple details tabs" centered>
+        <StyledTabs 
+          value={value} 
+          onChange={handleChange} 
+          aria-label="temple details tabs" 
+          centered
+          sx={isMobile ? { marginBottom: 1 } : {}}
+        >
           <StyledTab label="Stories" id="simple-tab-0" aria-controls="simple-tabpanel-0" />
           <StyledTab label="Chat" id="simple-tab-1" aria-controls="simple-tabpanel-1" />
         </StyledTabs>

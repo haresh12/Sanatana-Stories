@@ -9,6 +9,8 @@ import { httpsCallable } from 'firebase/functions';
 import { functions, db } from '../firebaseConfig';
 import { collection, getDocs, deleteDoc, query, where } from 'firebase/firestore';
 import BackButton from '../components/BackButton';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
@@ -18,6 +20,8 @@ const KnowAboutTemples: React.FC = () => {
   const { temples, loading } = useSelector((state: RootState) => state.temples);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const [showLoader, setShowLoader] = useState<boolean>(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
     const clearPreviousData = async () => {
@@ -59,7 +63,6 @@ const KnowAboutTemples: React.FC = () => {
       localStorage.setItem(`templeWelcomeMessage_${templeId}`, message);
       localStorage.setItem(`templeWelcomeAudio_${templeId}`, audioUrl);
 
-
       navigate(`/temple/${templeId}`);
     } catch (error) {
       console.error('Error fetching welcome message:', error);
@@ -82,7 +85,7 @@ const KnowAboutTemples: React.FC = () => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 textAlign: 'center',
-                padding: '0px',
+                padding: 0,
                 margin: '20px',
                 borderRadius: '15px',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
@@ -126,7 +129,7 @@ const KnowAboutTemples: React.FC = () => {
                     }}
                   />
                   <CardContent sx={{ padding: '16px', textAlign: 'center', width: '100%' }}>
-                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#fff', width: '100%' }}>
+                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', color: '#fff', width: '100%', fontSize: isMobile ? '1.2rem' : '1.5rem' }}>
                       {temple.name}
                     </Typography>
                     <Typography
@@ -137,10 +140,11 @@ const KnowAboutTemples: React.FC = () => {
                         textAlign: 'left',
                         width: '100%',
                         display: '-webkit-box',
-                        WebkitLineClamp: 4,
+                        WebkitLineClamp: isMobile ? 3 : 4,
                         WebkitBoxOrient: 'vertical',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
+                        fontSize: isMobile ? '0.8rem' : '1rem',
                       }}
                     >
                       {truncateDescription(temple.description, 50)}
@@ -161,7 +165,6 @@ const KnowAboutTemples: React.FC = () => {
         </Box>
       </Modal>
     </Container>
-
   );
 };
 
