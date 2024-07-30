@@ -52,5 +52,5 @@
 .moving-border {
   animation: moving-border 2s linear infinite;
   border: 2px solid transparent;
-  border-radius: 15px; /* Match the borderRadius in your JSX */
+  border-radius: 15px;
 }

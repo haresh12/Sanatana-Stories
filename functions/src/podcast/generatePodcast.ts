@@ -43,7 +43,6 @@ async function textToSpeech(text: string, voiceName: string, outputFile: string)
 
   const [response] = await textToSpeechClient.synthesizeSpeech(request);
   fs.writeFileSync(outputFile, response.audioContent as Uint8Array, 'binary');
-  console.log(`Audio content written to file: ${outputFile}`);
 }
 
 async function mergeAudioFiles(audioFiles: string[], outputFile: string, tmpFolder: string) {
