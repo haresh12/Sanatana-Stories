@@ -23,7 +23,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5); /* Adjust the overlay color and opacity as needed */
+  background: rgba(0, 0, 0, 0.5); 
   z-index: 1;
 }
 
@@ -34,5 +34,5 @@ body {
   align-items: center;
   z-index: 2;
   position: relative;
-  min-height: 100vh; /* Ensure it takes full height initially */
+  min-height: 100vh; 
 }
