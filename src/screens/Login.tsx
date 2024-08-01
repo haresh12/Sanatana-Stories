@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider, db } from '../firebaseConfig';
+import { auth, googleProvider, db, remoteConfig } from '../firebaseConfig';
 import { useNavigate, Link } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box, Paper, Avatar, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -13,6 +13,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import WhyThisProduct from '../components/WhyThisProduct';
+import { fetchAndActivate, getValue } from 'firebase/remote-config';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -22,6 +23,7 @@ const Login: React.FC = () => {
     email: '',
     password: ''
   });
+  const [showWhyProduct, setShowWhyProduct] = useState(false); // State to control visibility of the link
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -35,6 +37,20 @@ const Login: React.FC = () => {
       navigate('/dashboard');
     }
   }, [currentUser, navigate]);
+
+  useEffect(() => {
+    const fetchRemoteConfig = async () => {
+      try {
+        await fetchAndActivate(remoteConfig);
+        const showWhyProductConfig = getValue(remoteConfig, 'show_why_product').asBoolean();
+        setShowWhyProduct(showWhyProductConfig);
+      } catch (error) {
+        console.error('Error fetching remote config:', error);
+      }
+    };
+
+    fetchRemoteConfig();
+  }, []);
 
   const validateInputs = () => {
     let valid = true;
@@ -303,25 +319,27 @@ const Login: React.FC = () => {
                 >
                   Don't have an account? Sign Up
                 </Link>
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: '#ff5722',
-                    marginTop: '10px',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                    animation: 'blink 1.5s infinite',
-                    '@keyframes blink': {
-                      '0%': { opacity: 1 },
-                      '50%': { opacity: 0.5 },
-                      '100%': { opacity: 1 },
-                    },
-                    fontSize: isMobile ? '0.8rem' : '1rem',
-                  }}
-                  onClick={handleOpenWhyThisProduct}
-                >
-                  Why this product and its use cases?
-                </Typography>
+                {showWhyProduct && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: '#ff5722',
+                      marginTop: '10px',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                      animation: 'blink 1.5s infinite',
+                      '@keyframes blink': {
+                        '0%': { opacity: 1 },
+                        '50%': { opacity: 0.5 },
+                        '100%': { opacity: 1 },
+                      },
+                      fontSize: isMobile ? '0.8rem' : '1rem',
+                    }}
+                    onClick={handleOpenWhyThisProduct}
+                  >
+                    Why this product and its use cases?
+                  </Typography>
+                )}
               </Box>
             </form>
           </Box>
