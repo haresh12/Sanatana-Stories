@@ -77,8 +77,8 @@ const SummarizeSatsang: React.FC = () => {
   };
 
   const spiritualVideos = [
-    { url: 'https://www.youtube.com/watch?v=_cZa_7KaQ3c', title: 'Spiritual Video 1' },
-    { url: 'https://www.youtube.com/watch?v=lSq3h-_PTVY&t=346s', title: 'Spiritual Video 2' },
+    { url: 'https://www.youtube.com/watch?v=MpbOnKYxjWg', title: 'Spiritual Video 1' },
+    { url: 'https://www.youtube.com/watch?v=Y8O5GdWVjqA', title: 'Spiritual Video 2' },
   ];
 
   const nonSpiritualVideos = [
