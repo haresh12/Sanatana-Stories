@@ -1,72 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Container, Typography, Box, Card, CardContent, CircularProgress, Button, CardActions, Tabs, Tab, Grid, List, ListItem, ListItemText, useMediaQuery } from '@mui/material';
-import { motion, AnimatePresence } from 'framer-motion';
-import { httpsCallable } from 'firebase/functions';
-import { collection, getDocs, onSnapshot } from 'firebase/firestore';
-import { functions, db } from '../firebaseConfig';
+import { Container, Typography, Box, Grid, List, ListItem, ListItemText, CircularProgress, Button, CardContent, CardActions, Tabs, Tab, useMediaQuery } from '@mui/material';
+import { AnimatePresence } from 'framer-motion';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-import { styled } from '@mui/system';
-import BackButton from '../components/BackButton';
-
-interface PodcastSegment {
-  host: string;
-  guest: string;
-}
-
-interface GeneratePodcastResponse {
-  script: PodcastSegment[];
-  audioUrl: string;
-  title: string;
-}
-
-interface Podcast {
-  id: string;
-  script: PodcastSegment[];
-  audioUrl: string;
-  title: string;
-  timestamp: { seconds: number; nanoseconds: number };
-}
-
-const GenerateButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#ff5722',
-  color: '#fff',
-  fontWeight: 'bold',
-  borderRadius: '30px',
-  marginBottom: theme.spacing(4),
-  padding: '10px 30px',
-  fontSize: '16px',
-  '&:hover': {
-    backgroundColor: '#e64a19',
-    transform: 'scale(1.05)',
-  },
-  transition: 'all 0.3s ease',
-}));
-
-const ResultCard = styled(Card)(({ theme }) => ({
-  marginTop: 0,
-  backgroundColor: '#ffe0b2',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-  borderRadius: '20px',
-  padding: '20px',
-}));
-
-const LoadingContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  justifyContent: 'center',
-  alignSelf : 'center',
-  textAlign : 'center',
-  alignItems: 'center',
-  height: '100vh',
-}));
-
-const LoaderMessage = styled(Typography)(({ theme }) => ({
-  color: '#ff5722',
-  fontWeight: 'bold',
-  fontSize: '20px',
-  marginTop: theme.spacing(2),
-}));
+import { RootState } from '../../store';
+import BackButton from '../../components/BackButton';;
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '../../firebaseConfig';
+import { StyledTab, StyledTabs, GenerateButton, ResultCard, LoadingContainer, LoaderMessage } from './styles';
+import { PodcastSegment, GeneratePodcastResponse, Podcast } from './types';
+import { handleGeneratePodcast, handleListenToPodcast, handleStopPodcast } from './utils';
 
 const facts = [
   "Hinduism is the world's oldest religion.",
@@ -91,36 +33,6 @@ const facts = [
   "The concept of Dharma represents duty, righteousness, and moral law."
 ];
 
-const StyledTab = styled(Tab)(({ theme }) => ({
-  fontWeight: 'bold',
-  minWidth: '160px',
-  padding: theme.spacing(1, 2),
-  '&.Mui-selected': {
-    color: '#ff5722',
-  },
-  '&:hover': {
-    color: '#ff5722',
-  },
-  transition: 'color 0.3s',
-}));
-
-const StyledTabs = styled(Tabs)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: '8px',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: 'auto',
-  '& .MuiTabs-indicator': {
-    backgroundColor: '#ff5722',
-    height: '4px',
-    borderRadius: '4px'
-  },
-  '& .MuiTabs-flexContainer': {
-    justifyContent: 'center',
-  },
-  marginBottom: theme.spacing(2)
-}));
-
 const GeneratePodcast: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [script, setScript] = useState<PodcastSegment[]>([]);
@@ -133,7 +45,6 @@ const GeneratePodcast: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const isMobile = useMediaQuery('(max-width:600px)');
-
 
   useEffect(() => {
     if (!currentUser) return;
@@ -165,53 +76,16 @@ const GeneratePodcast: React.FC = () => {
   }, [loading]);
 
   const handleGenerate = async () => {
-    if (!currentUser) {
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const generatePodcast = httpsCallable<{ userId: string }, GeneratePodcastResponse>(functions, 'generatePodcast');
-      const response = await generatePodcast({ userId: currentUser.uid });
-      const data = response.data;
-      setScript(data.script);
-      setAudioUrl(data.audioUrl);
-      setTitle(data.title);
-    } catch (error) {
-    } finally {
-      setLoading(false);
-    }
+    await handleGeneratePodcast(currentUser, setLoading, setScript, setAudioUrl, setTitle);
   };
 
   const handleListen = () => {
-    if (audioUrl) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      audioRef.current = new Audio(audioUrl);
-      audioRef.current.play();
-      setIsPlaying(true);
-      audioRef.current.onended = () => setIsPlaying(false);
-    }
+    handleListenToPodcast(audioUrl, audioRef, setIsPlaying);
   };
 
   const handleStop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-    setIsPlaying(false);
+    handleStopPodcast(audioRef, setIsPlaying);
   };
-
-  useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
-  }, []);
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
@@ -234,8 +108,8 @@ const GeneratePodcast: React.FC = () => {
         alignItems: 'center',
       }}
     >
-      <BackButton/>
-      <Box sx={{ display: 'flex', justifyContent: 'center' , mt : isMobile ? 5 : 0}}>
+      <BackButton />
+      <Box sx={{ display: 'flex', justifyContent: 'center', mt: isMobile ? 5 : 0 }}>
         <StyledTabs value={tabIndex} onChange={handleTabChange} centered aria-label="Podcast Tabs">
           <StyledTab label="Generate Podcast" id="tab-0" aria-controls="tabpanel-0" />
           <StyledTab label="Previous Podcasts" id="tab-1" aria-controls="tabpanel-1" />
@@ -420,7 +294,6 @@ const GeneratePodcast: React.FC = () => {
       </AnimatePresence>
     </Container>
   );
-
 };
 
 export default GeneratePodcast;
