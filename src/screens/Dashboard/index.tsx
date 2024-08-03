@@ -5,19 +5,22 @@ import { TransitionProps } from '@mui/material/transitions';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { getFirestore, doc, onSnapshot } from 'firebase/firestore';
+import { fetchAndActivate, getValue } from 'firebase/remote-config';
 import { httpsCallable } from 'firebase/functions';
-import { functions, auth, remoteConfig } from '../firebaseConfig';
-import { logout } from '../store/authSlice';
-import { reset as resetChalisa } from '../store/chalisaSlice';
+import { functions, auth, remoteConfig } from '../../firebaseConfig';
+import { logout } from '../../store/authSlice';
+import { reset as resetChalisa } from '../../store/chalisaSlice';
 import MahabharatIcon from '@mui/icons-material/MenuBook';
 import HanumanChalisaIcon from '@mui/icons-material/MenuBook';
 import TalkToGodIcon from '@mui/icons-material/EmojiPeople';
 import CommunityIcon from '@mui/icons-material/People';
 import TemplesIcon from '@mui/icons-material/TempleHindu';
 import QuizIcon from '@mui/icons-material/Quiz';
-import { keyframes, styled, useTheme } from '@mui/system';
-import { fetchAndActivate, getValue } from 'firebase/remote-config';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
+import { CardInfo } from './types';
+import { containerStyle, logoutButtonStyle, dialogStyle, cardStyle, cardTitleStyle, cardDescriptionStyle, knowMoreButtonStyle, movingBorder, pulsingShadow } from './styles';
+import { truncateText, fetchDetailedInfo } from './utils';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement<any, any> },
@@ -25,27 +28,6 @@ const Transition = React.forwardRef(function Transition(
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
-
-const movingBorder = keyframes`
-  0%, 100% {
-    border-color: transparent;
-  }
-  50% {
-    border-color: #FFD700; 
-  }
-`;
-
-const pulsingShadow = keyframes`
-  0% {
-    box-shadow: 0 0 10px rgba(255, 179, 0, 0.5);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(255, 179, 0, 1);
-  }
-  100% {
-    box-shadow: 0 0 10px rgba(255, 179, 0, 0.5);
-  }
-`;
 
 const cardAnimation = {
   hover: {
@@ -71,7 +53,7 @@ const quizCardAnimation = {
   },
 };
 
-const defaultCards = [
+const defaultCards: CardInfo[] = [
   {
     title: 'Hanuman Chalisa',
     description: 'Delve into the powerful verses of the Hanuman Chalisa.',
@@ -134,14 +116,12 @@ const defaultCards = [
   {
     title: 'Fun Fact',
     description: 'Discover interesting and lesser-known facts.',
-    icon: null,
     color: '#9575CD',
     key: 'show_fun_fact'
   },
   {
     title: 'Myth',
     description: 'Uncover the myths and legends of Hindu culture.',
-    icon: null,
     color: '#E57373',
     key: 'show_myth'
   },
@@ -154,11 +134,6 @@ const defaultCards = [
     key: 'show_epics_and_puranas'
   }
 ];
-
-const truncateText = (text: string, maxLength: number) => {
-  if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + '...';
-};
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -197,22 +172,6 @@ const Dashboard: React.FC = () => {
     setDetailedOpen(false);
     setDetailedInfo('');
     setFetchingCard(null);
-  };
-
-  const fetchDetailedInfo = async (content: string, type: 'funFact' | 'myth') => {
-    setFetching(true);
-    setFetchingCard(type);
-    try {
-      const getDetailedInfo = httpsCallable<{ content: string, type: 'funFact' | 'myth' }, { detailedInfo: string }>(functions, 'getDetailedInfo');
-      const response = await getDetailedInfo({ content, type });
-      const data = response.data as { detailedInfo: string };
-      setDetailedInfo(data.detailedInfo);
-      setDetailedOpen(true);
-    } catch (error) {
-      console.error('Error fetching detailed information:', error);
-    } finally {
-      setFetching(false);
-    }
   };
 
   useEffect(() => {
@@ -274,11 +233,7 @@ const Dashboard: React.FC = () => {
     <Container
       component="main"
       maxWidth="lg"
-      sx={{
-        paddingTop: isMobile ? '20px' : '40px',
-        paddingBottom: isMobile ? '20px' : '40px',
-        position: 'relative',
-      }}
+      sx={containerStyle}
       role="main"
     >
       <Box
@@ -292,18 +247,7 @@ const Dashboard: React.FC = () => {
         <Button
           variant="contained"
           onClick={handleClickOpen}
-          sx={{
-            backgroundColor: '#ff5722',
-            color: '#fff',
-            fontWeight: 'bold',
-            padding: isMobile ? '5px 10px' : '10px 20px',
-            borderRadius: '25px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            transition: 'all 0.3s ease',
-            '&:hover': {
-              backgroundColor: '#e64a19',
-            },
-          }}
+          sx={logoutButtonStyle}
           aria-label="Logout"
         >
           Logout
@@ -317,15 +261,7 @@ const Dashboard: React.FC = () => {
         onClose={handleClose}
         aria-labelledby="alert-dialog-slide-title"
         aria-describedby="alert-dialog-slide-description"
-        sx={{
-          '& .MuiDialog-paper': {
-            backgroundColor: '#fff',
-            color: '#333',
-            borderRadius: '15px',
-            padding: '20px',
-            boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-          },
-        }}
+        sx={dialogStyle}
       >
         <DialogTitle id="alert-dialog-slide-title">Logout Confirmation</DialogTitle>
         <DialogContent>
@@ -354,15 +290,7 @@ const Dashboard: React.FC = () => {
         onClose={handleDetailedClose}
         aria-labelledby="detailed-dialog-title"
         aria-describedby="detailed-dialog-description"
-        sx={{
-          '& .MuiDialog-paper': {
-            backgroundColor: '#fff',
-            color: '#333',
-            borderRadius: '15px',
-            padding: '20px',
-            boxShadow: '0 8px 16px rgba(0,0,0,0.2)',
-          },
-        }}
+        sx={dialogStyle}
       >
         <DialogTitle id="detailed-dialog-title">Detailed Information</DialogTitle>
         <DialogContent>
@@ -409,26 +337,7 @@ const Dashboard: React.FC = () => {
               }}
             >
               <Card
-                sx={{
-                  backgroundColor: card.color,
-                  boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-                  height: isMobile ? '180px' : '220px',
-                  width: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  padding: isMobile ? '10px' : '20px',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  borderRadius: '15px',
-                  border: (card.title === 'Fun Fact' && animateFunFact) || (card.title === 'Myth' && animateMyth)
-                    ? `2px solid transparent`
-                    : 'none',
-                  animation: (card.title === 'Fun Fact' && animateFunFact) || (card.title === 'Myth' && animateMyth)
-                    ? `${movingBorder} 2s linear`
-                    : 'none',
-                }}
+                sx={cardStyle(card, isMobile, animateFunFact, animateMyth)}
               >
                 <CardContent>
                   <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
@@ -437,10 +346,10 @@ const Dashboard: React.FC = () => {
                         {card.icon}
                       </Avatar>
                     ) : null}
-                    <Typography variant="h5" component="div" sx={{ fontWeight: 'bold', marginTop: isMobile ? '10px' : '20px', color: '#fff' }}>
+                    <Typography variant="h5" component="div" sx={cardTitleStyle}>
                       {card.title}
                     </Typography>
-                    <Typography variant="body2" sx={{ marginTop: '10px', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
+                    <Typography variant="body2" sx={cardDescriptionStyle}>
                       {card.title === 'Fun Fact' ? truncateText(funFact, 300) : card.title === 'Myth' ? truncateText(myth, 300) : card.description}
                     </Typography>
                     {(card.title === 'Fun Fact' || card.title === 'Myth') && (
@@ -448,8 +357,8 @@ const Dashboard: React.FC = () => {
                         <hr style={{ width: '100%', borderColor: '#fff', marginBottom: '5px' }} />
                         <Button
                           variant="text"
-                          sx={{ color: '#fff', fontWeight: 'bold', padding: '5px 10px' }}
-                          onClick={() => fetchDetailedInfo(card.title === 'Fun Fact' ? funFact : myth, card.title.toLowerCase() as 'funFact' | 'myth')}
+                          sx={knowMoreButtonStyle}
+                          onClick={() => fetchDetailedInfo(card.title === 'Fun Fact' ? funFact : myth, card.title.toLowerCase() as 'funFact' | 'myth', setDetailedInfo, setDetailedOpen, setFetching)}
                           disabled={fetching && fetchingCard === card.title.toLowerCase()}
                           aria-label={`Know more about ${card.title}`}
                         >

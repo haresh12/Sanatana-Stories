@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
-import { auth, googleProvider, db, remoteConfig } from '../firebaseConfig';
-import { useNavigate, Link } from 'react-router-dom';
+import { auth, googleProvider, db, remoteConfig } from '../../firebaseConfig';
+import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Container, Typography, Box, Paper, Avatar, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import GoogleIcon from '@mui/icons-material/Google';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../store/authSlice';
-import { RootState } from '../store';
+import { setUser } from '../../store/authSlice';
+import { RootState } from '../../store';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
-import WhyThisProduct from '../components/WhyThisProduct';
+import WhyThisProduct from '../../components/WhyThisProduct';
 import { fetchAndActivate, getValue } from 'firebase/remote-config';
+import {
+  containerStyle,
+  paperStyle,
+  avatarStyle,
+  typographyStyle,
+  buttonStyle,
+  textFieldStyle,
+  linkStyle,
+  whyProductTextStyle,
+  StyledRouterLink,
+} from './styles';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -21,9 +32,9 @@ const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState({
     email: '',
-    password: ''
+    password: '',
   });
-  const [showWhyProduct, setShowWhyProduct] = useState(false); // State to control visibility of the link
+  const [showWhyProduct, setShowWhyProduct] = useState(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -56,7 +67,7 @@ const Login: React.FC = () => {
     let valid = true;
     const errors = {
       email: '',
-      password: ''
+      password: '',
     };
 
     if (!email) {
@@ -98,16 +109,14 @@ const Login: React.FC = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Check if user exists in Firestore
       const userDoc = doc(db, 'users', user.uid);
       const userDocSnapshot = await getDoc(userDoc);
 
       if (!userDocSnapshot.exists()) {
-        // Add user to Firestore if they don't exist
         await setDoc(userDoc, {
           uid: user.uid,
           email: user.email,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         });
       }
 
@@ -144,29 +153,14 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Container
-      component="main"
-      maxWidth="xs"
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '100vh',
-        padding: isMobile ? '10px' : '20px',
-      }}
-    >
+    <Container component="main" maxWidth="xs" sx={{ ...containerStyle, padding: isMobile ? '10px' : '20px' }}>
       <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
-        <Paper
-          elevation={10}
-          component="section"
-          sx={{ padding: isMobile ? '20px' : '30px', borderRadius: '20px', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
-        >
+        <Paper elevation={10} component="section" sx={paperStyle(isMobile)}>
           <Box display="flex" flexDirection="column" alignItems="center">
-            <Avatar sx={{ margin: '10px', backgroundColor: '#ff5722', width: isMobile ? 40 : 56, height: isMobile ? 40 : 56 }}>
+            <Avatar sx={avatarStyle(isMobile)}>
               <LockOutlinedIcon aria-hidden="true" sx={{ fontSize: isMobile ? 20 : 24 }} />
             </Avatar>
-            <Typography component="h1" variant="h5" sx={{ color: '#ff5722', fontSize: isMobile ? '1.2rem' : '1.5rem' }}>
+            <Typography component="h1" variant="h5" sx={typographyStyle(isMobile)}>
               Login
             </Typography>
             {error && (
@@ -189,31 +183,8 @@ const Login: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 error={!!validationErrors.email}
                 helperText={validationErrors.email}
-                InputProps={{
-                  style: {
-                    color: '#000',
-                  },
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                  },
-                  '& .MuiInputLabel-outlined': {
-                    color: '#ff5722',
-                  },
-                  '& .MuiInputLabel-outlined.Mui-focused': {
-                    color: '#ff5722',
-                  },
-                  fontSize: isMobile ? '0.8rem' : '1rem',
-                }}
+                InputProps={{ style: { color: '#000' } }}
+                sx={textFieldStyle(isMobile)}
                 aria-describedby="email-helper-text"
               />
               <TextField
@@ -230,52 +201,12 @@ const Login: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 error={!!validationErrors.password}
                 helperText={validationErrors.password}
-                InputProps={{
-                  style: {
-                    color: '#000',
-                  },
-                }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '& fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&:hover fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: '#ff5722',
-                    },
-                  },
-                  '& .MuiInputLabel-outlined': {
-                    color: '#ff5722',
-                  },
-                  '& .MuiInputLabel-outlined.Mui-focused': {
-                    color: '#ff5722',
-                  },
-                  fontSize: isMobile ? '0.8rem' : '1rem',
-                }}
+                InputProps={{ style: { color: '#000' } }}
+                sx={textFieldStyle(isMobile)}
                 aria-describedby="password-helper-text"
               />
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%' }}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  fullWidth
-                  sx={{
-                    marginTop: '20px',
-                    backgroundColor: '#ff5722',
-                    color: '#fff',
-                    borderRadius: '50px',
-                    padding: isMobile ? '8px 0' : '10px 0',
-                    fontSize: isMobile ? '0.9rem' : '1rem',
-                    textTransform: 'none',
-                    '&:focus': {
-                      outline: '2px solid #ff5722',
-                      outlineOffset: '2px',
-                    },
-                  }}
-                >
+                <Button type="submit" variant="contained" fullWidth sx={buttonStyle(isMobile)}>
                   Login
                 </Button>
               </motion.div>
@@ -289,54 +220,16 @@ const Login: React.FC = () => {
                     fullWidth
                     startIcon={<GoogleIcon aria-hidden="true" />}
                     onClick={handleGoogleLogin}
-                    sx={{
-                      borderColor: '#ff5722',
-                      color: '#ff5722',
-                      borderRadius: '50px',
-                      padding: isMobile ? '8px 0' : '10px 0',
-                      fontSize: isMobile ? '0.9rem' : '1rem',
-                      textTransform: 'none',
-                      '&:focus': {
-                        outline: '2px solid #ff5722',
-                        outlineOffset: '2px',
-                      },
-                    }}
+                    sx={buttonStyle(isMobile)}
                   >
                     Login with Google
                   </Button>
                 </motion.div>
-                <Link
-                  to="/signup"
-                  style={{
-                    textDecoration: 'none',
-                    color: '#ff5722',
-                    marginTop: '20px',
-                    display: 'block',
-                    textAlign: 'center',
-                    fontSize: isMobile ? '0.8rem' : '1rem',
-                  }}
-                  aria-label="Don't have an account? Sign Up"
-                >
+                <StyledRouterLink to="/signup" sx={linkStyle(isMobile)} aria-label="Don't have an account? Sign Up">
                   Don't have an account? Sign Up
-                </Link>
+                </StyledRouterLink>
                 {showWhyProduct && (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: '#ff5722',
-                      marginTop: '10px',
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                      animation: 'blink 1.5s infinite',
-                      '@keyframes blink': {
-                        '0%': { opacity: 1 },
-                        '50%': { opacity: 0.5 },
-                        '100%': { opacity: 1 },
-                      },
-                      fontSize: isMobile ? '0.8rem' : '1rem',
-                    }}
-                    onClick={handleOpenWhyThisProduct}
-                  >
+                  <Typography sx={whyProductTextStyle(isMobile)} onClick={handleOpenWhyThisProduct}>
                     Why this product and its use cases?
                   </Typography>
                 )}
