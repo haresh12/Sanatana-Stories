@@ -1,11 +1,11 @@
 import React, { useState, MouseEvent } from 'react';
-import { Container, Typography, Popover, Button, CircularProgress, Card, CardContent, Box, Tabs, Tab } from '@mui/material';
+import { Container, Typography, Popover, Button, CircularProgress, Card, CardContent, Box } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../store';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../firebaseConfig';
-import { saveMeaning, clearMeaning } from '../store/chalisaSlice';
-import { styled } from '@mui/system';
+import { RootState, AppDispatch } from '../../store';
+import { saveMeaning, clearMeaning } from '../../store/chalisaSlice';
+import { StyledTabs, StyledTab, highlightText } from './styles';
+import { fetchMeaning } from './utils';
+
 
 const hanumanChalisaHindi = `
 ॥ श्री हनुमान चालीसा ॥
@@ -273,21 +273,6 @@ Pavanasuta sankata harana, mangala murati rupa।
 Rama Lakhan Sita sahita, hridaya basahu sura bhupa॥
 `;
 
-const StyledTabs = styled(Tabs)(({ theme }) => ({
-  backgroundColor: '#ffffffcc',
-  borderRadius: '8px',
-  padding: '5px',
-  marginBottom: '20px',
-}));
-
-const StyledTab = styled(Tab)(({ theme }) => ({
-  fontWeight: 'bold',
-  '&.Mui-selected': {
-    backgroundColor: '#ff5722',
-    color: '#fff',
-  },
-}));
-
 const UnderstandAndSaveMeanings: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const savedWords = useSelector((state: RootState) => state.chalisa.savedMeanings);
@@ -314,10 +299,9 @@ const UnderstandAndSaveMeanings: React.FC = () => {
 
   const handleKnowMeaning = async () => {
     setLoading(true);
-    const getMeaning = httpsCallable<{ text: string }, { meaning: string }>(functions, 'getMeaning');
     try {
-      const response = await getMeaning({ text: selectedText });
-      setMeaning(response.data.meaning);
+      const meaning = await fetchMeaning(selectedText);
+      setMeaning(meaning);
     } catch (error) {
       console.error('Error fetching meaning:', error);
       setMeaning('Unable to fetch meaning at the moment.');
@@ -344,15 +328,6 @@ const UnderstandAndSaveMeanings: React.FC = () => {
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
 
-  const highlightText = (text: string) => {
-    let highlightedText = text;
-    Object.keys(savedWords).forEach((savedWord) => {
-      const regex = new RegExp(`(${savedWord})`, 'gi');
-      highlightedText = highlightedText.replace(regex, `<span style="color: green; font-weight: bold;">$1</span>`);
-    });
-    return highlightedText;
-  };
-
   const handleLanguageToggle = (event: React.ChangeEvent<{}>, newLanguage: 'hindi' | 'english') => {
     setLanguage(newLanguage);
   };
@@ -366,7 +341,7 @@ const UnderstandAndSaveMeanings: React.FC = () => {
               key={lineIndex}
               variant="body1"
               sx={{ color: '#000', fontSize: '18px', lineHeight: 1.6 }}
-              dangerouslySetInnerHTML={{ __html: highlightText(line) }}
+              dangerouslySetInnerHTML={{ __html: highlightText(line, savedWords) }}
             />
           ))}
         </CardContent>

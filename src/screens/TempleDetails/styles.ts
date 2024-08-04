@@ -20,8 +20,8 @@ export const StyledTabs = styled(Tabs)(({ theme }) => ({
 
 export const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 'bold',
-  minWidth: '100px',  
-  padding: theme.spacing(1, 1.5),  
+  minWidth: '160px',  
+  padding: theme.spacing(1, 2),  
   '&.Mui-selected': {
     color: '#ff5722',
   },
@@ -29,9 +29,4 @@ export const StyledTab = styled(Tab)(({ theme }) => ({
     color: '#ff5722',
   },
   transition: 'color 0.3s',
-  [theme.breakpoints.down('sm')]: {
-    minWidth: '90px',
-    fontSize: '0.8rem',
-    padding: theme.spacing(1, 1),
-  },
 }));
