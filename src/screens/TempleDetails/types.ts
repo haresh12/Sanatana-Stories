@@ -3,3 +3,9 @@ export interface Temple {
   description: string;
   image: string;
 }
+
+export interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}

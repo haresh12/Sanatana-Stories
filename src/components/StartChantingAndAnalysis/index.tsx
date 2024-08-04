@@ -1,13 +1,8 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Container, Typography, Button, Card, CardContent, Box, Snackbar, Alert } from '@mui/material';
-import { httpsCallable } from 'firebase/functions';
-import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
-
-interface AnalysisResponse {
-  analysisText: string;
-  score: number;
-}
+import { fetchAnalysis } from './utils';
+import { cardStyle, buttonStyle, cardContentStyle, analysisBoxStyle } from './styles';
 
 const StartChantingAndAnalysis: React.FC = () => {
   const [listening, setListening] = useState(false);
@@ -51,7 +46,7 @@ const StartChantingAndAnalysis: React.FC = () => {
 
     recognition.onend = () => {
       setListening(false);
-      setTranscript(accumulatedTranscriptRef.current); // Set the final transcript
+      setTranscript(accumulatedTranscriptRef.current);  
     };
 
     recognition.start();
@@ -70,7 +65,7 @@ const StartChantingAndAnalysis: React.FC = () => {
     setAnalysis(null);
     setScore(null);
     setTimestamp(null);
-    accumulatedTranscriptRef.current = ''; // Reset accumulated transcript
+    accumulatedTranscriptRef.current = '';  
     startListening();
   };
 
@@ -78,10 +73,9 @@ const StartChantingAndAnalysis: React.FC = () => {
     stopListening();
     setLoading(true);
     try {
-      const analyzeChanting = httpsCallable<{ transcript: string }, AnalysisResponse>(functions, 'analyzeChanting');
-      const response = await analyzeChanting({ transcript: accumulatedTranscriptRef.current });
-      const analysisResult = response.data.analysisText;
-      const analysisScore = response.data.score;
+      const response = await fetchAnalysis(accumulatedTranscriptRef.current);
+      const analysisResult = response.analysisText;
+      const analysisScore = response.score;
       const currentTimestamp = new Date().toISOString();
 
       setAnalysis(analysisResult);
@@ -104,9 +98,9 @@ const StartChantingAndAnalysis: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-        <Card sx={{ marginBottom: '20px', backgroundColor: '#e0f7fa', borderRadius: '15px', padding: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
+        <Card sx={cardStyle}>
           <CardContent>
-            <Typography variant="h6" align="center" gutterBottom sx={{ color: '#00796b' }}>
+            <Typography variant="h6" align="center" gutterBottom sx={cardContentStyle}>
               Start chanting the Hanuman Chalisa, and we'll analyze your performance. Click the button below to begin.
             </Typography>
           </CardContent>
@@ -118,16 +112,7 @@ const StartChantingAndAnalysis: React.FC = () => {
             <Button
               onClick={handleChantingStart}
               variant="contained"
-              color="primary"
-              sx={{
-                backgroundColor: '#ff5722',
-                '&:hover': { backgroundColor: '#e64a19' },
-                borderRadius: '25px',
-                padding: '10px 20px',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                transition: 'all 0.3s ease',
-              }}
+              sx={{ ...buttonStyle, backgroundColor: '#ff5722', '&:hover': { backgroundColor: '#e64a19' } }}
               disabled={loading}
               aria-label="Start chanting"
             >
@@ -139,16 +124,7 @@ const StartChantingAndAnalysis: React.FC = () => {
             <Button
               onClick={handleChantingStop}
               variant="contained"
-              color="secondary"
-              sx={{
-                backgroundColor: '#f44336',
-                '&:hover': { backgroundColor: '#d32f2f' },
-                borderRadius: '25px',
-                padding: '10px 20px',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                transition: 'all 0.3s ease',
-              }}
+              sx={{ ...buttonStyle, backgroundColor: '#f44336', '&:hover': { backgroundColor: '#d32f2f' } }}
               aria-label="Stop chanting"
             >
               Stop Chanting
@@ -158,7 +134,7 @@ const StartChantingAndAnalysis: React.FC = () => {
       </Box>
       {transcript && (
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Card sx={{ backgroundColor: '#fff3e0', borderRadius: '15px', padding: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}>
+          <Card sx={{ ...cardStyle, backgroundColor: '#fff3e0' }}>
             <CardContent>
               <Typography variant="body1" sx={{ color: '#000', fontSize: '18px', lineHeight: 1.6 }}>
                 {transcript}
@@ -174,26 +150,12 @@ const StartChantingAndAnalysis: React.FC = () => {
       )}
       {analysis && (
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-          <Card sx={{ backgroundColor: '#e0f2f1', borderRadius: '15px', padding: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.2)', marginTop: '20px' }}>
+          <Card sx={{ ...cardStyle, backgroundColor: '#e0f2f1', marginTop: '20px' }}>
             <CardContent>
               <Typography variant="h6" sx={{ color: '#00796b', marginBottom: '10px' }}>
                 Analysis:
               </Typography>
-              <Box
-                sx={{
-                  fontSize: '16px',
-                  lineHeight: 1.5,
-                  '& ul': {
-                    listStyleType: 'disc',
-                    paddingInlineStart: '20px',
-                  },
-                  '& li': {
-                    marginBottom: '10px',
-                  },
-                }}
-                dangerouslySetInnerHTML={{ __html: analysis }}
-                aria-label="Analysis result"
-              />
+              <Box sx={analysisBoxStyle} dangerouslySetInnerHTML={{ __html: analysis }} aria-label="Analysis result" />
               {score !== null && (
                 <Typography variant="h6" sx={{ color: '#00796b', marginTop: '10px' }}>
                   Score: {score}/10

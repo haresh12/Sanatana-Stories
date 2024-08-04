@@ -1,3 +1,4 @@
+// index.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Box, Typography, CircularProgress } from '@mui/material';
@@ -5,12 +6,28 @@ import { db } from '../../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import Stories from '../../components/Stories';
 import Chat from '../../components/Chat';
-import BackButton from '../../components/BackButton';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+import BackButton from '../../components/BackButton'; 
 import { StyledTabs, StyledTab } from './styles';
-import TabPanel from './TabPanel';
-import { Temple } from './types';
+import { Temple, TabPanelProps } from './types';
+
+function TabPanel(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      {...other}
+    >
+      {value === index && (
+        <Box sx={{ p: 3 }}>
+          {children}
+        </Box>
+      )}
+    </div>
+  );
+}
 
 const TempleDetail: React.FC = () => {
   const { templeId } = useParams<{ templeId: string }>();
@@ -19,10 +36,7 @@ const TempleDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [story, setStory] = useState<string>('');
-  const [chatMessages, setChatMessages] = useState<{ role: string; text: string, audioUrl?: string }[]>([]);
-
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [chatMessages, setChatMessages] = useState<{ role: string; text: string }[]>([]);
 
   useEffect(() => {
     if (!templeId) {
@@ -56,10 +70,8 @@ const TempleDetail: React.FC = () => {
 
   useEffect(() => {
     const welcomeMessage = localStorage.getItem(`templeWelcomeMessage_${templeId}`);
-    const audioUrl = localStorage.getItem(`templeWelcomeAudio_${templeId}`);
-
     if (welcomeMessage) {
-      setChatMessages([{ role: 'model', text: welcomeMessage, audioUrl: `${audioUrl}` }]);
+      setChatMessages([{ role: 'model', text: welcomeMessage }]);
     }
   }, [templeId]);
 
@@ -92,26 +104,12 @@ const TempleDetail: React.FC = () => {
   }
 
   return (
-    <Container 
-      maxWidth="lg" 
-      sx={{ 
-        paddingTop: { xs: '10px', sm: '40px' }, 
-        paddingBottom: { xs: '10px', sm: '20px' }, 
-        height: '100vh',
-        ...(isMobile && { padding: '0px px 20px 10px' })
-      }}
-    >
+    <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '10px', height: '100vh' }}>
       <BackButton />
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
-        <StyledTabs 
-          value={value} 
-          onChange={handleChange} 
-          aria-label="temple details tabs" 
-          centered
-          sx={isMobile ? { marginBottom: 1 } : {}}
-        >
-          <StyledTab label="Stories" id="simple-tab-0" aria-controls="simple-tabpanel-0" />
-          <StyledTab label="Chat" id="simple-tab-1" aria-controls="simple-tabpanel-1" />
+        <StyledTabs value={value} onChange={handleChange} aria-label="temple details tabs" centered>
+          <StyledTab label="Stories" />
+          <StyledTab label="Chat" />
         </StyledTabs>
       </Box>
       <Box sx={{ flexGrow: 1 }}>
