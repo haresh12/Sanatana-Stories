@@ -1,81 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Container, Box, Tabs, Tab, Typography, CircularProgress } from '@mui/material';
-import { db } from '../firebaseConfig';
+import { Container, Box, Typography, CircularProgress } from '@mui/material';
+import { db } from '../../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import Stories from '../components/Stories';
-import Chat from '../components/Chat';
-import { styled } from '@mui/system';
-import BackButton from '../components/BackButton'; 
-import useMediaQuery from '@mui/material/useMediaQuery';
+import Stories from '../../components/Stories';
+import Chat from '../../components/Chat';
+import BackButton from '../../components/BackButton';
 import { useTheme } from '@mui/material/styles';
-
-interface Temple {
-  name: string;
-  description: string;
-  image: string;
-}
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 2 }}>
-          {children}
-        </Box>
-      )}
-    </div>
-  );
-}
-
-const StyledTabs = styled(Tabs)(({ theme }) => ({
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: '8px',
-  justifyContent: 'center',
-  alignItems: 'center',
-  width: 'auto',
-  '& .MuiTabs-indicator': {
-    backgroundColor: '#ff5722',
-    height: '4px',
-    borderRadius: '4px'
-  },
-  '& .MuiTabs-flexContainer': {
-    justifyContent: 'center',
-  },
-  marginBottom: theme.spacing(2)
-}));
-
-const StyledTab = styled(Tab)(({ theme }) => ({
-  fontWeight: 'bold',
-  minWidth: '100px',  
-  padding: theme.spacing(1, 1.5),  
-  '&.Mui-selected': {
-    color: '#ff5722',
-  },
-  '&:hover': {
-    color: '#ff5722',
-  },
-  transition: 'color 0.3s',
-  [theme.breakpoints.down('sm')]: {
-    minWidth: '90px',
-    fontSize: '0.8rem',
-    padding: theme.spacing(1, 1),
-  },
-}));
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { StyledTabs, StyledTab } from './styles';
+import TabPanel from './TabPanel';
+import { Temple } from './types';
 
 const TempleDetail: React.FC = () => {
   const { templeId } = useParams<{ templeId: string }>();
@@ -84,7 +19,7 @@ const TempleDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [story, setStory] = useState<string>('');
-  const [chatMessages, setChatMessages] = useState<{ role: string; text: string, audioUrl? : string }[]>([]);
+  const [chatMessages, setChatMessages] = useState<{ role: string; text: string, audioUrl?: string }[]>([]);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));

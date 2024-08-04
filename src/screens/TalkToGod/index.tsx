@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Grid, Card, CardContent, Typography, Avatar, Box, Modal, CircularProgress } from '@mui/material';
-import { db } from '../firebaseConfig';
+import { db, functions } from '../../firebaseConfig';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
-import { God } from '../types/God';
+import { God } from '../../types/God';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store';
-import { setGodName, setMessages, setGods } from '../store/chatSlice';
+import { RootState } from '../../store';
+import { setGodName, setMessages, setGods } from '../../store/chatSlice';
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../firebaseConfig';
 import { motion } from 'framer-motion';
-import BackButton from '../components/BackButton';
+import BackButton from '../../components/BackButton';
 
 const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
 
