@@ -25,9 +25,11 @@ export const fetchDetailedInfo = async (
   type: 'funFact' | 'myth',
   setDetailedInfo: (info: string) => void,
   setDetailedOpen: (open: boolean) => void,
-  setFetching: (fetching: boolean) => void
+  setFetching: (fetching: boolean) => void,
+  setFetchingCard: (fetchingCard: 'funFact' | 'myth' | null) => void
 ): Promise<void> => {
   setFetching(true);
+  setFetchingCard(type);
   try {
     const getDetailedInfo = httpsCallable<{ content: string, type: 'funFact' | 'myth' }, { detailedInfo: string }>(functions, 'getDetailedInfo');
     const response = await getDetailedInfo({ content, type });
@@ -38,5 +40,6 @@ export const fetchDetailedInfo = async (
     console.error('Error fetching detailed information:', error);
   } finally {
     setFetching(false);
+    setFetchingCard(null);
   }
 };
