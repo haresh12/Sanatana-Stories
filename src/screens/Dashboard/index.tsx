@@ -295,7 +295,15 @@ const Dashboard: React.FC = () => {
         <DialogTitle id="detailed-dialog-title">Detailed Information</DialogTitle>
         <DialogContent>
           <DialogContentText id="detailed-dialog-description">
-            {fetching ? 'Fetching...' : detailedInfo}
+            {fetching ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                <Box className="dot-elastic" />
+                <Box className="dot-elastic" />
+                <Box className="dot-elastic" />
+              </Box>
+            ) : (
+              detailedInfo
+            )}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -358,7 +366,7 @@ const Dashboard: React.FC = () => {
                         <Button
                           variant="text"
                           sx={knowMoreButtonStyle}
-                          onClick={() => fetchDetailedInfo(card.title === 'Fun Fact' ? funFact : myth, card.title.toLowerCase() as 'funFact' | 'myth', setDetailedInfo, setDetailedOpen, setFetching)}
+                          onClick={() => fetchDetailedInfo(card.title === 'Fun Fact' ? funFact : myth, card.title.toLowerCase() as 'funFact' | 'myth', setDetailedInfo, setDetailedOpen, setFetching, setFetchingCard)}
                           disabled={fetching && fetchingCard === card.title.toLowerCase()}
                           aria-label={`Know more about ${card.title}`}
                         >
@@ -373,6 +381,37 @@ const Dashboard: React.FC = () => {
           </Grid>
         ))}
       </Grid>
+      <style>
+        {`
+          @keyframes dotElastic {
+            0% {
+              transform: scale(1);
+            }
+            50% {
+              transform: scale(1.5);
+            }
+            100% {
+              transform: scale(1);
+            }
+          }
+          .dot-elastic {
+            width: 8px;
+            height: 8px;
+            background-color: #fff;
+            border-radius: 50%;
+            animation: dotElastic 0.6s infinite;
+          }
+          .dot-elastic:nth-of-type(1) {
+            animation-delay: 0s;
+          }
+          .dot-elastic:nth-of-type(2) {
+            animation-delay: 0.1s;
+          }
+          .dot-elastic:nth-of-type(3) {
+            animation-delay: 0.2s;
+          }
+        `}
+      </style>
     </Container>
   );
 };
