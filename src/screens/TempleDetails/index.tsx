@@ -1,4 +1,3 @@
-// index.tsx
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Box, Typography, CircularProgress } from '@mui/material';
@@ -8,7 +7,8 @@ import Stories from '../../components/Stories';
 import Chat from '../../components/Chat';
 import BackButton from '../../components/BackButton'; 
 import { StyledTabs, StyledTab } from './styles';
-import { Temple, TabPanelProps } from './types';
+import { Temple, TabPanelProps,ChatMessage } from './types';
+import { STRINGS } from '../../const/strings';
 
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -36,11 +36,11 @@ const TempleDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [story, setStory] = useState<string>('');
-  const [chatMessages, setChatMessages] = useState<{ role: string; text: string }[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
     if (!templeId) {
-      setError("No temple ID provided");
+      setError(STRINGS.noTempleId);
       setLoading(false);
       return;
     }
@@ -51,7 +51,7 @@ const TempleDetail: React.FC = () => {
         const templeDoc = await getDoc(templeRef);
 
         if (!templeDoc.exists()) {
-          setError("Temple not found");
+          setError(STRINGS.templeNotFound);
           setLoading(false);
           return;
         }
@@ -59,7 +59,7 @@ const TempleDetail: React.FC = () => {
         setTemple(templeDoc.data() as Temple);
       } catch (error) {
         console.error('Error fetching temple:', error);
-        setError('Error fetching temple details');
+        setError(STRINGS.errorFetchingTemple);
       } finally {
         setLoading(false);
       }
@@ -70,8 +70,10 @@ const TempleDetail: React.FC = () => {
 
   useEffect(() => {
     const welcomeMessage = localStorage.getItem(`templeWelcomeMessage_${templeId}`);
+    const templeWelcomeAudio = localStorage.getItem(`templeWelcomeAudio_${templeId}`);
+
     if (welcomeMessage) {
-      setChatMessages([{ role: 'model', text: welcomeMessage }]);
+      setChatMessages([{ role: 'model', text: welcomeMessage, audioUrl : `${templeWelcomeAudio}` }]);
     }
   }, [templeId]);
 
@@ -107,9 +109,9 @@ const TempleDetail: React.FC = () => {
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '10px', height: '100vh' }}>
       <BackButton />
       <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center' }}>
-        <StyledTabs value={value} onChange={handleChange} aria-label="temple details tabs" centered>
-          <StyledTab label="Stories" />
-          <StyledTab label="Chat" />
+        <StyledTabs value={value} onChange={handleChange} aria-label={STRINGS.templeDetailsTabs} centered>
+          <StyledTab label={STRINGS.storiesTab} />
+          <StyledTab label={STRINGS.chatTab} />
         </StyledTabs>
       </Box>
       <Box sx={{ flexGrow: 1 }}>

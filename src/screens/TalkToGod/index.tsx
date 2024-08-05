@@ -10,8 +10,8 @@ import { setGodName, setMessages, setGods } from '../../store/chatSlice';
 import { httpsCallable } from 'firebase/functions';
 import { motion } from 'framer-motion';
 import BackButton from '../../components/BackButton';
-
-const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
+import { STRINGS } from '../../const/strings';
+import { colors } from '../../const/consts';
 
 const cardVariants = {
   hidden: { opacity: 0, y: 50 },
@@ -67,7 +67,7 @@ const TalkToGod = () => {
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
       <BackButton />
       <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '40px', fontWeight: 'bold', color: '#ff5722' }}>
-        Talk to Your God
+        {STRINGS.talkToYourGod}
       </Typography>
       <Grid container spacing={4} justifyContent="center">
         {gods.map((god, index) => (
@@ -101,7 +101,7 @@ const TalkToGod = () => {
                 }}
                 tabIndex={0}
                 role="button"
-                aria-label={`Talk to ${god.name}`}
+                aria-label={`Talk to ${STRINGS.godName}: ${god.name}`}
               >
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
@@ -158,7 +158,7 @@ const TalkToGod = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <CircularProgress color='success' />
           <Typography variant="h6" sx={{ color: '#fff', mt: 2 }}>
-            Initiating chat...
+            {STRINGS.initiatingChat}
           </Typography>
         </Box>
       </Modal>

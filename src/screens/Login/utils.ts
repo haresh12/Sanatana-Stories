@@ -3,6 +3,7 @@ import { auth, googleProvider, db } from '../../firebaseConfig';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { setUser } from '../../store/authSlice';
 import { Dispatch } from 'react';
+import { STRINGS } from '../../const/strings';
 
 /**
  * Handles Firebase authentication errors and sets the appropriate error message.
@@ -10,17 +11,17 @@ import { Dispatch } from 'react';
  * @param {(error: string | null) => void} setError - Function to set the error message.
  */
 export const handleFirebaseError = (error: any, setError: (error: string | null) => void) => {
-  let errorMessage = 'An unknown error occurred. Please try again.';
+  let errorMessage = STRINGS.errorUnknown;
   if (error.code === 'auth/user-not-found') {
-    errorMessage = 'No user found with this email. Please sign up first.';
+    errorMessage = STRINGS.errorUserNotFound;
   } else if (error.code === 'auth/wrong-password') {
-    errorMessage = 'Incorrect password. Please try again.';
+    errorMessage = STRINGS.errorWrongPassword;
   } else if (error.code === 'auth/invalid-email') {
-    errorMessage = 'The email address is not valid.';
+    errorMessage = STRINGS.errorInvalidEmail;
   } else if (error.code === 'auth/popup-closed-by-user') {
-    errorMessage = 'The Google sign-in popup was closed before completing the sign-in. Please try again.';
+    errorMessage = STRINGS.errorPopupClosed;
   } else if (error.code === 'auth/cancelled-popup-request') {
-    errorMessage = 'Multiple popup requests. Please try again.';
+    errorMessage = STRINGS.errorMultiplePopup;
   } else if (error.message) {
     errorMessage = error.message;
   }
@@ -39,15 +40,15 @@ export const validateInputs = (email: string, password: string, setValidationErr
   const errors = { email: '', password: '' };
 
   if (!email) {
-    errors.email = 'Email is required';
+    errors.email = STRINGS.emailRequired;
     valid = false;
   } else if (!/\S+@\S+\.\S+/.test(email)) {
-    errors.email = 'Email address is invalid';
+    errors.email = STRINGS.emailInvalid;
     valid = false;
   }
 
   if (!password) {
-    errors.password = 'Password is required';
+    errors.password = STRINGS.passwordRequired;
     valid = false;
   }
 

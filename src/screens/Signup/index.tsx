@@ -9,6 +9,7 @@ import { RootState } from '../../store';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { handleSignup, handleGoogleSignup } from './utils';
+import { STRINGS } from '../../const/strings';
 import {
   containerStyle,
   paperStyle,
@@ -55,23 +56,23 @@ const Signup: React.FC = () => {
     };
 
     if (!name) {
-      errors.name = 'Name is required';
+      errors.name = STRINGS.nameRequired;
       valid = false;
     }
 
     if (!email) {
-      errors.email = 'Email is required';
+      errors.email = STRINGS.emailRequired;
       valid = false;
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = 'Email address is invalid';
+      errors.email = STRINGS.emailInvalid;
       valid = false;
     }
 
     if (!password) {
-      errors.password = 'Password is required';
+      errors.password = STRINGS.passwordRequired;
       valid = false;
     } else if (password.length < 6) {
-      errors.password = 'Password must be at least 6 characters';
+      errors.password = STRINGS.passwordMinLength;
       valid = false;
     }
 
@@ -88,7 +89,7 @@ const Signup: React.FC = () => {
               <LockOutlinedIcon aria-hidden="true" sx={{ fontSize: isMobile ? 20 : 24 }} />
             </Avatar>
             <Typography component="h1" variant="h5" sx={typographyStyle(isMobile)}>
-              Sign Up
+              {STRINGS.signup}
             </Typography>
             {error && (
               <Alert role="alert" severity="error" sx={{ marginTop: '10px' }}>
@@ -108,7 +109,7 @@ const Signup: React.FC = () => {
                 required
                 fullWidth
                 id="name"
-                label="Name"
+                label={STRINGS.name}
                 name="name"
                 autoComplete="name"
                 autoFocus
@@ -126,7 +127,7 @@ const Signup: React.FC = () => {
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={STRINGS.emailAddress}
                 name="email"
                 autoComplete="email"
                 value={email}
@@ -143,7 +144,7 @@ const Signup: React.FC = () => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={STRINGS.password}
                 type="password"
                 id="password"
                 autoComplete="current-password"
@@ -157,12 +158,12 @@ const Signup: React.FC = () => {
               />
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%' }}>
                 <Button type="submit" variant="contained" fullWidth disabled={loadingSignup} sx={buttonStyle(isMobile)}>
-                  {loadingSignup ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Sign Up'}
+                  {loadingSignup ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : STRINGS.signup}
                 </Button>
               </motion.div>
               <Box mt={2} textAlign="center">
                 <Typography variant="body2" sx={{ color: '#ff5722' }}>
-                  or
+                  {STRINGS.or}
                 </Typography>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', marginTop: '10px' }}>
                   <Button
@@ -173,11 +174,11 @@ const Signup: React.FC = () => {
                     disabled={loadingGoogle}
                     sx={buttonStyle(isMobile)}
                   >
-                    {loadingGoogle ? <CircularProgress size={24} sx={{ color: '#ff5722' }} /> : 'Sign Up with Google'}
+                    {loadingGoogle ? <CircularProgress size={24} sx={{ color: '#ff5722' }} /> : STRINGS.signupWithGoogle}
                   </Button>
                 </motion.div>
-                <StyledRouterLink to="/" sx={linkStyle(isMobile)} aria-label="Already have an account? Login">
-                  Already have an account? Login
+                <StyledRouterLink to="/" sx={linkStyle(isMobile)} aria-label={STRINGS.alreadyHaveAccount}>
+                  {STRINGS.alreadyHaveAccount}
                 </StyledRouterLink>
               </Box>
             </form>

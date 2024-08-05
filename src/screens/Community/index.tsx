@@ -30,6 +30,7 @@ import {
   handleSpeechInput,
   handleCloseRules,
 } from './utils';
+import { STRINGS } from '../../const/strings';
 
 const Community: React.FC = () => {
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
@@ -80,7 +81,7 @@ const Community: React.FC = () => {
               sx={{ fontWeight: 'bold', color: '#ff5722', mt: 2 }}
               tabIndex={0}
             >
-              Community Chat
+              {STRINGS.chatWith} Community
             </Typography>
           </motion.div>
           <Box
@@ -129,21 +130,21 @@ const Community: React.FC = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               sx={inputFieldStyle}
-              placeholder="Type your message..."
-              aria-label="Type your message"
+              placeholder={STRINGS.typeYourMessage}
+              aria-label={STRINGS.typeYourMessage}
             />
             <IconButton
               onClick={() => handleSendMessage(input, setLoading, currentUser, userName, setInput)}
               disabled={loading}
               sx={sendButtonStyle(loading)}
-              aria-label="Send message"
+              aria-label={STRINGS.sendMessageAriaLabel}
             >
               {loading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : <SendIcon />}
             </IconButton>
             <IconButton
               onClick={() => handleSpeechInput(recognitionRef)}
               sx={speechButtonStyle(isListening)}
-              aria-label={isListening ? 'Listening...' : 'Start listening'}
+              aria-label={isListening ? STRINGS.listeningAriaLabel : STRINGS.startListeningAriaLabel}
             >
               <MicIcon />
             </IconButton>

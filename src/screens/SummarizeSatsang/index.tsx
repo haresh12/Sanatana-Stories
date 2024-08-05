@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Typography, Box, TextField, CardContent, CardActions, Grid, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
+import { Typography, Box, TextField, CardContent, CardActions, Grid, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTheme } from '@mui/system';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -7,6 +7,7 @@ import BackButton from '../../components/BackButton';
 import { StyledContainer, StyledCard, ProgressButton } from './styles';
 import { validateYouTubeUrl, fetchSummary } from './utils';
 import { Video } from './types';
+import { STRINGS } from '../../const/strings';
 
 const cardAnimation = {
   hidden: { opacity: 0, y: 50 },
@@ -29,12 +30,12 @@ const SummarizeSatsang: React.FC = () => {
 
   const handleSummarize = async () => {
     if (!videoUrl.trim()) {
-      setError('Please enter a YouTube video URL.');
+      setError(STRINGS.enterYoutubeUrl);
       return;
     }
 
     if (!validateYouTubeUrl(videoUrl)) {
-      setError('Please enter a valid YouTube video URL.');
+      setError(STRINGS.validYoutubeUrl);
       return;
     }
 
@@ -46,7 +47,7 @@ const SummarizeSatsang: React.FC = () => {
     if (response) {
       setSummary(response.summary);
     } else {
-      setError('Failed to summarize the Satsang video. Please check the URL and try again.');
+      setError(STRINGS.summarizeSatsangError);
     }
     setLoading(false);
   };
@@ -104,7 +105,7 @@ const SummarizeSatsang: React.FC = () => {
           gutterBottom
           sx={{ fontWeight: 'bold', color: '#ff5722', mt: isMobile ? -5 : -3 }}
         >
-          Summarize Satsang
+          {STRINGS.summarizeSatsang}
         </Typography>
       </motion.div>
       <Box sx={{ mt: 4, width: '100%' }}>
@@ -112,10 +113,10 @@ const SummarizeSatsang: React.FC = () => {
           <StyledCard>
             <CardContent sx={{ textAlign: isMobile ? 'center' : 'left' }}>
               <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ fontWeight: 'bold', color: '#ff5722', mb: 3 }}>
-                Enter YouTube Video URL
+                {STRINGS.enterYoutubeVideoUrl}
               </Typography>
               <TextField
-                label="YouTube Video URL"
+                label={STRINGS.youtubeVideoUrl}
                 variant="outlined"
                 fullWidth
                 value={videoUrl}
@@ -127,7 +128,7 @@ const SummarizeSatsang: React.FC = () => {
                     fontSize: isMobile ? '16px' : '18px',
                   },
                 }}
-                aria-label="YouTube Video URL"
+                aria-label={STRINGS.youtubeVideoUrl}
                 aria-required="true"
               />
               <CardActions sx={{ justifyContent: 'center', padding: 0 }}>
@@ -143,7 +144,7 @@ const SummarizeSatsang: React.FC = () => {
                       aria-busy={loading}
                       aria-live="polite"
                     >
-                      {loading ? <span>Summarizing<span className="dots"></span></span> : 'Summarize'}
+                      {loading ? <span>{STRINGS.summarizing}<span className="dots"></span></span> : STRINGS.summarize}
                     </ProgressButton>
                   </motion.div>
                 </Box>
@@ -157,7 +158,7 @@ const SummarizeSatsang: React.FC = () => {
                 <Box sx={{ mt: 4, textAlign: isMobile ? 'center' : 'left' }}>
                   <motion.div initial="hidden" animate="visible" variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { duration: 1 } } }}>
                     <Typography variant={isMobile ? 'h6' : 'h5'} sx={{ fontWeight: 'bold', color: '#ff5722', mb: 2 }}>
-                      Summary
+                      {STRINGS.summary}
                     </Typography>
                     <Typography variant="body1" sx={{ fontSize: isMobile ? '14px' : '16px', textAlign: 'justify' }}>
                       {summary.split('\n').map((paragraph, index) => (

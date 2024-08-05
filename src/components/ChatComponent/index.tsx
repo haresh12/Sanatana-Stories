@@ -14,6 +14,7 @@ import { ChatProps, Message } from './types';
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../firebaseConfig';
 import { addEpicsMessage } from '../../store/epicsChatSlice';
+import { STRINGS } from '../../const/strings';
 
 const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
   const dispatch = useDispatch();
@@ -47,7 +48,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
       const chatResponse: Message = { role: 'model', message: responseData.message, audioUrl: responseData.audioUrl };
       dispatch(addEpicsMessage({ chatType, message: chatResponse }));
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error(STRINGS.errorSendingMessage, error);
     } finally {
       setLoading(false);
       setTyping(false);
@@ -85,7 +86,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
         setListening(false);
       };
     } else {
-      alert("Your browser does not support speech recognition.");
+      alert(STRINGS.browserNotSupported);
     }
   }, []);
 
@@ -141,7 +142,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
         role="status"
         aria-live="polite"
       >
-        <CircularProgress aria-label="Loading" />
+        <CircularProgress aria-label={STRINGS.loading} />
       </Container>
     );
   }
@@ -151,7 +152,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
       <Box sx={{ padding: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: isMobile ? '85vh' : '90vh', borderRadius: '20px', boxShadow: 4, backgroundColor: '#ffffff' }}>
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
           <Typography variant={isMobile ? 'h5' : 'h4'} align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: isMobile ? 1 : 2 }}>
-            Chat about {chatType.charAt(0).toUpperCase() + chatType.slice(1)}
+            {STRINGS.chatAbout} {chatType.charAt(0).toUpperCase() + chatType.slice(1)}
           </Typography>
         </motion.div>
         <Box sx={{ flex: 1, overflowY: 'auto', padding: 2, display: 'flex', flexDirection: 'column', gap: 2, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
@@ -172,7 +173,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
                     '&:hover': { backgroundColor: '#388e3c' },
                     fontSize: isMobile ? '1rem' : '1.25rem',
                   }}
-                  aria-label={playingIndex === index ? "Pause audio" : "Play audio"}
+                  aria-label={playingIndex === index ? STRINGS.pauseAudio : STRINGS.playAudio}
                 >
                   {playingIndex === index ? <PauseIcon sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }} /> : <PlayArrowIcon sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }} />}
                 </IconButton>
@@ -202,7 +203,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             sx={inputStyles(isMobile)}
-            placeholder="Type your message..."
+            placeholder={STRINGS.typeYourMessage}
             aria-label="Message input"
           />
           <IconButton onClick={handleSendMessage} disabled={loading} sx={iconButtonStyles(isMobile)} aria-label="Send message">

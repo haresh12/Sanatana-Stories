@@ -1,6 +1,7 @@
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../firebaseConfig';
 import { GeneratePodcastResponse } from './types';
+import { STRINGS } from '../../const/strings';
 
 /**
  * Handles the generation of a podcast by calling the Firebase function and updating the state with the response data.
@@ -30,7 +31,7 @@ export const handleGeneratePodcast = async (
     setAudioUrl(data.audioUrl);
     setTitle(data.title);
   } catch (error) {
-    console.error('Error generating podcast:', error);
+    console.error(STRINGS.errorGeneratingPodcast, error);
   } finally {
     setLoading(false);
   }

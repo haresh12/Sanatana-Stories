@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Typography, Box, CardContent, CircularProgress, Button, Modal,Card } from '@mui/material';
+import { Container, Typography, Box, CardContent, CircularProgress, Button, Modal, Card } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
@@ -10,29 +10,10 @@ import BackButton from '../../components/BackButton';
 import { fetchQuizQuestions, storeQuizResults, validateQuizData } from './utils';
 import { ProgressContainer, OptionButton, QuestionCard, TopicsContainer } from './styles';
 import { QuizQuestion } from './types';
+import { STRINGS } from '../../const/strings';
+import { DARK_FACTS } from '../../const/consts';
 
-const darkFacts = [
-  "Hinduism is the world's oldest religion.",
-  "The Ramayana is an ancient Indian epic poem.",
-  "Yoga has its origins in Hindu philosophy.",
-  "Ayurveda is a traditional Hindu system of medicine.",
-  "The Bhagavad Gita is a 700-verse Hindu scripture.",
-  "Hinduism has no single founder; it developed over thousands of years.",
-  "The Mahabharata is the longest epic poem in the world.",
-  "Diwali, the festival of lights, is one of the most important Hindu festivals.",
-  "Karma is a core concept in Hinduism, meaning action or deed.",
-  "Hindus believe in a cycle of birth, death, and rebirth called Samsara.",
-  "Hindu temples are often dedicated to a particular deity.",
-  "The Vedas are the oldest sacred texts of Hinduism.",
-  "The sacred syllable 'Om' is considered the sound of the universe.",
-  "Holi is known as the festival of colors and celebrates the arrival of spring.",
-  "The Ganges River is considered sacred in Hinduism.",
-  "Hindus worship multiple deities, including Brahma, Vishnu, and Shiva.",
-  "Sanskrit is the ancient language of Hindu scriptures.",
-  "Rangoli is a traditional Indian art form created during festivals.",
-  "Many Hindus follow a vegetarian diet for religious reasons.",
-  "The concept of Dharma represents duty, righteousness, and moral law."
-];
+
 
 const Quiz: React.FC = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
@@ -70,7 +51,7 @@ const Quiz: React.FC = () => {
     let interval: NodeJS.Timeout | null = null;
     if (loading) {
       interval = setInterval(() => {
-        setFactIndex((prevIndex) => (prevIndex + 1) % darkFacts.length);
+        setFactIndex((prevIndex) => (prevIndex + 1) % DARK_FACTS.length);
       }, 3000); // Change fact every 3 seconds
     }
     return () => {
@@ -125,12 +106,12 @@ const Quiz: React.FC = () => {
       <Container maxWidth="md" sx={{ paddingTop: isMobile ? '20px' : '40px', paddingBottom: isMobile ? '20px' : '40px' }}>
         <Box textAlign="center">
           <Typography variant={isMobile ? 'h5' : 'h4'} sx={{ fontWeight: 'bold', marginBottom: isMobile ? '10px' : '20px', color: '#ff5722' }}>
-            Quiz
+            {STRINGS.quiz}
           </Typography>
           {!loading && !retry && (
             <TopicsContainer sx={{ padding: isMobile ? '8px' : '10px 20px' }}>
               <Typography variant="h6" sx={{ color: '#00796b', fontWeight: 'bold' }}>
-                Topics: {topics.join(', ')}
+                {STRINGS.topics}: {topics.join(', ')}
               </Typography>
             </TopicsContainer>
           )}
@@ -138,13 +119,13 @@ const Quiz: React.FC = () => {
             <>
               <CircularProgress aria-busy="true" size={isMobile ? 40 : 60} />
               <Typography variant="h6" sx={{ color: '#ff5722', marginTop: '20px' }}>
-                {darkFacts[factIndex]}
+                {DARK_FACTS[factIndex]}
               </Typography>
             </>
           ) : retry ? (
             <Box>
               <Typography variant="h6" sx={{ color: '#f44336', fontWeight: 'bold' }}>
-                Failed to generate quiz. Please try again.
+                {STRINGS.failedToGenerateQuiz}
               </Typography>
               <Button
                 onClick={handleRetry}
@@ -152,7 +133,7 @@ const Quiz: React.FC = () => {
                 color="primary"
                 sx={{ marginTop: '20px', backgroundColor: '#ff5722' }}
               >
-                Retry
+                {STRINGS.retry}
               </Button>
             </Box>
           ) : (
@@ -175,7 +156,7 @@ const Quiz: React.FC = () => {
                       </Typography>
                       <ProgressContainer>
                         <Typography variant="body1" sx={{ marginRight: '10px', color: '#333', fontSize: isMobile ? '0.75rem' : '0.875rem' }}>
-                          Question {currentQuestionIndex + 1} of {questions.length}
+                          {STRINGS.question} {currentQuestionIndex + 1} {STRINGS.of} {questions.length}
                         </Typography>
                         <Box sx={{ position: 'relative', display: 'inline-flex' }}>
                           <CircularProgress
@@ -257,10 +238,10 @@ const Quiz: React.FC = () => {
             >
               <CardContent>
                 <Typography id="quiz-result-title" variant={isMobile ? 'h5' : 'h4'} sx={{ color: '#333', mb: 2 }}>
-                  Quiz Completed!
+                  {STRINGS.quizCompleted}
                 </Typography>
                 <Typography id="quiz-result-description" variant={isMobile ? 'h6' : 'h5'} sx={{ color: '#333', mb: 2 }}>
-                  Your score: {questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0)}/{questions.length}
+                  {STRINGS.yourScore}: {questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0)}/{questions.length}
                 </Typography>
                 <Typography
                   variant={isMobile ? 'h6' : 'h5'}
@@ -269,7 +250,7 @@ const Quiz: React.FC = () => {
                     mb: 2,
                   }}
                 >
-                  {questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0) > 3 ? 'Passed 😊' : 'Failed 😢'}
+                  {questions.reduce((acc, question, index) => (question.correctAnswer === userAnswers[index] ? acc + 1 : acc), 0) > 3 ? STRINGS.passed : STRINGS.failed}
                 </Typography>
                 <Button
                   variant="contained"
@@ -277,7 +258,7 @@ const Quiz: React.FC = () => {
                   onClick={handleModalClose}
                   sx={{ mt: 2, borderRadius: '50%', backgroundColor: '#ff5722' }}
                 >
-                  Close
+                  {STRINGS.close}
                 </Button>
               </CardContent>
             </Card>

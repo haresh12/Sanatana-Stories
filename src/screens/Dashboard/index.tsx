@@ -21,6 +21,19 @@ import { useTheme } from '@mui/material/styles';
 import { CardInfo } from './types';
 import { containerStyle, logoutButtonStyle, dialogStyle, cardStyle, cardTitleStyle, cardDescriptionStyle, knowMoreButtonStyle, movingBorder, pulsingShadow } from './styles';
 import { truncateText, fetchDetailedInfo } from './utils';
+import { STRINGS } from '../../const/strings';
+import {
+  SHOW_HANUMAN_CHALISA,
+  SHOW_TALK_TO_GOD,
+  SHOW_GENERATE_PODCAST,
+  SHOW_COMMUNITY,
+  SHOW_QUIZ,
+  SHOW_SUMMARIZE_SATSANG,
+  SHOW_KNOW_ABOUT_TEMPLES,
+  SHOW_FUN_FACT,
+  SHOW_MYTH,
+  SHOW_EPICS_AND_PURANAS
+} from '../../const/consts';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & { children: React.ReactElement<any, any> },
@@ -60,7 +73,7 @@ const defaultCards: CardInfo[] = [
     icon: <HanumanChalisaIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#FF8A65',
     route: '/hanuman-chalisa',
-    key: 'show_hanuman_chalisa'
+    key: SHOW_HANUMAN_CHALISA
   },
   {
     title: 'Talk To God',
@@ -68,7 +81,7 @@ const defaultCards: CardInfo[] = [
     icon: <TalkToGodIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#BA68C8',
     route: '/talk-to-god',
-    key: 'show_talk_to_god'
+    key: SHOW_TALK_TO_GOD
   },
   {
     title: 'Generate Podcast',
@@ -77,7 +90,7 @@ const defaultCards: CardInfo[] = [
     color: '#4169E1',
     route: '/generate-podcast',
     animation: cardAnimation,
-    key: 'show_generate_podcast'
+    key: SHOW_GENERATE_PODCAST
   },
   {
     title: 'Community',
@@ -85,7 +98,7 @@ const defaultCards: CardInfo[] = [
     icon: <CommunityIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#64B5F6',
     route: '/community',
-    key: 'show_community'
+    key: SHOW_COMMUNITY
   },
   {
     title: 'Quiz',
@@ -94,7 +107,7 @@ const defaultCards: CardInfo[] = [
     color: '#FFA726',
     route: '/quiz',
     animation: quizCardAnimation,
-    key: 'show_quiz'
+    key: SHOW_QUIZ
   },
   {
     title: 'Summarize Satsang',
@@ -103,7 +116,7 @@ const defaultCards: CardInfo[] = [
     color: '#FFD54F',
     route: '/summarize-satsang',
     animation: quizCardAnimation,
-    key: 'show_summarize_satsang'
+    key: SHOW_SUMMARIZE_SATSANG
   },
   {
     title: 'Know About Temples',
@@ -111,19 +124,19 @@ const defaultCards: CardInfo[] = [
     icon: <TemplesIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#4DB6AC',
     route: '/know-about-temples',
-    key: 'show_know_about_temples'
+    key: SHOW_KNOW_ABOUT_TEMPLES
   },
   {
     title: 'Fun Fact',
     description: 'Discover interesting and lesser-known facts.',
     color: '#9575CD',
-    key: 'show_fun_fact'
+    key: SHOW_FUN_FACT
   },
   {
     title: 'Myth',
     description: 'Uncover the myths and legends of Hindu culture.',
     color: '#E57373',
-    key: 'show_myth'
+    key: SHOW_MYTH
   },
   {
     title: 'Epics and Puranas',
@@ -131,7 +144,7 @@ const defaultCards: CardInfo[] = [
     icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#FF7043',
     route: '/epic',
-    key: 'show_epics_and_puranas'
+    key: SHOW_EPICS_AND_PURANAS
   }
 ];
 
@@ -182,6 +195,7 @@ const Dashboard: React.FC = () => {
         newCards = defaultCards.filter(card => getValue(remoteConfig, card.key).asBoolean());
         setCards(newCards);
       } catch (error) {
+        console.error(STRINGS.fetchDataError, error);
         setCards(defaultCards);
       } finally {
         if (newCards.length === 0) {
@@ -211,7 +225,7 @@ const Dashboard: React.FC = () => {
         await updateFunFact();
         await updateMyth();
       } catch (error) {
-        console.error('Error updating content:', error);
+        console.error(STRINGS.errorUpdatingContent, error);
       }
     };
 
@@ -248,9 +262,9 @@ const Dashboard: React.FC = () => {
           variant="contained"
           onClick={handleClickOpen}
           sx={logoutButtonStyle}
-          aria-label="Logout"
+          aria-label={STRINGS.logout}
         >
-          Logout
+          {STRINGS.logout}
         </Button>
       </Box>
 
@@ -263,22 +277,22 @@ const Dashboard: React.FC = () => {
         aria-describedby="alert-dialog-slide-description"
         sx={dialogStyle}
       >
-        <DialogTitle id="alert-dialog-slide-title">Logout Confirmation</DialogTitle>
+        <DialogTitle id="alert-dialog-slide-title">{STRINGS.logoutConfirmation}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-slide-description">
-            Are you sure you want to logout? You'll miss us!
+            {STRINGS.logoutConfirmationDescription}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose} sx={{ fontWeight: 'bold', color: '#ff5722' }}>
-            Cancel
+            {STRINGS.cancel}
           </Button>
           <Button
             onClick={handleLogout}
             sx={{ fontWeight: 'bold', color: '#ff5722' }}
             autoFocus
           >
-            Yes, Logout
+            {STRINGS.yesLogout}
           </Button>
         </DialogActions>
       </Dialog>
@@ -292,7 +306,7 @@ const Dashboard: React.FC = () => {
         aria-describedby="detailed-dialog-description"
         sx={dialogStyle}
       >
-        <DialogTitle id="detailed-dialog-title">Detailed Information</DialogTitle>
+        <DialogTitle id="detailed-dialog-title">{STRINGS.detailedInformation}</DialogTitle>
         <DialogContent>
           <DialogContentText id="detailed-dialog-description">
             {fetching ? (
@@ -308,7 +322,7 @@ const Dashboard: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDetailedClose} sx={{ fontWeight: 'bold', color: '#ff5722' }}>
-            Close
+            {STRINGS.close}
           </Button>
         </DialogActions>
       </Dialog>
@@ -325,7 +339,7 @@ const Dashboard: React.FC = () => {
           marginTop: { xs: '40px', md: '0px' },
         }}
       >
-        Welcome to the Spiritual Dashboard
+        {STRINGS.welcomeDashboard}
       </Typography>
       <Grid container spacing={isMobile ? 2 : 4} justifyContent="center">
         {cards.map((card, index) => (
@@ -370,7 +384,7 @@ const Dashboard: React.FC = () => {
                           disabled={fetching && fetchingCard === card.title.toLowerCase()}
                           aria-label={`Know more about ${card.title}`}
                         >
-                          {fetching && fetchingCard === card.title.toLowerCase() ? 'Fetching...' : 'Know More'}
+                          {fetching && fetchingCard === card.title.toLowerCase() ? STRINGS.fetching : STRINGS.knowMore}
                         </Button>
                       </Box>
                     )}

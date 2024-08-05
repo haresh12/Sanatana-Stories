@@ -1,9 +1,12 @@
+// src/pages/utils.ts
+
 import { Dispatch } from 'redux';
 import { collection, getDocs } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, functions } from '../../firebaseConfig';
 import { setGodName, setMessages } from '../../store/chatSlice';
 import { God, Message } from './types';
+import { STRINGS } from '../../const/strings';
 
 /**
  * Fetches the name of the god based on the provided godId and dispatches it to the Redux store.
@@ -21,7 +24,7 @@ export const fetchGodName = async (godId: string | undefined, dispatch: Dispatch
       dispatch(setGodName(god.name));
     }
   } catch (error) {
-    console.error('Error fetching god name:', error);
+    console.error(STRINGS.errorFetchingGodName, error);
   }
 };
 
@@ -41,7 +44,7 @@ export const initializeChat = async (currentUser: any, godName: string, messages
       const responseData = response.data as { message: string; welcomeMessage: string; audioUrl: string };
       dispatch(setMessages([{ role: 'model', message: responseData.welcomeMessage, audioUrl: responseData.audioUrl }]));
     } catch (error) {
-      console.error('Error initializing chat:', error);
+      console.error(STRINGS.errorInitializingChat, error);
     }
   }
 };
@@ -71,7 +74,7 @@ export const playAudio = (
   } else {
     audioRef.current = new Audio(audioUrl);
     audioRef.current.play().catch(error => {
-      console.error('Error playing audio:', error);
+      console.error(STRINGS.errorPlayingAudio, error);
     });
     audioRef.current.onended = () => {
       setPlayingIndex(null);
@@ -112,7 +115,7 @@ export const initializeRecognition = (
       setListening(false);
     };
   } else {
-    alert('Your browser does not support speech recognition.');
+    alert(STRINGS.browserNotSupported);
   }
 };
 

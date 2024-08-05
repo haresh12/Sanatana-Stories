@@ -25,6 +25,7 @@ import {
   whyProductTextStyle,
   StyledRouterLink,
 } from './styles';
+import { STRINGS } from '../../const/strings';
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -56,7 +57,7 @@ const Login: React.FC = () => {
         const showWhyProductConfig = getValue(remoteConfig, 'show_why_product').asBoolean();
         setShowWhyProduct(showWhyProductConfig);
       } catch (error) {
-        console.error('Error fetching remote config:', error);
+        console.error(STRINGS.errorFetchingConfig, error);
       }
     };
 
@@ -71,15 +72,15 @@ const Login: React.FC = () => {
     };
 
     if (!email) {
-      errors.email = 'Email is required';
+      errors.email = STRINGS.emailRequired;
       valid = false;
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = 'Email address is invalid';
+      errors.email = STRINGS.emailInvalid;
       valid = false;
     }
 
     if (!password) {
-      errors.password = 'Password is required';
+      errors.password = STRINGS.passwordRequired;
       valid = false;
     }
 
@@ -128,17 +129,17 @@ const Login: React.FC = () => {
   };
 
   const handleFirebaseError = (error: any) => {
-    let errorMessage = 'An unknown error occurred. Please try again.';
+    let errorMessage = STRINGS.errorUnknown;
     if (error.code === 'auth/user-not-found') {
-      errorMessage = 'No user found with this email. Please sign up first.';
+      errorMessage = STRINGS.errorUserNotFound;
     } else if (error.code === 'auth/wrong-password') {
-      errorMessage = 'Incorrect password. Please try again.';
+      errorMessage = STRINGS.errorWrongPassword;
     } else if (error.code === 'auth/invalid-email') {
-      errorMessage = 'The email address is not valid.';
+      errorMessage = STRINGS.errorInvalidEmail;
     } else if (error.code === 'auth/popup-closed-by-user') {
-      errorMessage = 'The Google sign-in popup was closed before completing the sign-in. Please try again.';
+      errorMessage = STRINGS.errorPopupClosed;
     } else if (error.code === 'auth/cancelled-popup-request') {
-      errorMessage = 'Multiple popup requests. Please try again.';
+      errorMessage = STRINGS.errorMultiplePopup;
     } else if (error.message) {
       errorMessage = error.message;
     }
@@ -161,21 +162,21 @@ const Login: React.FC = () => {
               <LockOutlinedIcon aria-hidden="true" sx={{ fontSize: isMobile ? 20 : 24 }} />
             </Avatar>
             <Typography component="h1" variant="h5" sx={typographyStyle(isMobile)}>
-              Login
+              {STRINGS.login}
             </Typography>
             {error && (
               <Alert role="alert" severity="error" sx={{ marginTop: '10px' }}>
                 {error}
               </Alert>
             )}
-            <form onSubmit={handleLogin} style={{ marginTop: '20px', width: '100%' }} aria-label="Login form">
+            <form onSubmit={handleLogin} style={{ marginTop: '20px', width: '100%' }} aria-label={STRINGS.loginForm}>
               <TextField
                 variant="outlined"
                 margin="normal"
                 required
                 fullWidth
                 id="email"
-                label="Email Address"
+                label={STRINGS.emailAddress}
                 name="email"
                 autoComplete="email"
                 autoFocus
@@ -185,7 +186,7 @@ const Login: React.FC = () => {
                 helperText={validationErrors.email}
                 InputProps={{ style: { color: '#000' } }}
                 sx={textFieldStyle(isMobile)}
-                aria-describedby="email-helper-text"
+                aria-describedby={STRINGS.emailHelperText}
               />
               <TextField
                 variant="outlined"
@@ -193,7 +194,7 @@ const Login: React.FC = () => {
                 required
                 fullWidth
                 name="password"
-                label="Password"
+                label={STRINGS.password}
                 type="password"
                 id="password"
                 autoComplete="current-password"
@@ -203,16 +204,16 @@ const Login: React.FC = () => {
                 helperText={validationErrors.password}
                 InputProps={{ style: { color: '#000' } }}
                 sx={textFieldStyle(isMobile)}
-                aria-describedby="password-helper-text"
+                aria-describedby={STRINGS.passwordHelperText}
               />
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%' }}>
                 <Button type="submit" variant="contained" fullWidth sx={buttonStyle(isMobile)}>
-                  Login
+                  {STRINGS.login}
                 </Button>
               </motion.div>
               <Box mt={2} textAlign="center">
                 <Typography variant="body2" sx={{ color: '#ff5722' }}>
-                  or
+                  {STRINGS.or}
                 </Typography>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} style={{ width: '100%', marginTop: '10px' }}>
                   <Button
@@ -222,15 +223,15 @@ const Login: React.FC = () => {
                     onClick={handleGoogleLogin}
                     sx={buttonStyle(isMobile)}
                   >
-                    Login with Google
+                    {STRINGS.loginWithGoogle}
                   </Button>
                 </motion.div>
-                <StyledRouterLink to="/signup" sx={linkStyle(isMobile)} aria-label="Don't have an account? Sign Up">
-                  Don't have an account? Sign Up
+                <StyledRouterLink to="/signup" sx={linkStyle(isMobile)} aria-label={STRINGS.noAccountSignUp}>
+                  {STRINGS.noAccountSignUp}
                 </StyledRouterLink>
                 {showWhyProduct && (
                   <Typography sx={whyProductTextStyle(isMobile)} onClick={handleOpenWhyThisProduct}>
-                    Why this product and its use cases?
+                    {STRINGS.whyThisProduct}
                   </Typography>
                 )}
               </Box>

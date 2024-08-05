@@ -3,6 +3,7 @@ import { collection, getDocs, deleteDoc, query, where } from 'firebase/firestore
 import { functions, db } from '../../firebaseConfig';
 import { User } from './types';
 import { Dispatch, SetStateAction } from 'react';
+import { STRINGS } from '../../const/strings';
 
 /**
  * Clears previous data from the Firestore collections for the current user.
@@ -49,7 +50,7 @@ export const handleCardClick = async (
 
     navigate(`/temple/${templeId}`);
   } catch (error) {
-    console.error('Error fetching welcome message:', error);
+    console.error(STRINGS.errorGeneratingPodcast, error);
   } finally {
     setShowLoader(false);
   }
@@ -64,7 +65,7 @@ export const handleCardClick = async (
 export const truncateDescription = (description: string, maxLength: number): string => {
   const words = description.split(' ');
   if (words.length > maxLength) {
-    return words.slice(0, maxLength).join(' ') + '...';
+    return words.slice(0, maxLength).join(' ') + STRINGS.truncateSuffix;
   }
   return description;
 };

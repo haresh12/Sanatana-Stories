@@ -3,6 +3,7 @@ import { Dispatch } from 'redux';
 import { db } from '../../firebaseConfig';
 import { Message } from './types';
 import { setHasSeenRules } from '../../store/authSlice';
+import { STRINGS } from '../../const/strings';
 
 /**
  * Fetches messages from the Firestore database and sets them in the provided state.
@@ -68,7 +69,7 @@ export const handleSendMessage = async (
 
     setInput('');
   } catch (error) {
-    console.error('Error sending message: ', error);
+    console.error(STRINGS.errorSendingMessage, error);
   }
   setLoading(false);
 };
@@ -113,7 +114,7 @@ export const initializeRecognition = (
       setIsListening(false);
     };
   } else {
-    alert("Your browser does not support speech recognition.");
+    alert(STRINGS.browserNotSupported);
   }
 };
 
