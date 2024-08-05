@@ -3,6 +3,7 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, B
 import { motion } from 'framer-motion';
 import { dialogPaperStyles, dialogTitleStyles, dialogContentTextStyles, listItemStyles, dialogActionsStyles, buttonStyles } from './styles';
 import { RulesModalProps } from './types';
+import { STRINGS } from '../../const/strings';
 
 const RulesModal: React.FC<RulesModalProps> = ({ open, handleClose }) => {
     return (
@@ -14,19 +15,19 @@ const RulesModal: React.FC<RulesModalProps> = ({ open, handleClose }) => {
             aria-describedby="community-rules-description"
         >
             <DialogTitle id="community-rules-title" sx={dialogTitleStyles}>
-                Community Rules
+                {STRINGS.communityRulesTitle}
             </DialogTitle>
             <DialogContent>
                 <DialogContentText id="community-rules-description" sx={dialogContentTextStyles}>
                     <Box component="div" sx={{ mb: 2 }}>
-                        Welcome to the Community Chat! Please adhere to the following rules:
+                        {STRINGS.communityRulesDescription}
                     </Box>
                     <Box component="ul" sx={{ textAlign: 'left' }}>
-                        <Box component="li" sx={listItemStyles}>No abusive language.</Box>
-                        <Box component="li" sx={listItemStyles}>Focus on spiritual topics.</Box>
-                        <Box component="li" sx={listItemStyles}>Respect everyone's opinion.</Box>
-                        <Box component="li" sx={listItemStyles}>No spamming or advertising.</Box>
-                        <Box component="li" sx={listItemStyles}>Maintain a friendly environment.</Box>
+                        <Box component="li" sx={listItemStyles}>{STRINGS.ruleNoAbusiveLanguage}</Box>
+                        <Box component="li" sx={listItemStyles}>{STRINGS.ruleFocusOnSpiritualTopics}</Box>
+                        <Box component="li" sx={listItemStyles}>{STRINGS.ruleRespectOpinions}</Box>
+                        <Box component="li" sx={listItemStyles}>{STRINGS.ruleNoSpamming}</Box>
+                        <Box component="li" sx={listItemStyles}>{STRINGS.ruleMaintainFriendlyEnvironment}</Box>
                     </Box>
                 </DialogContentText>
             </DialogContent>
@@ -37,7 +38,7 @@ const RulesModal: React.FC<RulesModalProps> = ({ open, handleClose }) => {
                         variant="contained"
                         sx={buttonStyles}
                     >
-                        Agree
+                        {STRINGS.buttonAgree}
                     </Button>
                 </motion.div>
             </DialogActions>

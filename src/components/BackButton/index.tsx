@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { StyledIconButton } from './styles';
+import { STRINGS } from '../../const/strings';
 
 const BackButton: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const BackButton: React.FC = () => {
     return (
       <StyledIconButton
         onClick={handleBack}
-        aria-label="Go back"
+        aria-label={STRINGS.goBack}
       >
         <ArrowBackIcon />
       </StyledIconButton>

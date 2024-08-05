@@ -11,8 +11,8 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { handleCardClick, clearPreviousData, truncateDescription } from './utils';
 import { StyledCard, StyledCardContent, StyledImage } from './styles';
 import { Temple } from './types';
-
-const colors = ['#FF7043', '#4FC3F7', '#81C784', '#FF8A65', '#BA68C8', '#64B5F6', '#4DB6AC', '#9575CD', '#E57373'];
+import { STRINGS } from '../../const/strings';
+import { colors } from '../../const/consts';
 
 const KnowAboutTemples: React.FC = () => {
   const navigate = useNavigate();
@@ -41,7 +41,7 @@ const KnowAboutTemples: React.FC = () => {
               color={colors[index % colors.length]}
               tabIndex={0}
               onKeyPress={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === STRINGS.enterKey || e.key === STRINGS.spaceKey) {
                   handleCardClick(temple.id, temple.name, currentUser, setShowLoader, navigate);
                 }
               }}
@@ -81,7 +81,7 @@ const KnowAboutTemples: React.FC = () => {
         <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: 'rgba(0, 0, 0, 0.5)' }}>
           <CircularProgress color="success" />
           <Typography id="loading-details" variant="h6" sx={{ color: '#fff', mt: 2 }}>
-            {loading ? 'Loading temples...' : 'Loading details...'}
+            {loading ? STRINGS.loadingTemples : STRINGS.loadingDetails}
           </Typography>
         </Box>
       </Modal>

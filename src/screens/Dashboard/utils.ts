@@ -1,5 +1,6 @@
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../firebaseConfig';
+import { STRINGS } from '../../const/strings';
 
 /**
  * Truncates text to a specified maximum length and appends ellipses if necessary.
@@ -37,7 +38,7 @@ export const fetchDetailedInfo = async (
     setDetailedInfo(data.detailedInfo);
     setDetailedOpen(true);
   } catch (error) {
-    console.error('Error fetching detailed information:', error);
+    console.error(STRINGS.fetchDataError, error);
   } finally {
     setFetching(false);
     setFetchingCard(null);

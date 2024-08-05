@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import UnderstandAndSaveMeanings from '../components/UnderstandAndSaveMeanings';
 import StartChantingAndAnalysis from '../components/StartChantingAndAnalysis';
 import BackButton from '../components/BackButton';
+import { STRINGS } from '../const/strings';
 
 const HanumanChalisa: React.FC = () => {
   const [value, setValue] = useState(0);
@@ -49,10 +50,10 @@ const HanumanChalisa: React.FC = () => {
                   },
                 },
               }}
-              aria-label="Hanuman Chalisa Tabs"
+              aria-label={STRINGS.hanumanChalisaTabs}
             >
               <Tab
-                label="Understand Meanings"
+                label={STRINGS.understandMeaningsTab}
                 id="tab-0"
                 aria-controls="tabpanel-0"
                 sx={{
@@ -61,7 +62,7 @@ const HanumanChalisa: React.FC = () => {
                 }}
               />
               <Tab
-                label="Chant & Analyze"
+                label={STRINGS.chantAndAnalyzeTab}
                 id="tab-1"
                 aria-controls="tabpanel-1"
                 sx={{

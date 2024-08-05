@@ -31,6 +31,8 @@ import {
 } from './styles';
 import { Message } from './types';
 import { functions } from '../../firebaseConfig';
+import { STRINGS } from '../../const/strings';
+import { WELCOME_MESSAGE } from '../../const/consts';
 
 const ChatPage: React.FC = () => {
   const { godId } = useParams<{ godId: string }>();
@@ -76,7 +78,7 @@ const ChatPage: React.FC = () => {
       const godResponse: Message = { role: 'model', message: responseData.message, audioUrl: responseData.audioUrl };
       dispatch(addMessage(godResponse));
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error(STRINGS.errorInitializingChat, error);
     } finally {
       setLoading(false);
       setTyping(false);
@@ -99,7 +101,7 @@ const ChatPage: React.FC = () => {
       maxWidth="lg"
       sx={chatContainer}
       role="main"
-      aria-label={`Chat with ${godName}`}
+      aria-label={`${STRINGS.chatWith} ${godName}`}
     >
       <BackButton />
       <Box sx={boxStyle}>
@@ -111,7 +113,7 @@ const ChatPage: React.FC = () => {
             sx={mobileTitleStyle}
             tabIndex={0}
           >
-            Chat with {godName}
+            {STRINGS.chatWith} {godName}
           </Typography>
         ) : (
           <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
@@ -122,7 +124,7 @@ const ChatPage: React.FC = () => {
               sx={titleStyle}
               tabIndex={0}
             >
-              Chat with {godName}
+              {STRINGS.chatWith} {godName}
             </Typography>
           </motion.div>
         )}
@@ -144,7 +146,7 @@ const ChatPage: React.FC = () => {
                   bgcolor: msg.role === 'user' ? '#ff5722' : '#4caf50',
                 }}
                 tabIndex={0}
-                aria-label={`${msg.role === 'user' ? 'User' : 'God'} message: ${msg.message}`}
+                aria-label={`${msg.role === 'user' ? STRINGS.userMessageAriaLabel : STRINGS.godMessageAriaLabel} ${msg.message}`}
               >
                 {msg.message}
               </Box>
@@ -155,7 +157,7 @@ const ChatPage: React.FC = () => {
                     ...audioButtonStyle,
                     backgroundColor: playingIndex === index ? '#388e3c' : '#4caf50',
                   }}
-                  aria-label={playingIndex === index ? 'Pause audio' : 'Play audio'}
+                  aria-label={playingIndex === index ? STRINGS.pauseAudioAriaLabel : STRINGS.playAudioAriaLabel}
                 >
                   {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
                 </IconButton>
@@ -185,14 +187,14 @@ const ChatPage: React.FC = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             sx={inputFieldStyle}
-            placeholder="Type your message..."
-            aria-label="Type your message"
+            placeholder={STRINGS.typeYourMessage}
+            aria-label={STRINGS.typeYourMessage}
           />
           <IconButton
             onClick={handleSendMessage}
             disabled={loading}
             sx={sendButtonStyle}
-            aria-label="Send message"
+            aria-label={STRINGS.sendMessageAriaLabel}
           >
             <SendIcon />
           </IconButton>
@@ -202,7 +204,7 @@ const ChatPage: React.FC = () => {
               ...speechButtonStyle,
               backgroundColor: listening ? '#ff5722' : '#e0e0e0',
             }}
-            aria-label={listening ? 'Listening...' : 'Start listening'}
+            aria-label={listening ? STRINGS.listeningAriaLabel : STRINGS.startListeningAriaLabel}
           >
             <MicIcon />
           </IconButton>

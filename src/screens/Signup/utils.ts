@@ -3,6 +3,7 @@ import { doc, setDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../../firebaseConfig';
 import { Dispatch } from 'react';
 import { setUser, setName } from '../../store/authSlice';
+import { STRINGS } from '../../const/strings';
 
 /**
  * Handles user signup using email and password.
@@ -91,19 +92,19 @@ export const handleGoogleSignup = async (
  * @param {(error: string | null) => void} setError - Function to set the error message.
  */
 export const handleFirebaseError = (error: any, setError: (error: string | null) => void) => {
-  let errorMessage = 'An unknown error occurred. Please try again.';
+  let errorMessage = STRINGS.errorUnknown;
   if (error.code === 'auth/email-already-in-use') {
-    errorMessage = 'This email is already in use. Please try another one.';
+    errorMessage = STRINGS.errorEmailInUse;
   } else if (error.code === 'auth/invalid-email') {
-    errorMessage = 'The email address is not valid.';
+    errorMessage = STRINGS.errorInvalidEmail;
   } else if (error.code === 'auth/operation-not-allowed') {
-    errorMessage = 'Email/password accounts are not enabled.';
+    errorMessage = STRINGS.errorOperationNotAllowed;
   } else if (error.code === 'auth/weak-password') {
-    errorMessage = 'The password is too weak.';
+    errorMessage = STRINGS.errorWeakPassword;
   } else if (error.code === 'auth/popup-closed-by-user') {
-    errorMessage = 'The Google sign-in popup was closed before completing the sign-in. Please try again.';
+    errorMessage = STRINGS.errorPopupClosed;
   } else if (error.code === 'auth/cancelled-popup-request') {
-    errorMessage = 'Multiple popup requests. Please try again.';
+    errorMessage = STRINGS.errorMultiplePopup;
   } else if (error.message) {
     errorMessage = error.message;
   }

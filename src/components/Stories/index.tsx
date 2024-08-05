@@ -8,6 +8,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { handleGenerateNewStory, handleListen, handlePause } from './utils';
 import { fetchStory } from './fetchStory';
 import { audioLoadingState, cardStyles, buttonStyles, cardContentStyles, cardActionsStyles, errorBoxStyles } from './styles';
+import { STRINGS } from '../../const/strings';
 
 interface StoriesProps {
   templeId: string;
@@ -52,28 +53,28 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
       {!initialStory ? (
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
           <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: isMobile ? -3 : -5, fontSize: isMobile ? '1.5rem' : '2rem' }}>
-            Story about {templeName}
+            {STRINGS.storyAbout} {templeName}
           </Typography>
         </motion.div>
       ) : (
         <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold', color: '#ff5722', mt: isMobile ? -3 : -5, fontSize: isMobile ? '1.3rem' : '2rem' }}>
-          Story about {templeName}
+          {STRINGS.storyAbout} {templeName}
         </Typography>
       )}
       <Card sx={cardStyles(isMobile)}>
         {loading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
-            <CircularProgress color="success" aria-label="Loading story" />
+            <CircularProgress color="success" aria-label={STRINGS.loadingStory} />
           </Box>
         ) : error ? (
           <Box sx={errorBoxStyles}>
-            <Typography variant="h6" color="error" aria-label="Error message">
+            <Typography variant="h6" color="error" aria-label={STRINGS.errorMessage}>
               {error}
             </Typography>
           </Box>
         ) : (
           <CardContent sx={cardContentStyles}>
-            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', textAlign: 'justify', fontSize: isMobile ? '16px' : '18px' }} aria-label="Story content">
+            <Typography variant="body1" sx={{ whiteSpace: 'pre-line', textAlign: 'justify', fontSize: isMobile ? '16px' : '18px' }} aria-label={STRINGS.storyContent}>
               {renderStoryWithHighlights(initialStory, highlightedWordIndex)}
             </Typography>
           </CardContent>
@@ -84,23 +85,23 @@ const Stories: React.FC<StoriesProps> = ({ templeId, templeName, initialStory, s
             color="primary"
             onClick={() => handleGenerateNewStory(templeId, templeName, setLoading, setError, setStory, currentUser?.uid)}
             sx={buttonStyles(isMobile, '#ff7043', '#ff5722')}
-            aria-label="Generate new story"
+            aria-label={STRINGS.generateNewStory}
           >
-            Generate New
+            {STRINGS.generateNewStory}
           </Button>
           {!loading && initialStory && (
             <>
               {audioLoading ? (
-                <Button variant="contained" color="primary" disabled sx={audioLoadingState(isMobile)} aria-label="Audio loading">
-                  <CircularProgress size={20} color="inherit" aria-label="Loading audio" />
+                <Button variant="contained" color="primary" disabled sx={audioLoadingState(isMobile)} aria-label={STRINGS.audioLoading}>
+                  <CircularProgress size={20} color="inherit" aria-label={STRINGS.loadingAudio} />
                 </Button>
               ) : isPlaying ? (
-                <Button variant="contained" color="primary" onClick={() => handlePause(audioRef, setIsPlaying)} sx={buttonStyles(isMobile, '#81c784', '#66bb6a')} aria-label="Pause audio">
-                  Pause
+                <Button variant="contained" color="primary" onClick={() => handlePause(audioRef, setIsPlaying)} sx={buttonStyles(isMobile, '#81c784', '#66bb6a')} aria-label={STRINGS.pauseAudio}>
+                  {STRINGS.pauseAudio}
                 </Button>
               ) : (
-                <Button variant="contained" color="primary" onClick={() => handleListen(templeId, initialStory, setAudioLoading, setError, setIsPlaying, setHighlightedWordIndex, audioRef, currentUser?.uid)} sx={buttonStyles(isMobile, '#81c784', '#66bb6a')} aria-label="Listen to story">
-                  Listen
+                <Button variant="contained" color="primary" onClick={() => handleListen(templeId, initialStory, setAudioLoading, setError, setIsPlaying, setHighlightedWordIndex, audioRef, currentUser?.uid)} sx={buttonStyles(isMobile, '#81c784', '#66bb6a')} aria-label={STRINGS.listenToStory}>
+                  {STRINGS.listenToStory}
                 </Button>
               )}
             </>

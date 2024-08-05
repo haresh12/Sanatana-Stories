@@ -1,8 +1,9 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Container, Typography, Button, Card, CardContent, Box, Snackbar, Alert } from '@mui/material';
 import { motion } from 'framer-motion';
 import { fetchAnalysis } from './utils';
 import { cardStyle, buttonStyle, cardContentStyle, analysisBoxStyle } from './styles';
+import { STRINGS } from '../../const/strings';
 
 const StartChantingAndAnalysis: React.FC = () => {
   const [listening, setListening] = useState(false);
@@ -85,7 +86,7 @@ const StartChantingAndAnalysis: React.FC = () => {
       setLoading(false);
     } catch (error) {
       console.error('Failed to analyze chanting:', error);
-      setError('Failed to analyze chanting. Please try again.');
+      setError(STRINGS.errorAnalyzingChanting);
       setOpenSnackbar(true);
       setLoading(false);
     }
@@ -101,7 +102,7 @@ const StartChantingAndAnalysis: React.FC = () => {
         <Card sx={cardStyle}>
           <CardContent>
             <Typography variant="h6" align="center" gutterBottom sx={cardContentStyle}>
-              Start chanting the Hanuman Chalisa, and we'll analyze your performance. Click the button below to begin.
+              {STRINGS.startChanting}
             </Typography>
           </CardContent>
         </Card>
@@ -114,9 +115,9 @@ const StartChantingAndAnalysis: React.FC = () => {
               variant="contained"
               sx={{ ...buttonStyle, backgroundColor: '#ff5722', '&:hover': { backgroundColor: '#e64a19' } }}
               disabled={loading}
-              aria-label="Start chanting"
+              aria-label={STRINGS.startChantingButton}
             >
-              {loading ? 'Analyzing...' : 'Start Chanting'}
+              {loading ? STRINGS.analyzing : STRINGS.startChantingButton}
             </Button>
           </motion.div>
         ) : (
@@ -125,9 +126,9 @@ const StartChantingAndAnalysis: React.FC = () => {
               onClick={handleChantingStop}
               variant="contained"
               sx={{ ...buttonStyle, backgroundColor: '#f44336', '&:hover': { backgroundColor: '#d32f2f' } }}
-              aria-label="Stop chanting"
+              aria-label={STRINGS.stopChantingButton}
             >
-              Stop Chanting
+              {STRINGS.stopChantingButton}
             </Button>
           </motion.div>
         )}
@@ -141,7 +142,7 @@ const StartChantingAndAnalysis: React.FC = () => {
               </Typography>
               {timestamp && (
                 <Typography variant="body2" sx={{ color: '#555', fontSize: '14px', marginTop: '10px' }}>
-                  Timestamp: {new Date(timestamp).toLocaleString()}
+                  {STRINGS.timestamp}: {new Date(timestamp).toLocaleString()}
                 </Typography>
               )}
             </CardContent>
@@ -153,12 +154,12 @@ const StartChantingAndAnalysis: React.FC = () => {
           <Card sx={{ ...cardStyle, backgroundColor: '#e0f2f1', marginTop: '20px' }}>
             <CardContent>
               <Typography variant="h6" sx={{ color: '#00796b', marginBottom: '10px' }}>
-                Analysis:
+                {STRINGS.analysis}
               </Typography>
               <Box sx={analysisBoxStyle} dangerouslySetInnerHTML={{ __html: analysis }} aria-label="Analysis result" />
               {score !== null && (
                 <Typography variant="h6" sx={{ color: '#00796b', marginTop: '10px' }}>
-                  Score: {score}/10
+                  {STRINGS.score}: {score}/10
                 </Typography>
               )}
             </CardContent>
@@ -166,7 +167,7 @@ const StartChantingAndAnalysis: React.FC = () => {
         </motion.div>
       )}
       <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="error" aria-label="Error notification">
+        <Alert onClose={handleCloseSnackbar} severity="error" aria-label={STRINGS.errorNotification}>
           {error}
         </Alert>
       </Snackbar>

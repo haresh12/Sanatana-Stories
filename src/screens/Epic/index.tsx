@@ -9,6 +9,8 @@ import { RootState } from '../../store';
 import { setActiveEpicsChat } from '../../store/epicsChatSlice';
 import { clearChats, loadInitialMessages } from './utils';
 import { tabContainerStyle, loadingContainerStyle, containerStyle, tabPanelStyle } from './styles';
+import { STRINGS } from '../../const/strings';
+import { EPIC_CHAT_TYPES } from '../../const/consts';
 
 const StyledTab = styled(Tab)(({ theme }) => ({
   fontWeight: 'bold',
@@ -59,11 +61,11 @@ const Epic: React.FC = () => {
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
     if (newValue === 0) {
-      dispatch(setActiveEpicsChat('ramayan'));
+      dispatch(setActiveEpicsChat(EPIC_CHAT_TYPES.RAMAYAN));
     } else if (newValue === 1) {
-      dispatch(setActiveEpicsChat('mahabharat'));
+      dispatch(setActiveEpicsChat(EPIC_CHAT_TYPES.MAHABHARAT));
     } else if (newValue === 2) {
-      dispatch(setActiveEpicsChat('puranas'));
+      dispatch(setActiveEpicsChat(EPIC_CHAT_TYPES.PURANAS));
     }
   };
 
@@ -82,7 +84,7 @@ const Epic: React.FC = () => {
         role="status"
         aria-live="polite"
       >
-        <CircularProgress aria-label="Loading" />
+        <CircularProgress aria-label={STRINGS.loading} />
       </Container>
     );
   }
@@ -95,14 +97,14 @@ const Epic: React.FC = () => {
         maxWidth="lg"
         sx={containerStyle}
         role="main"
-        aria-label="Epic Chat"
+        aria-label={STRINGS.epicChat}
       >
         <Box sx={tabContainerStyle}>
           <StyledTabs
             value={tabIndex}
             onChange={handleTabChange}
             centered
-            aria-label="Epic Chat Tabs"
+            aria-label={STRINGS.epicChatTabs}
           >
             <StyledTab label="Ramayan" id="tab-0" aria-controls="tabpanel-0" />
             <StyledTab label="Mahabharat" id="tab-1" aria-controls="tabpanel-1" />
@@ -116,7 +118,7 @@ const Epic: React.FC = () => {
             aria-labelledby="tab-0"
             sx={tabPanelStyle}
           >
-            <ChatComponent chatType="ramayan" />
+            <ChatComponent chatType={EPIC_CHAT_TYPES.RAMAYAN} />
           </Box>
         )}
         {tabIndex === 1 && (
@@ -126,7 +128,7 @@ const Epic: React.FC = () => {
             aria-labelledby="tab-1"
             sx={tabPanelStyle}
           >
-            <ChatComponent chatType="mahabharat" />
+            <ChatComponent chatType={EPIC_CHAT_TYPES.MAHABHARAT} />
           </Box>
         )}
         {tabIndex === 2 && (
@@ -136,7 +138,7 @@ const Epic: React.FC = () => {
             aria-labelledby="tab-2"
             sx={tabPanelStyle}
           >
-            <ChatComponent chatType="puranas" />
+            <ChatComponent chatType={EPIC_CHAT_TYPES.PURANAS} />
           </Box>
         )}
         <style>

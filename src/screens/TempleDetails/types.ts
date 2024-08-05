@@ -9,3 +9,9 @@ export interface TabPanelProps {
   index: number;
   value: number;
 }
+
+export interface ChatMessage {
+  role: string;
+  text: string;
+  audioUrl?: string;
+}

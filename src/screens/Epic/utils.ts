@@ -3,6 +3,7 @@ import { collection, deleteDoc, getDocs, query } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import { db, functions } from '../../firebaseConfig';
 import { clearAllEpicsMessages, setEpicsMessages } from '../../store/epicsChatSlice';
+import { EPIC_CHAT_TYPES } from '../../const/consts';
 
 /**
  * Clears all chat messages for the current user from the specified chat collections.
@@ -27,7 +28,7 @@ export const clearChats = async (currentUser: any, dispatch: Dispatch) => {
  * @param {Dispatch} dispatch - The Redux dispatch function.
  */
 export const loadInitialMessages = async (currentUser: any, dispatch: Dispatch) => {
-  const chatTypes = ['ramayan', 'mahabharat', 'puranas'];
+  const chatTypes = [EPIC_CHAT_TYPES.RAMAYAN, EPIC_CHAT_TYPES.MAHABHARAT, EPIC_CHAT_TYPES.PURANAS];
   const loadMessagePromises = chatTypes.map(async chatType => {
     const handleChat = httpsCallable(functions, `${chatType}Chat`);
     const response = await handleChat({ userId: currentUser.uid, message: '' });

@@ -3,35 +3,14 @@ import { Container, Typography, Box, Grid, List, ListItem, ListItemText, Circula
 import { AnimatePresence } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import BackButton from '../../components/BackButton';;
+import BackButton from '../../components/BackButton';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
 import { StyledTab, StyledTabs, GenerateButton, ResultCard, LoadingContainer, LoaderMessage } from './styles';
-import { PodcastSegment, GeneratePodcastResponse, Podcast } from './types';
+import { PodcastSegment, Podcast } from './types';
 import { handleGeneratePodcast, handleListenToPodcast, handleStopPodcast } from './utils';
-
-const facts = [
-  "Hinduism is the world's oldest religion.",
-  "The Ramayana is an ancient Indian epic poem.",
-  "Yoga has its origins in Hindu philosophy.",
-  "Ayurveda is a traditional Hindu system of medicine.",
-  "The Bhagavad Gita is a 700-verse Hindu scripture.",
-  "Hinduism has no single founder; it developed over thousands of years.",
-  "The Mahabharata is the longest epic poem in the world.",
-  "Diwali, the festival of lights, is one of the most important Hindu festivals.",
-  "Karma is a core concept in Hinduism, meaning action or deed.",
-  "Hindus believe in a cycle of birth, death, and rebirth called Samsara.",
-  "Hindu temples are often dedicated to a particular deity.",
-  "The Vedas are the oldest sacred texts of Hinduism.",
-  "The sacred syllable 'Om' is considered the sound of the universe.",
-  "Holi is known as the festival of colors and celebrates the arrival of spring.",
-  "The Ganges River is considered sacred in Hinduism.",
-  "Hindus worship multiple deities, including Brahma, Vishnu, and Shiva.",
-  "Sanskrit is the ancient language of Hindu scriptures.",
-  "Rangoli is a traditional Indian art form created during festivals.",
-  "Many Hindus follow a vegetarian diet for religious reasons.",
-  "The concept of Dharma represents duty, righteousness, and moral law."
-];
+import { STRINGS } from '../../const/strings';
+import { FACTS } from '../../const/consts';
 
 const GeneratePodcast: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -65,7 +44,7 @@ const GeneratePodcast: React.FC = () => {
     let interval: NodeJS.Timeout | null = null;
     if (loading) {
       interval = setInterval(() => {
-        setFactIndex((prevIndex: number) => (prevIndex + 1) % facts.length);
+        setFactIndex((prevIndex: number) => (prevIndex + 1) % FACTS.length);
       }, 5000);
     }
     return () => {
@@ -110,15 +89,15 @@ const GeneratePodcast: React.FC = () => {
     >
       <BackButton />
       <Box sx={{ display: 'flex', justifyContent: 'center', mt: isMobile ? 5 : 0 }}>
-        <StyledTabs value={tabIndex} onChange={handleTabChange} centered aria-label="Podcast Tabs">
-          <StyledTab label="Generate Podcast" id="tab-0" aria-controls="tabpanel-0" />
-          <StyledTab label="Previous Podcasts" id="tab-1" aria-controls="tabpanel-1" />
+        <StyledTabs value={tabIndex} onChange={handleTabChange} centered aria-label={STRINGS.podcastTabs}>
+          <StyledTab label={STRINGS.generatePodcastTab} id="tab-0" aria-controls="tabpanel-0" />
+          <StyledTab label={STRINGS.previousPodcastsTab} id="tab-1" aria-controls="tabpanel-1" />
         </StyledTabs>
       </Box>
       {tabIndex === 0 && (
         <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
           <Typography variant={isMobile ? 'h5' : 'h4'} gutterBottom sx={{ color: '#ff5722', fontWeight: 'bold' }}>
-            Generate Spiritual Podcast
+            {STRINGS.generatePodcast}
           </Typography>
           <GenerateButton
             variant="contained"
@@ -126,21 +105,21 @@ const GeneratePodcast: React.FC = () => {
             disabled={loading}
             sx={{ fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px 20px' : '10px 30px' }}
           >
-            Generate Podcast
+            {STRINGS.generatePodcast}
           </GenerateButton>
         </Box>
       )}
       {tabIndex === 1 && (
         <Grid container spacing={2} sx={{ marginTop: isMobile ? '10px' : '20px' }} role="tabpanel" id="tabpanel-1" aria-labelledby="tab-1">
           <Grid item xs={12} md={4}>
-            <List sx={{ backgroundColor: '#ffe0b2', borderRadius: '20px', padding: isMobile ? '5px' : '10px', maxHeight: '70vh', overflow: 'auto' }} aria-label="Previous Podcasts">
+            <List sx={{ backgroundColor: '#ffe0b2', borderRadius: '20px', padding: isMobile ? '5px' : '10px', maxHeight: '70vh', overflow: 'auto' }} aria-label={STRINGS.podcastListAriaLabel}>
               {podcasts.map((podcast) => (
                 <ListItem
                   key={podcast.id}
                   button
                   onClick={() => handlePodcastClick(podcast)}
                   sx={{ borderBottom: '1px solid #ccc', padding: isMobile ? '5px 10px' : '10px 20px' }}
-                  aria-label={`Podcast ${podcast.title}`}
+                  aria-label={`${STRINGS.podcast} ${podcast.title}`}
                 >
                   <ListItemText
                     primary={
@@ -190,9 +169,9 @@ const GeneratePodcast: React.FC = () => {
                           },
                           transition: 'all 0.3s ease',
                         }}
-                        aria-label="Stop Podcast"
+                        aria-label={STRINGS.stopPodcast}
                       >
-                        Stop
+                        {STRINGS.stopPodcast}
                       </Button>
                     ) : (
                       <Button
@@ -210,9 +189,9 @@ const GeneratePodcast: React.FC = () => {
                           },
                           transition: 'all 0.3s ease',
                         }}
-                        aria-label="Listen to Podcast"
+                        aria-label={STRINGS.listenToPodcast}
                       >
-                        Listen
+                        {STRINGS.listenToPodcast}
                       </Button>
                     )}
                   </CardActions>
@@ -225,8 +204,8 @@ const GeneratePodcast: React.FC = () => {
       <AnimatePresence>
         {loading && (
           <LoadingContainer>
-            <CircularProgress color="primary" aria-label="Loading" />
-            <LoaderMessage>{facts[factIndex]}</LoaderMessage>
+            <CircularProgress color="primary" aria-label={STRINGS.loading} />
+            <LoaderMessage>{FACTS[factIndex]}</LoaderMessage>
           </LoadingContainer>
         )}
       </AnimatePresence>
@@ -262,9 +241,9 @@ const GeneratePodcast: React.FC = () => {
                       },
                       transition: 'all 0.3s ease',
                     }}
-                    aria-label="Stop Podcast"
+                    aria-label={STRINGS.stopPodcast}
                   >
-                    Stop
+                    {STRINGS.stopPodcast}
                   </Button>
                 ) : (
                   <Button
@@ -282,9 +261,9 @@ const GeneratePodcast: React.FC = () => {
                       },
                       transition: 'all 0.3s ease',
                     }}
-                    aria-label="Listen to Podcast"
+                    aria-label={STRINGS.listenToPodcast}
                   >
-                    Listen
+                    {STRINGS.listenToPodcast}
                   </Button>
                 )}
               </CardActions>

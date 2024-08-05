@@ -2,6 +2,7 @@ import { httpsCallable } from 'firebase/functions';
 import { functions, db } from '../../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import { GenerateQuizQuestionsResponse, QuizQuestion } from './types';
+import { STRINGS } from '../../const/strings';
 
 /**
  * Fetches quiz questions from the backend.
@@ -14,7 +15,7 @@ export const fetchQuizQuestions = async (): Promise<GenerateQuizQuestionsRespons
     const response = await generateQuiz();
     return response.data as GenerateQuizQuestionsResponse;
   } catch (error) {
-    console.error('Error fetching quiz questions:', error);
+    console.error(`${STRINGS.errorFetchingQuizQuestions}`, error);
     return null;
   }
 };
