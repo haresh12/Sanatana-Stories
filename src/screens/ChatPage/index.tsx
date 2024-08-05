@@ -32,7 +32,6 @@ import {
 import { Message } from './types';
 import { functions } from '../../firebaseConfig';
 import { STRINGS } from '../../const/strings';
-import { WELCOME_MESSAGE } from '../../const/consts';
 
 const ChatPage: React.FC = () => {
   const { godId } = useParams<{ godId: string }>();
@@ -60,6 +59,17 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => {
     initializeRecognition(recognitionRef, setInput, setListening);
+  }, []);
+
+  useEffect(() => {
+    // Cleanup function to stop audio when the component unmounts
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        audioRef.current = null;
+      }
+    };
   }, []);
 
   const handleSendMessage = async () => {

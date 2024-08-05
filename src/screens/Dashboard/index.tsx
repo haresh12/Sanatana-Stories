@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch,useSelector } from 'react-redux';
 import { Container, Grid, Card, CardContent, Typography, Box, Avatar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import { motion } from 'framer-motion';
@@ -9,6 +9,7 @@ import { fetchAndActivate, getValue } from 'firebase/remote-config';
 import { httpsCallable } from 'firebase/functions';
 import { functions, auth, remoteConfig } from '../../firebaseConfig';
 import { logout } from '../../store/authSlice';
+import { RootState } from '../../store';
 import { reset as resetChalisa } from '../../store/chalisaSlice';
 import MahabharatIcon from '@mui/icons-material/MenuBook';
 import HanumanChalisaIcon from '@mui/icons-material/MenuBook';
@@ -20,7 +21,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { CardInfo } from './types';
 import { containerStyle, logoutButtonStyle, dialogStyle, cardStyle, cardTitleStyle, cardDescriptionStyle, knowMoreButtonStyle, movingBorder, pulsingShadow } from './styles';
-import { truncateText, fetchDetailedInfo } from './utils';
+import { truncateText, fetchDetailedInfo,capitalizeName } from './utils';
 import { STRINGS } from '../../const/strings';
 import {
   SHOW_HANUMAN_CHALISA,
@@ -68,24 +69,24 @@ const quizCardAnimation = {
 
 const defaultCards: CardInfo[] = [
   {
-    title: 'Hanuman Chalisa',
-    description: 'Delve into the powerful verses of the Hanuman Chalisa.',
+    title: STRINGS.hanumanChalisaTitle,
+    description: STRINGS.hanumanChalisaDescription,
     icon: <HanumanChalisaIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#FF8A65',
     route: '/hanuman-chalisa',
     key: SHOW_HANUMAN_CHALISA
   },
   {
-    title: 'Talk To God',
-    description: 'Engage in spiritual conversations and seek divine guidance.',
+    title: STRINGS.talkToGodTitle,
+    description: STRINGS.talkToGodDescription,
     icon: <TalkToGodIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#BA68C8',
     route: '/talk-to-god',
     key: SHOW_TALK_TO_GOD
   },
   {
-    title: 'Generate Podcast',
-    description: 'Create and share your spiritual journey through podcasts.',
+    title: STRINGS.generatePodcastTitle,
+    description: STRINGS.generatePodcastDescription,
     icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#4169E1',
     route: '/generate-podcast',
@@ -93,16 +94,16 @@ const defaultCards: CardInfo[] = [
     key: SHOW_GENERATE_PODCAST
   },
   {
-    title: 'Community',
-    description: 'Join a community of like-minded spiritual seekers.',
+    title: STRINGS.communityTitle,
+    description: STRINGS.communityDescription,
     icon: <CommunityIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#64B5F6',
     route: '/community',
     key: SHOW_COMMUNITY
   },
   {
-    title: 'Quiz',
-    description: 'Test and expand your knowledge with our engaging quizzes.',
+    title: STRINGS.quizTitle,
+    description: STRINGS.quizDescription,
     icon: <QuizIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#FFA726',
     route: '/quiz',
@@ -110,8 +111,8 @@ const defaultCards: CardInfo[] = [
     key: SHOW_QUIZ
   },
   {
-    title: 'Summarize Satsang',
-    description: 'Get concise summaries of spiritual talks and satsangs.',
+    title: STRINGS.summarizeSatsangTitle,
+    description: STRINGS.summarizeSatsangDescription,
     icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#FFD54F',
     route: '/summarize-satsang',
@@ -119,28 +120,28 @@ const defaultCards: CardInfo[] = [
     key: SHOW_SUMMARIZE_SATSANG
   },
   {
-    title: 'Know About Temples',
-    description: 'Explore and learn about various Hindu temples.',
+    title: STRINGS.knowAboutTemplesTitle,
+    description: STRINGS.knowAboutTemplesDescription,
     icon: <TemplesIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#4DB6AC',
     route: '/know-about-temples',
     key: SHOW_KNOW_ABOUT_TEMPLES
   },
   {
-    title: 'Fun Fact',
-    description: 'Discover interesting and lesser-known facts.',
+    title: STRINGS.funFactTitle,
+    description: STRINGS.funFactDescription,
     color: '#9575CD',
     key: SHOW_FUN_FACT
   },
   {
-    title: 'Myth',
-    description: 'Uncover the myths and legends of Hindu culture.',
+    title: STRINGS.mythTitle,
+    description: STRINGS.mythDescription,
     color: '#E57373',
     key: SHOW_MYTH
   },
   {
-    title: 'Epics and Puranas',
-    description: 'Dive into the rich stories of Ramayan, Mahabharat, and Puranas.',
+    title: STRINGS.epicsAndPuranasTitle,
+    description: STRINGS.epicsAndPuranasDescription,
     icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />,
     color: '#FF7043',
     route: '/epic',
@@ -161,10 +162,13 @@ const Dashboard: React.FC = () => {
   const [detailedOpen, setDetailedOpen] = useState(false);
   const [fetching, setFetching] = useState(false);
   const [fetchingCard, setFetchingCard] = useState<'funFact' | 'myth' | null>(null);
+  const currentUser = useSelector((state: RootState) => state.auth.currentUser);
+  const name = useSelector((state: RootState) => state.auth.name);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  console.log(currentUser)
   const handleLogout = async () => {
     await auth.signOut();
     dispatch(logout());
@@ -339,7 +343,8 @@ const Dashboard: React.FC = () => {
           marginTop: { xs: '40px', md: '0px' },
         }}
       >
-        {STRINGS.welcomeDashboard}
+            Hi, {currentUser && currentUser.displayName && currentUser.displayName ? capitalizeName(`${currentUser.displayName}`) : capitalizeName(`${name}`)} {STRINGS.welcomeDashboard}
+
       </Typography>
       <Grid container spacing={isMobile ? 2 : 4} justifyContent="center">
         {cards.map((card, index) => (

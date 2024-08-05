@@ -15,6 +15,7 @@ import { STRINGS } from '../../const/strings';
  * @param {(path: string) => void} navigate - Function to navigate to a different route.
  * @param {(error: string | null) => void} setError - Function to set the error message.
  * @param {(loading: boolean) => void} setLoadingSignup - Function to set the loading state.
+ * @param {() => boolean} validateInputs - Function to validate the input fields.
  */
 export const handleSignup = async (
   e: React.FormEvent,
@@ -25,8 +26,14 @@ export const handleSignup = async (
   navigate: any,
   setError: (error: string | null) => void,
   setLoadingSignup: (loading: boolean) => void,
+  validateInputs: () => boolean,
 ) => {
   e.preventDefault();
+  
+  if (!validateInputs()) {
+    return;
+  }
+
   setError(null);
   setLoadingSignup(true);
 

@@ -98,7 +98,7 @@ const Signup: React.FC = () => {
             )}
             <form
               onSubmit={(e) =>
-                handleSignup(e, email, password, name, dispatch, navigate, setError, setLoadingSignup)
+                handleSignup(e, email, password, name, dispatch, navigate, setError, setLoadingSignup, validateInputs)
               }
               style={{ marginTop: '20px', width: '100%' }}
               aria-label="Signup form"
