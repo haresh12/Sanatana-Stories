@@ -54,6 +54,16 @@ const GeneratePodcast: React.FC = () => {
     };
   }, [loading]);
 
+  useEffect(() => {
+    return () => {
+      if (audioRef.current && !audioRef.current.paused) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+        setIsPlaying(false);
+      }
+    };
+  }, []);
+
   const handleGenerate = async () => {
     await handleGeneratePodcast(currentUser, setLoading, setScript, setAudioUrl, setTitle);
   };
