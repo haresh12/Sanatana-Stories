@@ -3,6 +3,18 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
+/**
+ * Cloud Function to get the meaning of a Sanskrit text from the Hanuman Chalisa.
+ *
+ * This function receives a Sanskrit text and uses Google Generative AI to provide
+ * a simple and clear explanation of the text.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.text - The Sanskrit text to be explained.
+ * @param {Object} context - The context of the function call.
+ * @returns {Object} An object containing the meaning of the text.
+ * @throws {functions.https.HttpsError} Throws an internal error if the meaning cannot be fetched.
+ */
 export const getMeaning = functions.https.onCall(async (data, context) => {
   const { text } = data;
 

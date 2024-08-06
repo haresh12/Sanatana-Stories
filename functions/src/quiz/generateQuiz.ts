@@ -42,6 +42,13 @@ function shuffle(array: string[]): string[] {
   return array;
 }
 
+/**
+ * Generates quiz content using Gemini Api.
+ *
+ * @param {string[]} chosenTopics - The topics to generate questions about.
+ * @param {string} difficulty - The difficulty level of the questions.
+ * @returns {Promise<GenerateQuizQuestionsResponse | null>} - The generated quiz questions or null if an error occurs.
+ */
 const generateQuizContent = async (chosenTopics: string[], difficulty: string): Promise<GenerateQuizQuestionsResponse | null> => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
@@ -101,6 +108,17 @@ const generateQuizContent = async (chosenTopics: string[], difficulty: string): 
   }
 };
 
+/**
+ * Cloud Function to generate quiz questions about Hindu culture.
+ *
+ * This function randomly selects topics and a difficulty level, then uses Google Generative AI
+ * to generate quiz questions. The generated questions and topics are returned.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the quiz questions and topics.
+ * @throws {functions.https.HttpsError} Throws an internal error if the quiz questions cannot be generated.
+ */
 export const generateQuiz = functions.https.onCall(async (data, context) => {
   try {
     const shuffledMustTopics = shuffle([...mustTopics]);

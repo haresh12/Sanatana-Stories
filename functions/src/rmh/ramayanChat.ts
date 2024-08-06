@@ -41,6 +41,19 @@ function cleanTextForAudio(text: string): string {
   return text.replace(/\*\*/g, '').replace(/[\u{1F600}-\u{1F64F}]/gu, '');
 }
 
+/**
+ * Cloud Function to handle chat interactions related to the Ramayan.
+ *
+ * This function receives a message from a user, processes it using Google Generative AI,
+ * and returns a response with synthesized speech. The response is based on the Ramayan.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.userId - The user ID.
+ * @param {string} data.message - The message from the user.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the message and audio URL.
+ * @throws {functions.https.HttpsError} Throws an internal error if the chat cannot be processed.
+ */
 export const ramayanChat = functions.https.onCall(async (data, context) => {
   const { userId, message } = data;
 

@@ -11,6 +11,12 @@ const bucket = storage.bucket();
 const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 const textToSpeechClient = new TextToSpeechClient();
 
+/**
+ * Shuffles an array in place.
+ *
+ * @param {string[]} array - The array to shuffle.
+ * @returns {string[]} - The shuffled array.
+ */
 function shuffle(array: string[]) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -18,6 +24,7 @@ function shuffle(array: string[]) {
   }
   return array;
 }
+
 
 const topics = [
   'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Hindu culture', 'Vedas', 
@@ -31,6 +38,14 @@ const topics = [
 const hosts = ['Neha Sharma', 'Priya Kumar', 'Shreya Mehta'];
 const guests = ['Sadhguru', 'Swami Vivekananda', 'Sri Sri Ravi Shankar', 'Baba Ramdev', 'Osho'];
 
+/**
+ * Synthesizes speech from text and saves it as an MP3 file.
+ *
+ * @param {string} text - The text to synthesize.
+ * @param {string} voiceName - The name of the voice to use for synthesis.
+ * @param {string} outputFile - The path to the output file.
+ * @returns {Promise<void>}
+ */
 async function textToSpeech(text: string, voiceName: string, outputFile: string) {
   if (!text) {
     throw new Error('Text input is empty');
@@ -45,6 +60,15 @@ async function textToSpeech(text: string, voiceName: string, outputFile: string)
   fs.writeFileSync(outputFile, response.audioContent as Uint8Array, 'binary');
 }
 
+
+/**
+ * Merges multiple audio files into a single output file without batch.
+ *
+ * @param {string[]} audioFiles - The array of audio files to merge.
+ * @param {string} outputFile - The path to the output file.
+ * @param {string} tmpFolder - The temporary folder to use.
+ * @returns {Promise<string>} - The path to the merged output file.
+ */
 async function mergeAudioFiles(audioFiles: string[], outputFile: string, tmpFolder: string) {
   return new Promise((resolve, reject) => {
     const command = ffmpeg();
@@ -64,6 +88,19 @@ async function mergeAudioFiles(audioFiles: string[], outputFile: string, tmpFold
   });
 }
 
+/**
+ * Cloud Function to generate a podcast script and audio file.
+ *
+ * This function generates a podcast script based on randomly selected topics, hosts, and guests,
+ * converts the script to audio using text-to-speech, merges the audio files, uploads the final
+ * podcast audio to Firebase Storage, and stores the podcast details in Firestore.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.userId - The user ID for whom the podcast is generated.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the podcast title, script, and audio URL.
+ * @throws {functions.https.HttpsError} Throws an internal error if the podcast script or audio cannot be generated.
+ */
 export const generatePodcast = functions
   .runWith({
     timeoutSeconds: 540,

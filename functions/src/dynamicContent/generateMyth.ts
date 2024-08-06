@@ -35,6 +35,12 @@ const topics = [
   'Hindu perspectives on wealth and prosperity', 'The story of the Mahabharata and its moral lessons', 'The importance of chanting and mantras in Hindu worship', 'The influence of Hinduism on Indian cinema'
 ];
 
+/**
+ * Shuffles an array in place.
+ *
+ * @param {string[]} array - The array to shuffle.
+ * @returns {string[]} - The shuffled array.
+ */
 function shuffle(array: string[]) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -43,6 +49,17 @@ function shuffle(array: string[]) {
   return array;
 }
 
+/**
+ * Cloud Function to generate a myth about Hindu culture.
+ *
+ * This function selects a random topic from a predefined list and uses Google Generative AI
+ * to generate a myth about that topic. The myth is then saved to Firestore.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the generated myth and its topic.
+ * @throws {functions.https.HttpsError} Throws an internal error if the myth cannot be generated.
+ */
 export const generateMyth = functions.https.onCall(async (data, context) => {
   shuffle(topics);
   const chosenTopic = topics[0];

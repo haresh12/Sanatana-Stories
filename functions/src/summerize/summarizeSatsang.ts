@@ -4,6 +4,19 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
+/**
+ * Cloud Function to summarize a YouTube Satsang video.
+ *
+ * This function fetches the transcript of a YouTube video, classifies the content as either
+ * "spiritual" or "other," and generates a summary if the content is spiritual. If the content
+ * is not spiritual, it provides a humorous response.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.videoUrl - The URL of the YouTube video.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the summary of the video or a humorous response.
+ * @throws {functions.https.HttpsError} Throws an error if the video URL is invalid, no transcript is found, or the video cannot be processed.
+ */
 export const summarizeSatsang = functions.https.onCall(async (data, context) => {
   const { videoUrl } = data;
 

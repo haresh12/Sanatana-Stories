@@ -3,6 +3,20 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
+/**
+ * Cloud Function to get detailed information about a myth or fun fact related to Hindu culture.
+ *
+ * This function receives a piece of content (either a myth or a fun fact) and its type, 
+ * and uses Google Generative AI to provide a detailed explanation. The explanation includes 
+ * the significance, origin, and related stories, and is written in 5 to 8 sentences.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.content - The content (myth or fun fact) to explain.
+ * @param {string} data.type - The type of content ('myth' or 'fun fact').
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the detailed explanation.
+ * @throws {functions.https.HttpsError} Throws an internal error if the detailed information cannot be fetched.
+ */
 export const getDetailedInfo = functions.https.onCall(async (data, context) => {
   const { content, type } = data;
 
