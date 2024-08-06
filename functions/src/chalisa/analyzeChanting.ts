@@ -3,6 +3,19 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
+/**
+ * Cloud Function to analyze chanting of the Hanuman Chalisa.
+ *
+ * This function receives a transcript of chanting and the duration, then uses Google Generative AI
+ * to evaluate the transcript based on completion, accuracy, pronunciation, fluency, and timing.
+ * It provides an overall score out of 10 and suggestions for improvement.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.transcript - The transcript of the chanting.
+ * @param {string} data.time - The time duration of the chanting.
+ * @param {Object} context - The context of the function call.
+ * @returns {Object} An object containing the analysis text and score.
+ */
 export const analyzeChanting = functions.https.onCall(async (data, context) => {
   const { transcript, time } = data;
 

@@ -4,6 +4,15 @@ import * as functions from 'firebase-functions';
 const db = admin.firestore();
 const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
+/**
+ * Generates and sends an AI message to encourage participation in the community chat.
+ *
+ * This function retrieves the most recent messages from the 'comments' collection and uses
+ * Google Generative AI to create a friendly, engaging, and relevant message that encourages
+ * users to participate in the chat. The generated message is then added to the 'comments' collection.
+ *
+ * @returns {Promise<void>}
+ */
 export const sendAIMessage = async () => {
   const messagesRef = db.collection('comments').orderBy('timestamp', 'desc').limit(5);
   const snapshot = await messagesRef.get();

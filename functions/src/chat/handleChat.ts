@@ -13,6 +13,14 @@ const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 const textToSpeechClient = new TextToSpeechClient();
 const writeFile = util.promisify(fs.writeFile);
 
+/**
+ * Synthesizes speech from text and saves it as an MP3 file.
+ *
+ * @param {string} text - The text to synthesize.
+ * @param {string} outputFile - The path to the output file.
+ * @param {string} voiceName - The name of the voice to use for synthesis.
+ * @returns {Promise<void>}
+ */
 async function synthesizeSpeech(text: string, outputFile: string, voiceName: string): Promise<void> {
   const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
     input: { text },
@@ -23,6 +31,14 @@ async function synthesizeSpeech(text: string, outputFile: string, voiceName: str
   await writeFile(outputFile, response.audioContent as Uint8Array, 'binary');
 }
 
+
+/**
+ * Uploads a file to Firebase Storage and returns its download URL.
+ *
+ * @param {string} filePath - The path to the file to upload.
+ * @param {string} destination - The destination path in Firebase Storage.
+ * @returns {Promise<string>}
+ */
 async function uploadFileToStorage(filePath: string, destination: string): Promise<string> {
   const [file] = await bucket.upload(filePath, {
     destination,
@@ -37,10 +53,30 @@ async function uploadFileToStorage(filePath: string, destination: string): Promi
   return `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(file.name)}?alt=media&token=${fileMetadata?.metadata?.firebaseStorageDownloadTokens}`;
 }
 
+/**
+ * Cleans text for audio synthesis by removing certain characters.
+ *
+ * @param {string} text - The text to clean.
+ * @returns {string} - The cleaned text.
+ */
 function cleanTextForAudio(text: string): string {
   return text.replace(/\*\*/g, '').replace(/[\u{1F600}-\u{1F6FF}]/gu, '');
 }
 
+/**
+ * Cloud Function to handle chat interactions with deities.
+ *
+ * This function receives a message from a user, processes it using Google Generative AI,
+ * and returns a response with synthesized speech.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.userId - The user ID.
+ * @param {string} data.godName - The name of the deity.
+ * @param {string} data.message - The message from the user.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the message and audio URL.
+ * @throws {functions.https.HttpsError} Throws an internal error if the chat cannot be processed.
+ */
 export const handleChat = functions.https.onCall(async (data, context) => {
   const { userId, godName, message } = data;
 

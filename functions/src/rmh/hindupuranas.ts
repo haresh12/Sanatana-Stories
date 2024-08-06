@@ -13,6 +13,13 @@ const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 const textToSpeechClient = new TextToSpeechClient();
 const writeFile = util.promisify(fs.writeFile);
 
+/**
+ * Synthesizes speech from text and saves it as an MP3 file.
+ *
+ * @param {string} text - The text to synthesize.
+ * @param {string} outputFile - The path to the output file.
+ * @returns {Promise<void>}
+ */
 async function synthesizeSpeech(text: string, outputFile: string): Promise<void> {
   const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
     input: { text },
@@ -41,6 +48,19 @@ function cleanTextForAudio(text: string): string {
   return text.replace(/\*\*/g, '').replace(/[\u{1F600}-\u{1F64F}]/gu, '');
 }
 
+/**
+ * Cloud Function to handle chat interactions related to the Hindu Puranas.
+ *
+ * This function receives a message from a user, processes it using Google Generative AI,
+ * and returns a response with synthesized speech. The response is based on the Hindu Puranas.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.userId - The user ID.
+ * @param {string} data.message - The message from the user.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the message and audio URL.
+ * @throws {functions.https.HttpsError} Throws an internal error if the chat cannot be processed.
+ */
 export const puranasChat = functions.https.onCall(async (data, context) => {
   const { userId, message } = data;
 

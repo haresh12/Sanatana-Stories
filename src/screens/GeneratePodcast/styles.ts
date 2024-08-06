@@ -1,4 +1,6 @@
 import { SxProps } from '@mui/system';
+import { Button, Card, Box, Typography, Tab, Tabs } from '@mui/material';
+import { styled } from '@mui/system';
 
 export const generateButtonStyle: SxProps = {
   backgroundColor: '#ff5722',
@@ -67,8 +69,6 @@ export const styledTabsStyle: SxProps = {
   },
   marginBottom: 2,
 };
-import { Button, Card, Box, Typography, Tab, Tabs } from '@mui/material';
-import { styled } from '@mui/system';
 
 export const GenerateButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#ff5722',

@@ -3,6 +3,19 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
+/**
+ * Cloud Function to generate a story about a Hindu temple.
+ *
+ * This function generates an engaging and unique story about a given Hindu temple using Google Generative AI.
+ * The story can include the temple's historical significance, unique rituals, festivals, miracles, cultural impact,
+ * famous visitors, architectural marvels, and more.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.templeName - The name of the temple.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the generated story.
+ * @throws {functions.https.HttpsError} Throws an internal error if the story cannot be generated.
+ */
 export const generateStory = functions.https.onCall(async (data, context) => {
   const { templeName } = data;
 

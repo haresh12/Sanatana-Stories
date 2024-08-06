@@ -41,6 +41,20 @@ function cleanTextForAudio(text: string): string {
   return text.replace(/\*\*/g, '').replace(/[\u{1F600}-\u{1F6FF}]/gu, '');
 }
 
+/**
+ * Cloud Function to handle chat interactions with temples.
+ *
+ * This function receives a message from a user, processes it using Google Generative AI,
+ * and returns a response with synthesized speech.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.userId - The user ID.
+ * @param {string} data.templeName - The name of the temple.
+ * @param {string} data.message - The message from the user.
+ * @param {Object} context - The context of the function call.
+ * @returns {Promise<Object>} An object containing the message and audio URL.
+ * @throws {functions.https.HttpsError} Throws an internal error if the chat cannot be processed.
+ */
 export const templeChat = functions.https.onCall(async (data, context) => {
   const { userId, templeName, message } = data;
 
