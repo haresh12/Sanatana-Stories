@@ -6,7 +6,7 @@ body {
 }
 
 .overlay-background {
-  background: url('./bgCover.jpg') no-repeat center center;
+  background: url('./bgCover.webp') no-repeat center center;
   background-size: cover;
   position: fixed;
   top: 0;
