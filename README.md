@@ -131,6 +131,3 @@ Sanatan Stories extensively utilizes Firebase and Gemini API for various functio
 - **UI Components:** Material-UI provides a robust set of components to create a visually appealing and responsive user interface.
 - **Animations:** Framer Motion adds dynamic animations to improve user experience.
 - **Type Safety:** TypeScript ensures type safety, reducing runtime errors and improving code maintainability.
-
-## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
