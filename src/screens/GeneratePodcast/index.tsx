@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Container, Typography, Box, Grid, List, ListItem, ListItemText, CircularProgress, Button, CardContent, CardActions, Tabs, Tab, useMediaQuery } from '@mui/material';
+import { Container, Typography, Box, Grid, List, ListItem, ListItemText, CircularProgress, Button, CardContent, CardActions, Tabs, Tab, useMediaQuery, MenuItem, FormControl, Select, InputLabel, OutlinedInput } from '@mui/material';
 import { AnimatePresence } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
@@ -12,6 +12,15 @@ import { handleGeneratePodcast, handleListenToPodcast, handleStopPodcast } from 
 import { STRINGS } from '../../const/strings';
 import { FACTS } from '../../const/consts';
 
+const topics = [
+  'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Hindu culture', 'Vedas', 
+  'Upanishads', 'Yoga philosophy', 'Ayurveda', 'Hindu temples', 'Bhagavad Gita',
+  'Love and Relationships', 'Life and Happiness', 'Overcoming Challenges', 
+  'Finding Purpose', 'Mindfulness and Meditation', 'Spiritual Practices', 
+  'Festivals and Celebrations', 'Hindu Mythology', 'Deities and Worship', 
+  'Karma and Dharma', 'Pilgrimages'
+];
+
 const GeneratePodcast: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [script, setScript] = useState<PodcastSegment[]>([]);
@@ -21,6 +30,7 @@ const GeneratePodcast: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [tabIndex, setTabIndex] = useState(0);
+  const [selectedTopic, setSelectedTopic] = useState<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -65,7 +75,7 @@ const GeneratePodcast: React.FC = () => {
   }, []);
 
   const handleGenerate = async () => {
-    await handleGeneratePodcast(currentUser, setLoading, setScript, setAudioUrl, setTitle);
+    await handleGeneratePodcast(currentUser, setLoading, setScript, setAudioUrl, setTitle, selectedTopic);
   };
 
   const handleListen = () => {
@@ -95,6 +105,9 @@ const GeneratePodcast: React.FC = () => {
         paddingBottom: isMobile ? '5px' : '10px',
         height: '100vh',
         alignItems: 'center',
+        backgroundImage: 'url(/path-to-your-background-image.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}
     >
       <BackButton />
@@ -105,15 +118,29 @@ const GeneratePodcast: React.FC = () => {
         </StyledTabs>
       </Box>
       {tabIndex === 0 && (
-        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center">
-          <Typography variant={isMobile ? 'h5' : 'h4'} gutterBottom sx={{ color: '#ff5722', fontWeight: 'bold' }}>
-            {STRINGS.generatePodcast}
-          </Typography>
+        <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" sx={{ gap: '20px', padding: isMobile ? '10px' : '20px' }}>
+          <FormControl variant="outlined" sx={{ minWidth: 240, width: isMobile ? '100%' : '50%', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px' }}>
+            <InputLabel id="select-topic-label" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: '0 8px' }}>{STRINGS.selectTopic}</InputLabel>
+            <Select
+              labelId="select-topic-label"
+              id="select-topic"
+              value={selectedTopic}
+              onChange={(e) => setSelectedTopic(e.target.value as string)}
+              input={<OutlinedInput label={STRINGS.selectTopic} />}
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
+            >
+              {topics.map((topic, index) => (
+                <MenuItem key={index} value={topic}>
+                  {topic}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <GenerateButton
             variant="contained"
             onClick={handleGenerate}
-            disabled={loading}
-            sx={{ fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px 20px' : '10px 30px' }}
+            disabled={loading || !selectedTopic}
+            sx={{ fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px 20px' : '10px 30px', width: isMobile ? '100%' : 'auto' }}
           >
             {STRINGS.generatePodcast}
           </GenerateButton>

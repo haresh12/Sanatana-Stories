@@ -169,4 +169,5 @@ export const STRINGS = {
     mythDescription: 'Uncover the myths and legends of Hindu culture.',
     epicsAndPuranasTitle: 'Epics and Puranas',
     epicsAndPuranasDescription: 'Dive into the rich stories of Ramayan, Mahabharat, and Puranas.',
+    selectTopic : "Please Select Topic"
 };

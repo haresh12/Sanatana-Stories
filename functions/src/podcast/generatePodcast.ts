@@ -25,16 +25,6 @@ function shuffle(array: string[]) {
   return array;
 }
 
-
-const topics = [
-  'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Hindu culture', 'Vedas', 
-  'Upanishads', 'Yoga philosophy', 'Ayurveda', 'Hindu temples', 'Bhagavad Gita',
-  'Love and Relationships', 'Life and Happiness', 'Overcoming Challenges', 
-  'Finding Purpose', 'Mindfulness and Meditation', 'Spiritual Practices', 
-  'Festivals and Celebrations', 'Hindu Mythology', 'Deities and Worship', 
-  'Karma and Dharma', 'Pilgrimages'
-];
-
 const hosts = ['Neha Sharma', 'Priya Kumar', 'Shreya Mehta'];
 const guests = ['Sadhguru', 'Swami Vivekananda', 'Sri Sri Ravi Shankar', 'Baba Ramdev', 'Osho'];
 
@@ -59,7 +49,6 @@ async function textToSpeech(text: string, voiceName: string, outputFile: string)
   const [response] = await textToSpeechClient.synthesizeSpeech(request);
   fs.writeFileSync(outputFile, response.audioContent as Uint8Array, 'binary');
 }
-
 
 /**
  * Merges multiple audio files into a single output file without batch.
@@ -91,12 +80,13 @@ async function mergeAudioFiles(audioFiles: string[], outputFile: string, tmpFold
 /**
  * Cloud Function to generate a podcast script and audio file.
  *
- * This function generates a podcast script based on randomly selected topics, hosts, and guests,
+ * This function generates a podcast script based on selected topics, hosts, and guests,
  * converts the script to audio using text-to-speech, merges the audio files, uploads the final
  * podcast audio to Firebase Storage, and stores the podcast details in Firestore.
  *
  * @param {Object} data - The input data for the function.
  * @param {string} data.userId - The user ID for whom the podcast is generated.
+ * @param {string} data.topic - The selected topic for the podcast.
  * @param {Object} context - The context of the function call.
  * @returns {Promise<Object>} An object containing the podcast title, script, and audio URL.
  * @throws {functions.https.HttpsError} Throws an internal error if the podcast script or audio cannot be generated.
@@ -107,15 +97,14 @@ export const generatePodcast = functions
     memory: '1GB'
   })
   .https.onCall(async (data, context) => {
-    const { userId } = data;
-    if (!userId) {
-      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with the userId.');
+    const { userId, topic } = data;
+    if (!userId || !topic) {
+      throw new functions.https.HttpsError('invalid-argument', 'The function must be called with the userId and topic.');
     }
 
-    shuffle(topics);
     shuffle(hosts);
     shuffle(guests);
-    const chosenTopics = topics.slice(0, 3);
+    const chosenTopics = [topic];
     const hostName = hosts[0];
     const guestName = guests[0];
     const podcastTitle = `Podcast about ${chosenTopics.join(', ')}`;

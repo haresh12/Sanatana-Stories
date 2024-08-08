@@ -3,6 +3,7 @@ import { functions } from '../../firebaseConfig';
 import { GeneratePodcastResponse } from './types';
 import { STRINGS } from '../../const/strings';
 
+
 /**
  * Handles the generation of a podcast by calling the Firebase function and updating the state with the response data.
  * @param {any} currentUser - The current user object containing user details.
@@ -10,13 +11,15 @@ import { STRINGS } from '../../const/strings';
  * @param {(script: any[]) => void} setScript - Function to set the podcast script.
  * @param {(url: string | null) => void} setAudioUrl - Function to set the audio URL of the podcast.
  * @param {(title: string) => void} setTitle - Function to set the title of the podcast.
+ * @param {string} topic - The selected topic for the podcast.
  */
 export const handleGeneratePodcast = async (
   currentUser: any,
   setLoading: (value: boolean) => void,
   setScript: (script: any[]) => void,
   setAudioUrl: (url: string | null) => void,
-  setTitle: (title: string) => void
+  setTitle: (title: string) => void,
+  topic: string
 ) => {
   if (!currentUser) {
     return;
@@ -24,8 +27,8 @@ export const handleGeneratePodcast = async (
 
   setLoading(true);
   try {
-    const generatePodcast = httpsCallable<{ userId: string }, GeneratePodcastResponse>(functions, 'generatePodcast');
-    const response = await generatePodcast({ userId: currentUser.uid });
+    const generatePodcast = httpsCallable<{ userId: string, topic: string }, GeneratePodcastResponse>(functions, 'generatePodcast');
+    const response = await generatePodcast({ userId: currentUser.uid, topic });
     const data = response.data;
     setScript(data.script);
     setAudioUrl(data.audioUrl);
