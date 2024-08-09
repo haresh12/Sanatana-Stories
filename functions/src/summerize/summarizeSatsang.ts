@@ -75,26 +75,33 @@ export const summarizeSatsang = functions.https.onCall(async (data, context) => 
     const prompt = `
     Here is a transcript from a video:
     "${transcript}"
-  
+    
     Your task is to classify the content of this transcript into one of two categories: "spiritual" or "other."
-  
+    
     **Spiritual Content Criteria:**
-    - Consider the content "spiritual" if it contains any references to Hinduism, including but not limited to the following:
-      - Mention of Hindu deities (e.g., Lord Krishna, Lord Shiva, Goddess Durga)
-      - References to Hindu scriptures (e.g., Bhagavad Gita, Ramayana, Vedas, Upanishads)
-      - Discussions about gurus, spiritual leaders, or practices (e.g., meditation, yoga, satsang)
-      - Themes of self-realization, moksha, dharma, karma, or any other spiritual or religious teachings
-      - Any mention of temples, rituals, or spiritual ceremonies
-  
+    - Consider the content "spiritual" if it contains any references, even subtle or indirect, to Hinduism or spirituality, including but not limited to the following:
+      - **Mention of Hindu deities**: Such as Lord Krishna, Lord Shiva, Goddess Durga, Lord Ganesha, Goddess Lakshmi, or any other Hindu gods and goddesses.
+      - **References to Hindu scriptures**: Including but not limited to the Bhagavad Gita, Ramayana, Mahabharata, Vedas, Upanishads, Puranas, or other significant texts.
+      - **Discussions about gurus and spiritual leaders**: Teachings, discourses, or stories related to prominent Hindu gurus, saints, sages, or spiritual figures like Swami Vivekananda, Sri Ramakrishna, or modern-day spiritual leaders.
+      - **Spiritual practices**: Including but not limited to meditation, yoga, pranayama, satsang, bhajans, kirtans, japa (chanting), or any other spiritual rituals or practices.
+      - **Themes of spiritual growth and philosophy**: Such as self-realization, moksha (liberation), dharma (duty/righteousness), karma (action/consequence), reincarnation, the concept of the soul (Atman), or other spiritual teachings.
+      - **Mention of temples, rituals, or pilgrimages**: Including descriptions of temple visits, spiritual ceremonies, pujas, festivals like Diwali, Navratri, or other religious observances.
+      - **Content that promotes spiritual values and virtues**: Such as peace, love, compassion, devotion (bhakti), humility, detachment (vairagya), or teachings that encourage spiritual or moral development.
+      - **References to spiritual symbols**: Such as the Om symbol, the lotus flower, the Trishul, or any other spiritual iconography.
+      - **Mention of spiritual myths, stories, or legends**: Stories from the epics like Ramayana, Mahabharata, or other mythological narratives that convey moral and spiritual lessons.
+      - **Any language or context**: Even if it's subtle, that hints at spiritual enlightenment, inner peace, divine connection, or the pursuit of spiritual truth.
+    
     **Non-Spiritual Content Criteria:**
     - Consider the content "other" if it does not contain any of the above-mentioned elements.
-  
+    - Examples of non-spiritual content might include topics such as lifestyle, technology, entertainment, news, or general education that are not explicitly related to spiritual or religious themes.
+    
     **Instructions:**
-    - If the content is spiritual, generate a concise summary that highlights the main points, essential details, and key takeaways. The summary should be engaging, easy to understand, and focused on the spiritual aspects.
-    - If the content is not spiritual, respond with a humorous statement saying: "This video is not spiritual, so we can't generate a summary."
-  
-    Ensure that your classification is based on a deep understanding of Hinduism and spiritual concepts, and be as accurate as possible in your assessment.
-  `;
+    - If there is even a minimal indication (as low as 0.001%) that the content is spiritual, proceed to generate a transcript and classify it as "spiritual."
+    - If the content is spiritual, generate a concise summary that highlights the main points, essential details, and key takeaways. The summary should be engaging, easy to understand, and focused on the spiritual aspects of the video.
+    - If the content is classified as "other," respond with a humorous statement like: "This video isn't about spirituality, so we can't generate a summary. Maybe next time!"
+    
+    Ensure that your classification is based on a comprehensive and deep understanding of Hinduism, spirituality, and related cultural concepts. Your assessment should be as accurate and thoughtful as possible, considering both explicit and implicit references to spiritual content.
+    `;
   
 
     const model = genAI.getGenerativeModel({
