@@ -27,22 +27,75 @@ export const summarizeSatsang = functions.https.onCall(async (data, context) => 
 
   const videoId = videoIdMatch[1];
 
+  let transcript = '';
+
   try {
     const transcriptParts = await YoutubeTranscript.fetchTranscript(videoId);
     if (!transcriptParts || transcriptParts.length === 0) {
-      throw new functions.https.HttpsError('not-found', 'No transcript found for this video');
+      throw new Error('Transcript not found');
     }
 
-    const transcript = transcriptParts.map(part => part.text).join(' ');
+    transcript = transcriptParts.map(part => part.text).join(' ');
+  } catch (error) {
+    console.error('Error fetching transcript from YouTube:', error);
 
-    const prompt = `
-      Here is a transcript from a video:
-      "${transcript}"
-      
-      First, classify the content of this transcript. Respond with "spiritual" if it is related to spiritual or satsang topics, otherwise respond with "other".
-      If the content is spiritual, make sure if transcript contains any single word about hindu things then it is spritual video provide a summary that highlights the main points, essential details, and key takeaways. Ensure the summary is concise, engaging, and easy to understand.
-      If the content is not spiritual, then don't need to say anything about transcript of video we just need to say this video is not spritual so can't not generate transcript but we need to say it funny way
+    // Fallback to Gemini to obtain the transcript
+    const fallbackPrompt = `
+      Please provide a transcript for the following YouTube video:
+      URL: ${videoUrl}
     `;
+
+    try {
+      const model = genAI.getGenerativeModel({
+        model: 'gemini-1.5-pro',
+        systemInstruction: `
+          You are an expert in analyzing and summarizing content. Your task is to retrieve the transcript for the provided YouTube URL.
+        `,
+        generationConfig: {
+          temperature: 0.7,
+          topK: 50,
+          topP: 0.9,
+          maxOutputTokens: 2000,
+        },
+      });
+
+      const fallbackResult = await model.generateContent(fallbackPrompt);
+      transcript = await fallbackResult.response.text();
+
+      if (!transcript || transcript.trim() === '') {
+        throw new Error('Gemini failed to retrieve the transcript');
+      }
+    } catch (fallbackError) {
+      console.error('Error retrieving transcript using Gemini:', fallbackError);
+      throw new functions.https.HttpsError('internal', 'Unable to retrieve transcript. Please ensure the video has captions enabled.');
+    }
+  }
+
+  try {
+    const prompt = `
+    Here is a transcript from a video:
+    "${transcript}"
+  
+    Your task is to classify the content of this transcript into one of two categories: "spiritual" or "other."
+  
+    **Spiritual Content Criteria:**
+    - Consider the content "spiritual" if it contains any references to Hinduism, including but not limited to the following:
+      - Mention of Hindu deities (e.g., Lord Krishna, Lord Shiva, Goddess Durga)
+      - References to Hindu scriptures (e.g., Bhagavad Gita, Ramayana, Vedas, Upanishads)
+      - Discussions about gurus, spiritual leaders, or practices (e.g., meditation, yoga, satsang)
+      - Themes of self-realization, moksha, dharma, karma, or any other spiritual or religious teachings
+      - Any mention of temples, rituals, or spiritual ceremonies
+  
+    **Non-Spiritual Content Criteria:**
+    - Consider the content "other" if it does not contain any of the above-mentioned elements.
+  
+    **Instructions:**
+    - If the content is spiritual, generate a concise summary that highlights the main points, essential details, and key takeaways. The summary should be engaging, easy to understand, and focused on the spiritual aspects.
+    - If the content is not spiritual, respond with a humorous statement saying: "This video is not spiritual, so we can't generate a summary."
+  
+    Ensure that your classification is based on a deep understanding of Hinduism and spiritual concepts, and be as accurate as possible in your assessment.
+  `;
+  
 
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-pro',
@@ -50,10 +103,9 @@ export const summarizeSatsang = functions.https.onCall(async (data, context) => 
         You are an expert in analyzing and summarizing content. Your task is to classify the provided transcript and either summarize it if it is spiritual or provide a humorous response if it is not.
       `,
       generationConfig: {
-        temperature: 0.7,
+        temperature: 0.8,
         topK: 50,
         topP: 0.9,
-        maxOutputTokens: 300,
       },
     });
 
@@ -62,7 +114,7 @@ export const summarizeSatsang = functions.https.onCall(async (data, context) => 
 
     return { summary: responseText.trim() };
   } catch (error) {
-    console.error('Error processing video:', error);
-    throw new functions.https.HttpsError('internal', 'Unable to process video. Please ensure the video has captions enabled.');
+    console.error('Error generating summary:', error);
+    throw new functions.https.HttpsError('internal', 'Unable to generate summary. Please try again later.');
   }
 });
