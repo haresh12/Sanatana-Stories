@@ -16,6 +16,20 @@ const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
  * @param {Object} context - The context of the function call.
  * @returns {Object} An object containing the analysis text and score.
  */
+
+/**
+ * Cloud Function to analyze chanting of the Hanuman Chalisa.
+ *
+ * This function receives a transcript of chanting and the duration, then uses Google Generative AI
+ * to evaluate the transcript based on completion, accuracy, pronunciation, fluency, and timing.
+ * It provides an overall score out of 10 and suggestions for improvement.
+ *
+ * @param {Object} data - The input data for the function.
+ * @param {string} data.transcript - The transcript of the chanting.
+ * @param {string} data.time - The time duration of the chanting.
+ * @param {Object} context - The context of the function call.
+ * @returns {Object} An object containing the analysis text and score.
+ */
 export const analyzeChanting = functions.https.onCall(async (data, context) => {
   const { transcript, time } = data;
 
@@ -35,13 +49,16 @@ export const analyzeChanting = functions.https.onCall(async (data, context) => {
       4. **Fluency**: Smoothness and rhythm.
       5. **Timing**: Suitability of the chanting duration.
 
-      Always provide an overall score out of 10. If no words from the Hanuman Chalisa are present in the transcript, give a score of 0. If the score is between 0 and 3, ensure the response is humorous and encouraging.
+      Provide an overall score out of 10, with at least 1 point awarded for partially correct chanting. 
+      - If the chanting includes a few correct words, give at least 1 or 2 points.
+      - If no words from the Hanuman Chalisa are present, give a score of 0.
+      - If the score is between 0 and 3, ensure the response is humorous and encouraging.
     `
   });
 
   try {
     const prompt = `
-      As Tulsidas, analyze the following chanting transcript of the Hanuman Chalisa: "${transcript}", which was chanted in ${time}. Determine if it matches the Hanuman Chalisa and provide suggestions for improvement and a score out of 10. If no words from the Hanuman Chalisa are present in the transcript, give a score of 0. If the score is between 0 and 3, provide a humorous and encouraging response. Use the following schema:
+      As Tulsidas, analyze the following chanting transcript of the Hanuman Chalisa: "${transcript}", which was chanted in ${time}. Determine if it matches the Hanuman Chalisa and provide suggestions for improvement and a score out of 10. If a few words from the Hanuman Chalisa are correct, give at least 1 or 2 points. If no words from the Hanuman Chalisa are present in the transcript, give a score of 0. If the score is between 0 and 3, provide a humorous and encouraging response. Use the following schema:
       {
         "type": "object",
         "properties": {

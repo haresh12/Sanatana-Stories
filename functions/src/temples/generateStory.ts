@@ -37,7 +37,7 @@ export const generateStory = functions.https.onCall(async (data, context) => {
       temperature: 1,  
       topK: 40,        
       topP: 0.95,       
-      maxOutputTokens: 500 
+      maxOutputTokens: 25000 
     }
   });
 

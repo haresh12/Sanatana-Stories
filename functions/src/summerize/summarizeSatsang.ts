@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions';
 import { YoutubeTranscript } from 'youtube-transcript';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-
+//REMOVED FEATURE
 const genAI = new GoogleGenerativeAI(functions.config().googleapi.key);
 
 /**

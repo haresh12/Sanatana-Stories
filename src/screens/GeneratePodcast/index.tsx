@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Container, Typography, Box, Grid, List, ListItem, ListItemText, CircularProgress, Button, CardContent, CardActions, Tabs, Tab, useMediaQuery, MenuItem, FormControl, Select, InputLabel, OutlinedInput } from '@mui/material';
-import { AnimatePresence } from 'framer-motion';
+import { Container, Typography, Box, Grid, List, ListItem, ListItemText, CircularProgress, Button, CardContent, CardActions, useMediaQuery, MenuItem, FormControl, Select, OutlinedInput } from '@mui/material';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import BackButton from '../../components/BackButton';
@@ -13,12 +13,12 @@ import { STRINGS } from '../../const/strings';
 import { FACTS } from '../../const/consts';
 
 const topics = [
-  'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Hindu culture', 'Vedas', 
-  'Upanishads', 'Yoga philosophy', 'Ayurveda', 'Hindu temples', 'Bhagavad Gita',
-  'Love and Relationships', 'Life and Happiness', 'Overcoming Challenges', 
-  'Finding Purpose', 'Mindfulness and Meditation', 'Spiritual Practices', 
-  'Festivals and Celebrations', 'Hindu Mythology', 'Deities and Worship', 
-  'Karma and Dharma', 'Pilgrimages'
+  'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Hindu culture', 'Vedas',
+  'Upanishads', 'Yoga philosophy', 'Ayurveda', 'Bhagavad Gita',
+  'Indian Festivals', 'Hindu Mythology', 'Deities and Worship',
+  'Karma and Dharma', 'Spiritual Practices', 'Temples of India',
+  'Hindu Rituals', 'Meditation and Mindfulness', 'Bhakti Movement',
+  'Ancient Indian Sciences', 'Philosophy of Hinduism'
 ];
 
 const GeneratePodcast: React.FC = () => {
@@ -30,7 +30,7 @@ const GeneratePodcast: React.FC = () => {
   const [title, setTitle] = useState<string>('');
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [tabIndex, setTabIndex] = useState(0);
-  const [selectedTopic, setSelectedTopic] = useState<string>('');
+  const [selectedTopic, setSelectedTopic] = useState<string>(topics[0]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -45,6 +45,13 @@ const GeneratePodcast: React.FC = () => {
         ...doc.data(),
       })) as Podcast[];
       setPodcasts(fetchedPodcasts);
+
+      // Select the first podcast by default if available
+      if (fetchedPodcasts.length > 0) {
+        setScript(fetchedPodcasts[0].script);
+        setAudioUrl(fetchedPodcasts[0].audioUrl);
+        setTitle(fetchedPodcasts[0].title);
+      }
     });
 
     return () => unsubscribe();
@@ -91,6 +98,13 @@ const GeneratePodcast: React.FC = () => {
   };
 
   const handlePodcastClick = (podcast: Podcast) => {
+    // Stop the current podcast if playing
+    if (audioRef.current && !audioRef.current.paused) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+
     setScript(podcast.script);
     setAudioUrl(podcast.audioUrl);
     setTitle(podcast.title);
@@ -119,15 +133,48 @@ const GeneratePodcast: React.FC = () => {
       </Box>
       {tabIndex === 0 && (
         <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" sx={{ gap: '20px', padding: isMobile ? '10px' : '20px' }}>
-          <FormControl variant="outlined" sx={{ minWidth: 240, width: isMobile ? '100%' : '50%', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '8px' }}>
-            <InputLabel id="select-topic-label" sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', padding: '0 8px' }}>{STRINGS.selectTopic}</InputLabel>
+          <FormControl variant="outlined" sx={{ minWidth: 200, maxWidth: 300, width: '100%', backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', border: 'none', position: 'relative' }}>
+            <Box
+              sx={{
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                borderRadius: '24px',
+                padding: '2px',
+                background: 'linear-gradient(90deg, rgba(255, 85, 0, 1) 0%, rgba(255, 212, 0, 1) 100%)',
+                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                WebkitMaskComposite: 'destination-out',
+                maskComposite: 'exclude',
+                animation: 'borderAnimation 3s infinite',
+                '@keyframes borderAnimation': {
+                  '0%': {
+                    transform: 'translateX(0%)',
+                  },
+                  '100%': {
+                    transform: 'translateX(100%)',
+                  },
+                },
+              }}
+            />
             <Select
               labelId="select-topic-label"
               id="select-topic"
               value={selectedTopic}
               onChange={(e) => setSelectedTopic(e.target.value as string)}
-              input={<OutlinedInput label={STRINGS.selectTopic} />}
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)' }}
+              input={<OutlinedInput />}
+              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.9)', borderRadius: '24px', '& .MuiOutlinedInput-input': { padding: '10px 24px' }, '& fieldset': { border: 'none' } }}
+              MenuProps={{
+                PaperProps: {
+                  sx: {
+                    borderRadius: '24px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    mt: 1,
+                  },
+                },
+              }}
             >
               {topics.map((topic, index) => (
                 <MenuItem key={index} value={topic}>
@@ -136,14 +183,15 @@ const GeneratePodcast: React.FC = () => {
               ))}
             </Select>
           </FormControl>
-          <GenerateButton
-            variant="contained"
-            onClick={handleGenerate}
-            disabled={loading || !selectedTopic}
-            sx={{ fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px 20px' : '10px 30px', width: isMobile ? '100%' : 'auto' }}
-          >
-            {STRINGS.generatePodcast}
-          </GenerateButton>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <GenerateButton
+              variant="contained"
+              onClick={handleGenerate}
+              sx={{ fontSize: isMobile ? '14px' : '16px', padding: isMobile ? '8px 20px' : '10px 30px', width: isMobile ? '100%' : 'auto', borderRadius: '24px' }}
+            >
+              {STRINGS.generatePodcast}
+            </GenerateButton>
+          </motion.div>
         </Box>
       )}
       {tabIndex === 1 && (
@@ -197,7 +245,7 @@ const GeneratePodcast: React.FC = () => {
                         onClick={handleStop}
                         sx={{
                           backgroundColor: '#81c784',
-                          borderRadius: '30px',
+                          borderRadius: '24px',
                           padding: isMobile ? '8px 20px' : '10px 30px',
                           fontSize: isMobile ? '14px' : '16px',
                           '&:hover': {
@@ -217,7 +265,7 @@ const GeneratePodcast: React.FC = () => {
                         onClick={handleListen}
                         sx={{
                           backgroundColor: '#81c784',
-                          borderRadius: '30px',
+                          borderRadius: '24px',
                           padding: isMobile ? '8px 20px' : '10px 30px',
                           fontSize: isMobile ? '14px' : '16px',
                           '&:hover': {
@@ -269,7 +317,7 @@ const GeneratePodcast: React.FC = () => {
                     onClick={handleStop}
                     sx={{
                       backgroundColor: '#81c784',
-                      borderRadius: '30px',
+                      borderRadius: '24px',
                       padding: isMobile ? '8px 20px' : '10px 30px',
                       fontSize: isMobile ? '14px' : '16px',
                       '&:hover': {
@@ -289,7 +337,7 @@ const GeneratePodcast: React.FC = () => {
                     onClick={handleListen}
                     sx={{
                       backgroundColor: '#81c784',
-                      borderRadius: '30px',
+                      borderRadius: '24px',
                       padding: isMobile ? '8px 20px' : '10px 30px',
                       fontSize: isMobile ? '14px' : '16px',
                       '&:hover': {
