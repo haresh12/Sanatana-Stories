@@ -13,8 +13,6 @@ import { QuizQuestion } from './types';
 import { STRINGS } from '../../const/strings';
 import { DARK_FACTS } from '../../const/consts';
 
-
-
 const Quiz: React.FC = () => {
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [topics, setTopics] = useState<string[]>([]);
@@ -117,7 +115,7 @@ const Quiz: React.FC = () => {
           )}
           {loading ? (
             <>
-              <CircularProgress aria-busy="true" size={isMobile ? 40 : 60} />
+              <CircularProgress aria-busy="true" size={isMobile ? 30 : 40} />
               <Typography variant="h6" sx={{ color: '#ff5722', marginTop: '20px' }}>
                 {DARK_FACTS[factIndex]}
               </Typography>
@@ -162,7 +160,7 @@ const Quiz: React.FC = () => {
                           <CircularProgress
                             variant="determinate"
                             value={progress}
-                            size={isMobile ? 50 : 60}
+                            size={isMobile ? 40 : 50}
                             thickness={4}
                             sx={{
                               color: progress === 100 ? '#4caf50' : '#ff5722',

@@ -38,14 +38,13 @@ export const handleSendMessage = async (
   if (input.trim() === '') return;
   setLoading(true);
   try {
+    setInput('');
     const docRef = await addDoc(collection(db, 'comments'), {
       user: currentUser?.email,
       text: input,
       name: userName ?? currentUser?.displayName ?? 'Anonymous',
       timestamp: serverTimestamp()
     });
-
-    // Wait for the extension to update the document with attribute_scores
     setTimeout(async () => {
       const docSnapshot = await getDoc(docRef);
       const data = docSnapshot.data() as Message;
@@ -67,7 +66,6 @@ export const handleSendMessage = async (
       }
     }, 2000);
 
-    setInput('');
   } catch (error) {
     console.error(STRINGS.errorSendingMessage, error);
   }

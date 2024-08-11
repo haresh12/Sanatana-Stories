@@ -28,9 +28,7 @@ export const getDetailedInfo = functions.https.onCall(async (data, context) => {
     model: 'gemini-1.5-pro',
     generationConfig: {
       temperature: 0.8,  
-      topK: 20, 
-      topP: 0.8, 
-      maxOutputTokens: 5000,  
+      maxOutputTokens: 2000,  
     },
     systemInstruction: systemInstruction
   });

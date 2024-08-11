@@ -30,12 +30,12 @@ export const handleGeneratePodcast = async (
     const generatePodcast = httpsCallable<{ userId: string, topic: string }, GeneratePodcastResponse>(functions, 'generatePodcast');
     const response = await generatePodcast({ userId: currentUser.uid, topic });
     const data = response.data;
-    console.log('DATA HERE IS',response.data)
     setScript(data.script);
     setAudioUrl(data.audioUrl);
     setTitle(data.title);
   } catch (error) {
     console.error(STRINGS.errorGeneratingPodcast, error);
+    throw error; 
   } finally {
     setLoading(false);
   }

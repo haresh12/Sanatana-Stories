@@ -39,7 +39,6 @@ const Chat: React.FC<ChatProps> = ({templeName, initialMessages, setMessages }) 
         const handleTempleChat = httpsCallable<{ userId: string; templeName: string; message: string }, ChatResponse>(functions, 'templeChat');
         try {
           const response = await handleTempleChat({ userId: `${currentUser?.uid}`, templeName, message: '' });
-          console.log('response',response.data)
           setMessages([{ role: 'model', text: response.data.message, audioUrl: response.data.audioUrl }]);
         } catch (error) {
           console.error('Error fetching welcome message:', error);

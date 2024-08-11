@@ -53,7 +53,7 @@ export const STRINGS = {
     or: 'or',
     loginWithGoogle: 'Login with Google',
     noAccountSignUp: "Don't have an account? Sign Up",
-    whyThisProduct: 'Why this product and its use cases?',
+    whyThisProduct: 'Why this product and its impact?',
     emailHelperText: 'email-helper-text',
     passwordHelperText: 'password-helper-text',
     loginForm: 'Login form',
@@ -169,5 +169,7 @@ export const STRINGS = {
     mythDescription: 'Uncover the myths and legends of Hindu culture.',
     epicsAndPuranasTitle: 'Epics and Puranas',
     epicsAndPuranasDescription: 'Dive into the rich stories of Ramayan, Mahabharat, and Puranas.',
-    selectTopic : "Please Select Topic"
+    selectTopic: "Please Select Topic",
+    showLess: 'Show Less',
+    readMore: 'Read More'
 };

@@ -61,9 +61,8 @@ async function generatePodcastScript(topic: string, hostName: string, guestName:
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
     generationConfig: {
-      temperature:1, 
+      temperature: 1, 
       responseMimeType: "application/json",
-      maxOutputTokens: 16000  
     },
     systemInstruction: `
       You are an expert in ${topic}. 
@@ -75,7 +74,7 @@ async function generatePodcastScript(topic: string, hostName: string, guestName:
   });
 
   const prompt = `
-    Generate a podcast script of around 20 minutes or approximately 25,000 words on the topic of ${topic}. 
+    Generate a podcast script of around 20 minutes or approximately 15,000 words on the topic of ${topic}. 
     The script should be structured as an array of objects with dialogues between host ${hostName} and guest ${guestName}. 
     Each object should have 'host' and 'guest' properties containing the dialogue. 
     Use the following schema:
@@ -177,6 +176,7 @@ export const generatePodcast = functions
       return { title: podcastData.title, script: podcastData.script, audioUrl: publicUrl };
     } catch (error) {
       console.error("Error generating podcast script:", error);
+
       throw new functions.https.HttpsError('internal', 'Unable to generate podcast script.');
     }
   });
