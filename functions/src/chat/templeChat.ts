@@ -156,7 +156,7 @@ export const templeChat = functions.https.onCall(async (data, context) => {
     // Add the new user message and model response to the history
     history.push({ role: 'user', parts: [{ text: message }] });
 
-    const chat = model.startChat({ history, generationConfig: { maxOutputTokens: 100 } });
+    const chat = model.startChat({ history, generationConfig: { maxOutputTokens: 15000 } });
     const result = await chat.sendMessage(message);
     const response = await result.response;
     const text = response.text();

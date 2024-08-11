@@ -166,10 +166,12 @@ const ChatPage: React.FC = () => {
                   sx={{
                     ...audioButtonStyle,
                     backgroundColor: playingIndex === index ? '#388e3c' : '#4caf50',
+                    width: '44px', // Increased size
+                    height: '44px', // Increased size
                   }}
                   aria-label={playingIndex === index ? STRINGS.pauseAudioAriaLabel : STRINGS.playAudioAriaLabel}
                 >
-                  {playingIndex === index ? <PauseIcon sx={{ fontSize: '20px' }} /> : <PlayArrowIcon sx={{ fontSize: '20px' }} />}
+                  {playingIndex === index ? <PauseIcon sx={{ fontSize: '24px' }} /> : <PlayArrowIcon sx={{ fontSize: '24px' }} />}
                 </IconButton>
               )}
             </Box>
@@ -187,7 +189,7 @@ const ChatPage: React.FC = () => {
           )}
           <div ref={messagesEndRef} />
         </Box>
-        <Box sx={inputContainerStyle}>
+        <Box sx={{ ...inputContainerStyle, alignItems: 'center' }}>
           <TextField
             variant="outlined"
             fullWidth
@@ -203,20 +205,26 @@ const ChatPage: React.FC = () => {
           <IconButton
             onClick={handleSendMessage}
             disabled={loading}
-            sx={sendButtonStyle}
+            sx={{
+              ...sendButtonStyle,
+              width: '44px', // Increased size
+              height: '44px', // Increased size
+            }}
             aria-label={STRINGS.sendMessageAriaLabel}
           >
-            <SendIcon />
+            <SendIcon sx={{ fontSize: '24px' }} /> {/* Increased icon size */}
           </IconButton>
           <IconButton
             onClick={() => handleSpeechInput(recognitionRef, listening, setListening)}
             sx={{
               ...speechButtonStyle,
+              width: '44px', // Increased size
+              height: '44px', // Increased size
               backgroundColor: listening ? '#ff5722' : '#e0e0e0',
             }}
             aria-label={listening ? STRINGS.listeningAriaLabel : STRINGS.startListeningAriaLabel}
           >
-            <MicIcon />
+            <MicIcon sx={{ fontSize: '24px', color: listening ? 'white' : 'gray' }} /> {/* Increased icon size */}
           </IconButton>
         </Box>
       </Box>
