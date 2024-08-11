@@ -84,7 +84,7 @@ export const cardDescriptionStyle: SxProps = {
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   display: '-webkit-box',
-  WebkitLineClamp: 3,
+  WebkitLineClamp: 5,
   WebkitBoxOrient: 'vertical',
 };
 

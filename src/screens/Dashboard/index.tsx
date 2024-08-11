@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch,useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Container, Grid, Card, CardContent, Typography, Box, Avatar, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
 import { motion } from 'framer-motion';
@@ -21,7 +21,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 import { CardInfo } from './types';
 import { containerStyle, logoutButtonStyle, dialogStyle, cardStyle, cardTitleStyle, cardDescriptionStyle, knowMoreButtonStyle, movingBorder, pulsingShadow } from './styles';
-import { truncateText, fetchDetailedInfo,capitalizeName } from './utils';
+import { truncateText, fetchDetailedInfo, capitalizeName } from './utils';
 import { STRINGS } from '../../const/strings';
 import {
   SHOW_HANUMAN_CHALISA,
@@ -29,7 +29,6 @@ import {
   SHOW_GENERATE_PODCAST,
   SHOW_COMMUNITY,
   SHOW_QUIZ,
-  SHOW_SUMMARIZE_SATSANG,
   SHOW_KNOW_ABOUT_TEMPLES,
   SHOW_FUN_FACT,
   SHOW_MYTH,
@@ -111,15 +110,6 @@ const defaultCards: CardInfo[] = [
     key: SHOW_QUIZ
   },
   {
-    title: STRINGS.summarizeSatsangTitle,
-    description: STRINGS.summarizeSatsangDescription,
-    icon: <MahabharatIcon style={{ fontSize: 40, color: '#fff' }} />,
-    color: '#FFD54F',
-    route: '/summarize-satsang',
-    animation: quizCardAnimation,
-    key: SHOW_SUMMARIZE_SATSANG
-  },
-  {
     title: STRINGS.knowAboutTemplesTitle,
     description: STRINGS.knowAboutTemplesDescription,
     icon: <TemplesIcon style={{ fontSize: 40, color: '#fff' }} />,
@@ -166,9 +156,9 @@ const Dashboard: React.FC = () => {
   const name = useSelector((state: RootState) => state.auth.name);
 
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent); 
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); 
 
-  console.log(currentUser)
   const handleLogout = async () => {
     await auth.signOut();
     dispatch(logout());
@@ -210,6 +200,17 @@ const Dashboard: React.FC = () => {
     fetchConfig();
   }, []);
 
+  /**
+   * useEffect hook to manage the real-time updates and periodic refreshing of fun fact and myth content.
+   * 
+   * - Listens to changes in the 'funFact' and 'myth' documents in Firestore and updates the respective state variables.
+   * - Triggers animations when new content is received.
+   * - Sets up an interval to periodically refresh the content by calling the 'generateFunFact' and 'generateMyth' cloud functions.
+   * 
+   * Cleanup:
+   * - Unsubscribes from Firestore listeners.
+   * - Clears the interval when the component unmounts.
+   */
   useEffect(() => {
     const db = getFirestore();
     const unsubscribeFunFact = onSnapshot(doc(db, 'dynamicContent', 'funFact'), (doc) => {
@@ -246,6 +247,11 @@ const Dashboard: React.FC = () => {
     setAnimate(true);
     setTimeout(() => setAnimate(false), 2000);
   };
+
+  // Reorder cards for mobile
+  const orderedCards = isMobile
+    ? [...cards.slice(1), cards[0]] // Move the first card to the last position on mobile
+    : cards; // Keep the original order on desktop
 
   return (
     <Container
@@ -336,18 +342,17 @@ const Dashboard: React.FC = () => {
         align="center"
         gutterBottom
         sx={{
-          marginBottom: isMobile ? '20px' : '40px',
+          marginBottom: isSmallScreen ? '20px' : '40px',
           fontWeight: 'bold',
           color: '#fff',
           fontSize: 18,
           marginTop: { xs: '40px', md: '0px' },
         }}
       >
-            Hi, {currentUser && currentUser.displayName && currentUser.displayName ? capitalizeName(`${currentUser.displayName}`) : capitalizeName(`${name}`)} {STRINGS.welcomeDashboard}
-
+        Hi, {currentUser && currentUser.displayName && currentUser.displayName ? capitalizeName(`${currentUser.displayName}`) : capitalizeName(`${name}`)} {STRINGS.welcomeDashboard}
       </Typography>
-      <Grid container spacing={isMobile ? 2 : 4} justifyContent="center">
-        {cards.map((card, index) => (
+      <Grid container spacing={isSmallScreen ? 2 : 4} justifyContent="center">
+        {orderedCards.map((card, index) => (
           <Grid item xs={12} sm={6} md={4} key={index}>
             <motion.div
               variants={card.animation || cardAnimation}
@@ -364,7 +369,7 @@ const Dashboard: React.FC = () => {
               }}
             >
               <Card
-                sx={cardStyle(card, isMobile, animateFunFact, animateMyth)}
+                sx={cardStyle(card, isSmallScreen, animateFunFact, animateMyth)}
               >
                 <CardContent>
                   <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
@@ -377,7 +382,7 @@ const Dashboard: React.FC = () => {
                       {card.title}
                     </Typography>
                     <Typography variant="body2" sx={cardDescriptionStyle}>
-                      {card.title === 'Fun Fact' ? truncateText(funFact, 300) : card.title === 'Myth' ? truncateText(myth, 300) : card.description}
+                      {card.title === 'Fun Fact' ? truncateText(funFact, 1000000) : card.title === 'Myth' ? truncateText(myth, 800) : card.description}
                     </Typography>
                     {(card.title === 'Fun Fact' || card.title === 'Myth') && (
                       <Box display="flex" flexDirection="column" alignItems="flex-end" sx={{ width: '100%', marginTop: '10px' }}>

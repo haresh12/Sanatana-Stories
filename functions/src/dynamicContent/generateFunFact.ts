@@ -69,16 +69,16 @@ export const generateFunFact = functions.https.onCall(async (data, context) => {
     model: 'gemini-1.5-pro',
     systemInstruction: `
       You are an expert in Hindu mythology, scriptures, temples, and culture. Your task is to generate an interesting fun fact in English about the topic: ${chosenTopic}. 
-      The fun fact should be:
-      1. Unique and not a repeat of previous facts.
-      2. Written in English.
-      3. No longer than 2-3 lines.
-      Make sure the fact is engaging, provides value to the reader, and fits within the context of ${chosenTopic}.
+      The fun fact must:
+      1. Be unique and not a repeat of previous facts.
+      2. Be written in English.
+      3. Be exactly 2 lines, or at most 3 lines—never more.
+      Ensure the fact is engaging, provides value to the reader, and strictly adheres to the length requirement.
     `,
   });
 
   try {
-    const prompt = `Generate an interesting and unique fun fact in English about ${chosenTopic} that does not exceed 2-3 lines.`;
+    const prompt = `Generate an interesting and unique fun fact in English about ${chosenTopic} that is exactly 2 lines, or at most 3 lines—never more.`;
     const result = await model.generateContent(prompt);
     const text = await result.response.text();
 

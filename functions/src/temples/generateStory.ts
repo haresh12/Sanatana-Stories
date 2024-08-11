@@ -34,10 +34,7 @@ export const generateStory = functions.https.onCall(async (data, context) => {
       Infuse the narrative with elements of mystique, tradition, and cultural richness.
     `,
     generationConfig: {
-      temperature: 1,  
-      topK: 40,        
-      topP: 0.95,       
-      maxOutputTokens: 25000 
+      temperature: 1      
     }
   });
 

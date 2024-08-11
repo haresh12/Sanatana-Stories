@@ -36,9 +36,7 @@ export const analyzeChanting = functions.https.onCall(async (data, context) => {
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-pro',
     generationConfig: {
-      temperature: 0.7,
-      topK: 50,
-      topP: 0.9,
+      temperature: 1,
       responseMimeType: "application/json"
     },
     systemInstruction: `

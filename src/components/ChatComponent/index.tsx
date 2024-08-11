@@ -193,7 +193,7 @@ const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
           )}
           <div ref={messagesEndRef} />
         </Box>
-        <Box sx={{ display: 'flex', mt: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
           <TextField
             variant="outlined"
             fullWidth
@@ -209,7 +209,15 @@ const ChatComponent: React.FC<ChatProps> = ({ chatType }) => {
           <IconButton onClick={handleSendMessage} disabled={loading} sx={iconButtonStyles(isMobile)} aria-label="Send message">
             <SendIcon sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }} />
           </IconButton>
-          <IconButton onClick={handleSpeechInput} sx={{ ...iconButtonStyles(isMobile), backgroundColor: listening ? '#ff5722' : '#e0e0e0', animation: listening ? 'pulse 1s infinite' : 'none' }} aria-label="Start voice input">
+          <IconButton
+            onClick={handleSpeechInput}
+            sx={{
+              ...iconButtonStyles(isMobile),
+              backgroundColor: listening ? '#ff5722' : '#e0e0e0',
+              animation: listening ? 'pulse 1s infinite' : 'none',
+            }}
+            aria-label="Start voice input"
+          >
             <MicIcon sx={{ fontSize: isMobile ? '1rem' : '1.25rem' }} />
           </IconButton>
         </Box>

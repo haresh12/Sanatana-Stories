@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Container, Typography, Box, Grid, List, ListItem, ListItemText, CircularProgress, Button, CardContent, CardActions, useMediaQuery, MenuItem, FormControl, Select, OutlinedInput } from '@mui/material';
+import { Container, Typography, Box, Grid, List, ListItem, ListItemText, CircularProgress, Button, CardContent, CardActions, useMediaQuery, MenuItem, FormControl, Select, OutlinedInput, Alert } from '@mui/material';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
@@ -13,12 +13,28 @@ import { STRINGS } from '../../const/strings';
 import { FACTS } from '../../const/consts';
 
 const topics = [
-  'Hindu Puranas', 'Ramayan', 'Mahabharat', 'Hindu culture', 'Vedas',
-  'Upanishads', 'Yoga philosophy', 'Ayurveda', 'Bhagavad Gita',
-  'Indian Festivals', 'Hindu Mythology', 'Deities and Worship',
-  'Karma and Dharma', 'Spiritual Practices', 'Temples of India',
-  'Hindu Rituals', 'Meditation and Mindfulness', 'Bhakti Movement',
-  'Ancient Indian Sciences', 'Philosophy of Hinduism'
+  'Ramayan',
+  'Mahabharat',
+  'Bhagavad Gita',
+  'Hindu Mythology',
+  'Vedas',
+  'Upanishads',
+  'Hindu culture',
+  'Ayurveda',
+  'Yoga philosophy',
+  'Temples of India',
+  'Karma and Dharma',
+  'Indian Festivals',
+  'Deities and Worship',
+  'Meditation and Mindfulness',
+  'Spiritual Practices',
+  'Bhakti Movement',
+  'Ancient Indian Sciences',
+  'Philosophy of Hinduism',
+  'Indian Epics and Legends',
+  'Rituals and Traditions',
+  'Sacred Texts of Hinduism',
+  'Festivals of Lights (Diwali)'
 ];
 
 const GeneratePodcast: React.FC = () => {
@@ -31,6 +47,7 @@ const GeneratePodcast: React.FC = () => {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
   const [tabIndex, setTabIndex] = useState(0);
   const [selectedTopic, setSelectedTopic] = useState<string>(topics[0]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const isMobile = useMediaQuery('(max-width:600px)');
@@ -39,23 +56,34 @@ const GeneratePodcast: React.FC = () => {
     if (!currentUser) return;
 
     const podcastsRef = collection(db, 'users', currentUser.uid, 'podcasts');
-    const unsubscribe = onSnapshot(podcastsRef, (querySnapshot) => {
-      const fetchedPodcasts = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Podcast[];
-      setPodcasts(fetchedPodcasts);
+    const unsubscribe = onSnapshot(
+      podcastsRef,
+      (querySnapshot) => {
+        const fetchedPodcasts = querySnapshot.docs
+          .map((doc) => {
+            const data = doc.data() as Podcast;
+            return {
+              ...data,
+              id: doc.id,
+            };
+          })
+          .sort((a, b) => b.timestamp.seconds - a.timestamp.seconds);
 
-      // Select the first podcast by default if available
-      if (fetchedPodcasts.length > 0) {
-        setScript(fetchedPodcasts[0].script);
-        setAudioUrl(fetchedPodcasts[0].audioUrl);
-        setTitle(fetchedPodcasts[0].title);
+        setPodcasts(fetchedPodcasts);
+
+        if (tabIndex === 1 && fetchedPodcasts.length > 0) {
+          setScript(fetchedPodcasts[0].script);
+          setAudioUrl(fetchedPodcasts[0].audioUrl);
+          setTitle(fetchedPodcasts[0].title);
+        }
+      },
+      (error) => {
+        console.error('Error fetching podcasts: ', error);
       }
-    });
+    );
 
     return () => unsubscribe();
-  }, [currentUser]);
+  }, [currentUser, tabIndex]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -82,7 +110,16 @@ const GeneratePodcast: React.FC = () => {
   }, []);
 
   const handleGenerate = async () => {
-    await handleGeneratePodcast(currentUser, setLoading, setScript, setAudioUrl, setTitle, selectedTopic);
+    setErrorMessage(null);
+    setScript([]);
+    setAudioUrl(null);
+    setTitle('');
+
+    try {
+      await handleGeneratePodcast(currentUser, setLoading, setScript, setAudioUrl, setTitle, selectedTopic);
+    } catch (error) {
+      setErrorMessage(`Sorry, we were unable to generate a podcast for the selected topic "${selectedTopic}". Please try a different topic or press the retry button.`);
+    }
   };
 
   const handleListen = () => {
@@ -95,10 +132,13 @@ const GeneratePodcast: React.FC = () => {
 
   const handleTabChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setTabIndex(newValue);
+    setErrorMessage(null);
+    setScript([]);
+    setAudioUrl(null);
+    setTitle('');
   };
 
   const handlePodcastClick = (podcast: Podcast) => {
-    // Stop the current podcast if playing
     if (audioRef.current && !audioRef.current.paused) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
@@ -192,6 +232,91 @@ const GeneratePodcast: React.FC = () => {
               {STRINGS.generatePodcast}
             </GenerateButton>
           </motion.div>
+          {errorMessage && (
+            <Box mt={2} display="flex" flexDirection="column" alignItems="center" gap={2}>
+              <Alert severity="error" sx={{ maxWidth: '400px', width: '100%' }}>
+                {errorMessage}
+              </Alert>
+              <Button
+                variant="contained"
+                onClick={handleGenerate}
+                sx={{
+                  backgroundColor: '#d32f2f',
+                  color: '#fff',
+                  borderRadius: '24px',
+                  padding: isMobile ? '8px 20px' : '10px 30px',
+                  fontSize: isMobile ? '14px' : '16px',
+                  '&:hover': {
+                    backgroundColor: '#b71c1c',
+                    transform: 'scale(1.05)',
+                  },
+                  transition: 'all 0.3s ease',
+                }}
+              >
+                Retry
+              </Button>
+            </Box>
+          )}
+          {script.length > 0 && (
+            <ResultCard>
+              <CardContent>
+                <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>
+                  {title}
+                </Typography>
+                {script.map((segment, index) => (
+                  <Box key={index} mb={2}>
+                    <Typography variant="body1"><strong>Host:</strong> {segment.host}</Typography>
+                    <Typography variant="body1"><strong>Guest:</strong> {segment.guest}</Typography>
+                  </Box>
+                ))}
+              </CardContent>
+              {audioUrl && (
+                <CardActions sx={{ justifyContent: 'center' }}>
+                  {isPlaying ? (
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      onClick={handleStop}
+                      sx={{
+                        backgroundColor: '#81c784',
+                        borderRadius: '24px',
+                        padding: isMobile ? '8px 20px' : '10px 30px',
+                        fontSize: isMobile ? '14px' : '16px',
+                        '&:hover': {
+                          backgroundColor: '#66bb6a',
+                          transform: 'scale(1.05)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                      aria-label={STRINGS.stopPodcast}
+                    >
+                      {STRINGS.stopPodcast}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      onClick={handleListen}
+                      sx={{
+                        backgroundColor: '#81c784',
+                        borderRadius: '24px',
+                        padding: isMobile ? '8px 20px' : '10px 30px',
+                        fontSize: isMobile ? '14px' : '16px',
+                        '&:hover': {
+                          backgroundColor: '#66bb6a',
+                          transform: 'scale(1.05)',
+                        },
+                        transition: 'all 0.3s ease',
+                      }}
+                      aria-label={STRINGS.listenToPodcast}
+                    >
+                      {STRINGS.listenToPodcast}
+                    </Button>
+                  )}
+                </CardActions>
+              )}
+            </ResultCard>
+          )}
         </Box>
       )}
       {tabIndex === 1 && (
@@ -288,72 +413,10 @@ const GeneratePodcast: React.FC = () => {
       )}
       <AnimatePresence>
         {loading && (
-          <LoadingContainer>
+          <LoadingContainer sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
             <CircularProgress color="primary" aria-label={STRINGS.loading} />
-            <LoaderMessage>{FACTS[factIndex]}</LoaderMessage>
+            <LoaderMessage sx={{ mt: 2 }}>{FACTS[factIndex]}</LoaderMessage>
           </LoadingContainer>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {!loading && script.length > 0 && tabIndex === 0 && (
-          <ResultCard>
-            <CardContent>
-              <Typography variant="h6" gutterBottom sx={{ color: '#d32f2f', fontWeight: 'bold', marginBottom: '20px', textAlign: 'center' }}>
-                {title}
-              </Typography>
-              {script.map((segment, index) => (
-                <Box key={index} mb={2}>
-                  <Typography variant="body1"><strong>Host:</strong> {segment.host}</Typography>
-                  <Typography variant="body1"><strong>Guest:</strong> {segment.guest}</Typography>
-                </Box>
-              ))}
-            </CardContent>
-            {audioUrl && (
-              <CardActions sx={{ justifyContent: 'center' }}>
-                {isPlaying ? (
-                  <Button
-                    variant="contained"
-                    color="secondary"
-                    onClick={handleStop}
-                    sx={{
-                      backgroundColor: '#81c784',
-                      borderRadius: '24px',
-                      padding: isMobile ? '8px 20px' : '10px 30px',
-                      fontSize: isMobile ? '14px' : '16px',
-                      '&:hover': {
-                        backgroundColor: '#66bb6a',
-                        transform: 'scale(1.05)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                    aria-label={STRINGS.stopPodcast}
-                  >
-                    {STRINGS.stopPodcast}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleListen}
-                    sx={{
-                      backgroundColor: '#81c784',
-                      borderRadius: '24px',
-                      padding: isMobile ? '8px 20px' : '10px 30px',
-                      fontSize: isMobile ? '14px' : '16px',
-                      '&:hover': {
-                        backgroundColor: '#66bb6a',
-                        transform: 'scale(1.05)',
-                      },
-                      transition: 'all 0.3s ease',
-                    }}
-                    aria-label={STRINGS.listenToPodcast}
-                  >
-                    {STRINGS.listenToPodcast}
-                  </Button>
-                )}
-              </CardActions>
-            )}
-          </ResultCard>
         )}
       </AnimatePresence>
     </Container>

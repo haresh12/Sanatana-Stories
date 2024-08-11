@@ -24,6 +24,7 @@ export const getMeaning = functions.https.onCall(async (data, context) => {
       temperature: 0.9,
       topK: 50,
       topP: 0.9,
+      maxOutputTokens : 4000
     },
     systemInstruction: `
       You are an expert in Sanskrit texts, particularly the Hanuman Chalisa. Your task is to provide a simple explanation of the following text, ensuring it is clear and understandable: "${text}".

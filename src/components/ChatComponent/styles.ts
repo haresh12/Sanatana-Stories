@@ -36,9 +36,13 @@ export const inputStyles = (isMobile: boolean): SxProps<Theme> => ({
 
 export const iconButtonStyles = (isMobile: boolean): SxProps<Theme> => ({
   borderRadius: '50%',
-  padding: isMobile ? '8px' : '10px',
+  width: isMobile ? '40px' : '48px',
+  height: isMobile ? '40px' : '48px',
   backgroundColor: '#ff5722',
   color: '#fff',
   ml: 1,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
   fontSize: isMobile ? '1rem' : '1.25rem',
 });

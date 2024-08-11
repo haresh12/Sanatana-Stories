@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Grid, Modal, CircularProgress, Typography, Box } from '@mui/material';
+import { Container, Grid, Modal, CircularProgress, Typography, Box, Button } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { fetchTemples } from '../../store/templesSlice';
@@ -8,7 +8,7 @@ import { motion } from 'framer-motion';
 import BackButton from '../../components/BackButton';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { handleCardClick, clearPreviousData, truncateDescription } from './utils';
+import { handleCardClick, clearPreviousData } from './utils';
 import { StyledCard, StyledCardContent, StyledImage } from './styles';
 import { Temple } from './types';
 import { STRINGS } from '../../const/strings';
@@ -20,6 +20,7 @@ const KnowAboutTemples: React.FC = () => {
   const { temples, loading } = useSelector((state: RootState) => state.temples);
   const currentUser = useSelector((state: RootState) => state.auth.currentUser);
   const [showLoader, setShowLoader] = useState<boolean>(false);
+  const [expandedDescription, setExpandedDescription] = useState<{ [key: string]: boolean }>({});
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -29,6 +30,13 @@ const KnowAboutTemples: React.FC = () => {
     }
     dispatch(fetchTemples());
   }, [dispatch, currentUser]);
+
+  const toggleDescription = (id: string) => {
+    setExpandedDescription(prevState => ({
+      ...prevState,
+      [id]: !prevState[id]
+    }));
+  };
 
   return (
     <Container maxWidth="lg" sx={{ paddingTop: { xs: '20px', sm: '40px' }, paddingBottom: { xs: '20px', sm: '40px' }, position: 'relative' }}>
@@ -40,6 +48,7 @@ const KnowAboutTemples: React.FC = () => {
               onClick={() => handleCardClick(temple.id, temple.name, currentUser, setShowLoader, navigate)}
               color={colors[index % colors.length]}
               tabIndex={0}
+              expanded={expandedDescription[temple.id]} // Prop to manage expansion
               onKeyPress={(e) => {
                 if (e.key === STRINGS.enterKey || e.key === STRINGS.spaceKey) {
                   handleCardClick(temple.id, temple.name, currentUser, setShowLoader, navigate);
@@ -61,15 +70,24 @@ const KnowAboutTemples: React.FC = () => {
                         textAlign: 'left',
                         width: '100%',
                         display: '-webkit-box',
-                        WebkitLineClamp: isMobile ? 3 : 4,
+                        WebkitLineClamp: expandedDescription[temple.id] ? 'none' : 2, 
                         WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
+                        overflow: expandedDescription[temple.id] ? 'visible' : 'hidden',
                         textOverflow: 'ellipsis',
                         fontSize: isMobile ? '0.8rem' : '1rem',
                       }}
                     >
-                      {truncateDescription(temple.description, 50)}
+                      {temple.description}
                     </Typography>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation(); 
+                        toggleDescription(temple.id);
+                      }}
+                      sx={{ mt: 1, color: '#ffcccb', textTransform: 'none', fontSize: '0.8rem' }}
+                    >
+                      {expandedDescription[temple.id] ? STRINGS.showLess : STRINGS.readMore}
+                    </Button>
                   </StyledCardContent>
                 </Box>
               </motion.div>
