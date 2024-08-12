@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, AppBar, Tabs, Tab, Box, useMediaQuery, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import UnderstandAndSaveMeanings from '../components/UnderstandAndSaveMeanings';
+import MobileUnderstandMeanings from '../components/UnderstandAndSaveMeanings/MobileUnderstandMeanings';
 import StartChantingAndAnalysis from '../components/StartChantingAndAnalysis';
 import BackButton from '../components/BackButton';
 import { STRINGS } from '../const/strings';
@@ -76,7 +77,7 @@ const HanumanChalisa: React.FC = () => {
       </Box>
       <Box sx={{ flex: 1, width: '100%' }}>
         <div role="tabpanel" id="tabpanel-0" aria-labelledby="tab-0" hidden={value !== 0}>
-          {value === 0 && <UnderstandAndSaveMeanings />}
+          {value === 0 && (isMobile ? <MobileUnderstandMeanings /> : <UnderstandAndSaveMeanings />)}
         </div>
         <div role="tabpanel" id="tabpanel-1" aria-labelledby="tab-1" hidden={value !== 1}>
           {value === 1 && <StartChantingAndAnalysis />}
