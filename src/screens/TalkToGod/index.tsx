@@ -67,7 +67,7 @@ const TalkToGod = () => {
     <Container maxWidth="lg" sx={{ paddingTop: '40px', paddingBottom: '40px', position: 'relative' }}>
       <BackButton />
       <Typography variant="h4" align="center" gutterBottom sx={{ marginBottom: '40px', fontWeight: 'bold', color: '#ff5722' }}>
-        {STRINGS.talkToYourGod}
+        {STRINGS.talkToGodTitle}
       </Typography>
       <Grid container spacing={4} justifyContent="center">
         {gods.map((god, index) => (
