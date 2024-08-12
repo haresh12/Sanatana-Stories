@@ -18,7 +18,7 @@ Sanatan Stories is a spiritual web application that aims to provide users with a
 
 ## Features
 - **Hanuman Chalisa:** Delve into the powerful verses of the Hanuman Chalisa.
-- **Talk to God:** Engage in spiritual conversations and seek divine guidance.
+- **Divine Connection:** Engage in spiritual conversations and seek divine guidance.
 - **Generate Podcast:** Create and share your spiritual journey through podcasts.
 - **Community:** Join a community of like-minded spiritual seekers.
 - **Quiz:** Test and expand your knowledge with our engaging quizzes.
