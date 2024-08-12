@@ -156,8 +156,8 @@ const Dashboard: React.FC = () => {
   const name = useSelector((state: RootState) => state.auth.name);
 
   const theme = useTheme();
-  const isMobile = /Mobi|Android/i.test(navigator.userAgent); 
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm')); 
+  const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -436,6 +436,18 @@ const Dashboard: React.FC = () => {
           }
         `}
       </style>
+      <Typography
+        variant="body2"
+        align="center"
+        sx={{
+          marginTop: isSmallScreen ? '20px' : '40px',
+          color: '#fff',
+          fontSize: '12px',
+          opacity: 0.8,
+        }}
+      >
+        Disclaimer: All AI-generated content on this platform is for informational and educational purposes only. Please verify with traditional sources.
+      </Typography>
     </Container>
   );
 };

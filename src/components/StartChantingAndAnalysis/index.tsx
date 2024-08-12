@@ -17,12 +17,24 @@ const StartChantingAndAnalysis: React.FC = () => {
   const recognitionRef = useRef<any>(null);
   const accumulatedTranscriptRef = useRef<string>('');
 
+  const isSpeechRecognitionSupported = () => {
+    return !!((window as any).webkitSpeechRecognition || (window as any).SpeechRecognition);
+  };
+
   const startListening = useCallback(() => {
-    const recognition = new (window as any).webkitSpeechRecognition();
+    if (!isSpeechRecognitionSupported()) {
+      setError(STRINGS.speechRecognitionNotSupported);
+      setOpenSnackbar(true);
+      return;
+    }
+
+    const recognition = new (window as any).webkitSpeechRecognition() || new (window as any).SpeechRecognition();
     recognitionRef.current = recognition;
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = 'en-US';
+
+    let previousTranscript = '';
 
     recognition.onstart = () => {
       setListening(true);
@@ -30,13 +42,21 @@ const StartChantingAndAnalysis: React.FC = () => {
 
     recognition.onresult = (event: any) => {
       let interimTranscript = '';
+      let finalTranscript = '';
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         if (event.results[i].isFinal) {
-          accumulatedTranscriptRef.current += event.results[i][0].transcript + ' ';
+          finalTranscript += event.results[i][0].transcript + ' ';
         } else {
           interimTranscript += event.results[i][0].transcript;
         }
       }
+
+      // Avoid duplicate entries by checking if the final transcript has changed
+      if (finalTranscript !== previousTranscript) {
+        accumulatedTranscriptRef.current += finalTranscript;
+        previousTranscript = finalTranscript;
+      }
+
       setTranscript(accumulatedTranscriptRef.current + interimTranscript);
     };
 
@@ -47,7 +67,7 @@ const StartChantingAndAnalysis: React.FC = () => {
 
     recognition.onend = () => {
       setListening(false);
-      setTranscript(accumulatedTranscriptRef.current);  
+      setTranscript(accumulatedTranscriptRef.current);
     };
 
     recognition.start();
@@ -62,11 +82,17 @@ const StartChantingAndAnalysis: React.FC = () => {
   };
 
   const handleChantingStart = () => {
+    if (!isSpeechRecognitionSupported()) {
+      setError(`${STRINGS.speechRecognitionNotSupported} ${STRINGS.tryDesktopVersion}`);
+      setOpenSnackbar(true);
+      return;
+    }
+
     setTranscript('');
     setAnalysis(null);
     setScore(null);
     setTimestamp(null);
-    accumulatedTranscriptRef.current = '';  
+    accumulatedTranscriptRef.current = '';
     startListening();
   };
 
