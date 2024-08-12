@@ -133,4 +133,4 @@ Sanatan Stories extensively utilizes Firebase and Gemini API for various functio
 - **Type Safety:** TypeScript ensures type safety, reducing runtime errors and improving code maintainability.
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
