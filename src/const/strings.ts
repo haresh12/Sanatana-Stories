@@ -171,5 +171,7 @@ export const STRINGS = {
     epicsAndPuranasDescription: 'Dive into the rich stories of Ramayan, Mahabharat, and Puranas.',
     selectTopic: "Please Select Topic",
     showLess: 'Show Less',
-    readMore: 'Read More'
+    readMore: 'Read More',
+    speechRecognitionNotSupported: "Speech recognition is not supported on your device. For the best experience, please try using a desktop browser.",
+    tryDesktopVersion: " For the best experience, please try using a desktop browser."
 };

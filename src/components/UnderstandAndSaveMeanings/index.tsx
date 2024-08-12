@@ -1,9 +1,9 @@
 import React, { useState, MouseEvent } from 'react';
-import { Container, Typography, Popover, Button, CircularProgress, Card, CardContent, Box, Modal } from '@mui/material';
+import { Container, Typography, Popover, Button, CircularProgress, Card, CardContent, Box } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../store';
 import { saveMeaning, clearMeaning } from '../../store/chalisaSlice';
-import { StyledTabs, StyledTab, highlightText, modalStyle } from './styles';
+import { StyledTabs, StyledTab, highlightText } from './styles';
 import { fetchMeaning } from './utils';
 import { HANUMAN_CHALISA_ENGLISH, HANUMAN_CHALISA_HINDI } from '../../const/consts';
 
@@ -15,27 +15,18 @@ const UnderstandAndSaveMeanings: React.FC = () => {
   const [meaning, setMeaning] = useState('');
   const [loading, setLoading] = useState(false);
   const [language, setLanguage] = useState<'hindi' | 'english'>('hindi');
-  const [isMobile, setIsMobile] = useState(/Mobi|Android/i.test(navigator.userAgent)); // Detect mobile devices
-  const [showModal, setShowModal] = useState(false);
-  const [wordsList, setWordsList] = useState<string[]>([]);
 
   const handleTextSelect = (event: MouseEvent<HTMLElement>) => {
-    if (isMobile) {
-      const words = event.currentTarget.innerText.split(' ');
-      setWordsList(words);
-      setShowModal(true);
-    } else {
-      const selection = window.getSelection();
-      if (selection && selection.toString().trim().length > 0) {
-        const word = selection.toString().trim();
-        setSelectedText(word);
-        setAnchorEl(event.currentTarget);
+    const selection = window.getSelection();
+    if (selection && selection.toString().trim().length > 0) {
+      const word = selection.toString().trim();
+      setSelectedText(word);
+      setAnchorEl(event.currentTarget);
 
-        if (savedWords[word]) {
-          setMeaning(savedWords[word]);
-        } else {
-          setMeaning('');
-        }
+      if (savedWords[word]) {
+        setMeaning(savedWords[word]);
+      } else {
+        setMeaning('');
       }
     }
   };
@@ -56,7 +47,6 @@ const UnderstandAndSaveMeanings: React.FC = () => {
   const handleClose = () => {
     setAnchorEl(null);
     setMeaning('');
-    setShowModal(false);
   };
 
   const handleSaveWord = () => {
@@ -68,6 +58,9 @@ const UnderstandAndSaveMeanings: React.FC = () => {
     dispatch(clearMeaning(selectedText));
     handleClose();
   };
+
+  const open = Boolean(anchorEl);
+  const id = open ? 'simple-popover' : undefined;
 
   const handleLanguageToggle = (event: React.ChangeEvent<{}>, newLanguage: 'hindi' | 'english') => {
     setLanguage(newLanguage);
@@ -90,8 +83,6 @@ const UnderstandAndSaveMeanings: React.FC = () => {
     ));
   };
 
-  const popoverId = Boolean(anchorEl) ? 'simple-popover' : undefined; // Renamed to avoid conflict
-
   return (
     <Container maxWidth="lg" sx={{ paddingTop: '20px', paddingBottom: '20px' }}>
       <Box display="flex" justifyContent="center" mb={2}>
@@ -112,8 +103,8 @@ const UnderstandAndSaveMeanings: React.FC = () => {
       </Card>
       {formatText(language === 'hindi' ? HANUMAN_CHALISA_HINDI : HANUMAN_CHALISA_ENGLISH)}
       <Popover
-        id={popoverId}
-        open={Boolean(anchorEl) && !isMobile} 
+        id={id}
+        open={open}
         anchorEl={anchorEl}
         onClose={handleClose}
         anchorOrigin={{
@@ -156,34 +147,6 @@ const UnderstandAndSaveMeanings: React.FC = () => {
           )}
         </Box>
       </Popover>
-
-      {/* Modal for mobile */}
-      <Modal
-        open={showModal && isMobile}
-        onClose={handleClose}
-        aria-labelledby="mobile-word-list"
-        aria-describedby="select-a-word-from-list"
-      >
-        <Box sx={modalStyle}>
-          <Typography variant="h6" sx={{ marginBottom: '10px', color: '#ff5722' }}>
-            Select a Word
-          </Typography>
-          <Box>
-            {wordsList.map((word, index) => (
-              <Button
-                key={index}
-                onClick={() => {
-                  setSelectedText(word);
-                  handleKnowMeaning();
-                }}
-                sx={{ margin: '5px', backgroundColor: '#ff5722', color: '#fff', '&:hover': { backgroundColor: '#e64a19' } }}
-              >
-                {word}
-              </Button>
-            ))}
-          </Box>
-        </Box>
-      </Modal>
     </Container>
   );
 };
